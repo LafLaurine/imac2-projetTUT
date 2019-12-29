@@ -1,13 +1,12 @@
 FROM nvidia/driver:418.40.04-ubuntu18.04
-RUN apt-get -y update \
+RUN apt-get update \
     && apt-get install -y software-properties-common \
     && add-apt-repository universe \
-    && apt-get update \
-    && apt-get install python3 \
-    && apt-get install python3-pip
+    && apt-get update
+RUN apt-get install -y python3-dev python3-pip
 RUN pip3 install virtualenv
-RUN virtualenv --system-site-packages -p python3 ./venv
-RUN source ./venv/bin/activate
+RUN virtualenv --system-site-packages -p python3 ./afp_env
+RUN source ./afp_env/bin/activate
 RUN pip3 install --upgrade pip3
 RUN pip3 install numpy
 RUN pip3 install matplotlib
