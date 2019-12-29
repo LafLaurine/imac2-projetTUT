@@ -1,20 +1,25 @@
-FROM ubuntu:latest
-RUN apt-get update && \ 
-    apt-get install python3-dev python3-pip
-RUN pip3 install -U virtualenv
+FROM nvidia/driver:418.40.04-ubuntu18.04
+RUN apt-get -y update \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository universe \
+    && apt-get update \
+    && apt-get install python3 \
+    && apt-get install python3-pip
+RUN pip3 install virtualenv
 RUN virtualenv --system-site-packages -p python3 ./venv
 RUN source ./venv/bin/activate
-RUN pip install --upgrade pip
-RUN pip install numpy
-RUN pip install matplotlib
-RUN pip install --upgrade tensorflow
-RUN pip install Keras
-RUN pip install black flake8 pytest pytest-cov sphinx numpydoc
-RUN pip install imageio
-RUN pip install face_recognition
-RUN pip install imageio-ffmpeg
-RUN pip install easydict
-RUN pip install opencv-python
-RUN pip install dlib
-RUN pip install PyYAML
+RUN pip3 install --upgrade pip3
+RUN pip3 install numpy
+RUN pip3 install matplotlib
+RUN pip3 install --upgrade tensorflow
+RUN pip3 install Keras
+RUN pip3 install black flake8 pytest pytest-cov sphinx numpydoc
+RUN pip3 install imageio
+RUN pip3 install face_recognition
+RUN pip3 install imageio-ffmpeg
+RUN pip3 install easydict
+RUN pip3 install opencv-python
+RUN pip3 install dlib
+RUN pip3 install PyYAML
+RUN pip3 freeze > requirements.txt
 
