@@ -3,11 +3,9 @@ RUN apt-get update \
     && apt-get install -y software-properties-common \
     && add-apt-repository universe \
     && apt-get update
+RUN apt-get install -y cmake
+RUN apt-get upgrade -y
 RUN apt-get install -y python3-dev python3-pip
-RUN pip3 install virtualenv
-RUN virtualenv --system-site-packages -p python3 ./afp_env
-RUN source ./afp_env/bin/activate
-RUN pip3 install --upgrade pip3
 RUN pip3 install numpy
 RUN pip3 install matplotlib
 RUN pip3 install --upgrade tensorflow
