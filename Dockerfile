@@ -1,8 +1,9 @@
-FROM nvidia/driver:418.40.04-ubuntu18.04
+FROM ubuntu:latest
 RUN apt-get update \
     && apt-get install -y software-properties-common \
     && add-apt-repository universe \
     && apt-get update
+COPY ./MesoNet
 RUN apt-get install -y cmake
 RUN apt-get upgrade -y
 RUN apt-get install -y python3-dev python3-pip
@@ -19,4 +20,4 @@ RUN pip3 install opencv-python
 RUN pip3 install dlib
 RUN pip3 install PyYAML
 RUN pip3 freeze > requirements.txt
-
+CMD ["python3","./MesoNet/deepfakes_images.py"]
