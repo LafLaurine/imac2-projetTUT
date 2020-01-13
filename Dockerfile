@@ -4,7 +4,6 @@ RUN apt-get update \
     && add-apt-repository universe \
     && apt-get update
 COPY . /MesoNet
-WORKDIR ./MesoNet
 RUN apt-get install -y cmake
 RUN apt-get upgrade -y
 RUN apt-get install -y python3-dev python3-pip
@@ -21,4 +20,4 @@ RUN pip3 install opencv-python
 RUN pip3 install dlib
 RUN pip3 install PyYAML
 RUN pip3 freeze > requirements.txt
-CMD ["python3","./deepfakes_images.py"]
+CMD ["python3","./MesoNet/deepfakes_images.py"]
