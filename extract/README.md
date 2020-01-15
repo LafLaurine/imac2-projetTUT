@@ -14,4 +14,4 @@
 
 ####Usage
 ######Run example
-	example_extract_faces.py [PATH_TO_VIDEO] [OUTPUT_DIRECTORY]
+	python example_extract_faces.py [PATH_TO_VIDEO] [OUTPUT_DIRECTORY]

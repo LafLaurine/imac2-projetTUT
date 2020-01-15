@@ -8,9 +8,9 @@ netSize = 300 #nodes for each layer
 prototxt = "deploy.prototxt.txt"
 model = "res10_300x300_ssd_iter_140000.caffemodel"
 
-#src= "1.mp4"
+#src= "input/1.mp4"
 isSaved = True
-#outDir = os.path.abspath("out_faces")
+#outDir = os.path.abspath("output")
 extractionMethod='DNN'
 logEnabled = True 
 
