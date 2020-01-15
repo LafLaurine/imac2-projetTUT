@@ -29,7 +29,7 @@ from dnn_tracking_extraction import extractFacesDNNTracking
 
 ###DEFAULT CONFIGURATION###
 defaultExtractionMethod =  'DNN'
-defaultTrackerType = 'MIL'
+defaultTrackerType = 'CSRT' #most accurate, quite slow
 
 modelDir = "caffemodel"
 defaultPrototxt = modelDir+os.sep+"deploy.prototxt.txt"
@@ -39,6 +39,7 @@ defaultNetSize = 300
 defaultMean = (104.0, 177.0, 123.0)
 
 defaultWidth = 300
+defaultEnlargeRate = 0.30
 defaultMinConfidence = 0.95
 
 defaultFrameStep=1
@@ -52,6 +53,7 @@ class FaceExtractor:
                     src,                                    #path to video source for extraction
                     extractionMethod =defaultExtractionMethod,#name of extraction method to be used
                     width            =defaultWidth,         #width of extracted face
+                    enlargeRate      =defaultEnlargeRate,   #Rate to original bounding box to also be included (bigger boxes)
                     isSquare         =defaultIsSquare,      #output face as a squared of dim width x width
                     frameStart       =0,                    #Frame at which to begin extraction
                     frameEnd         =None,                 #Frame at which to end
@@ -65,7 +67,7 @@ class FaceExtractor:
                     mean             =defaultMean,          #mean colour to be substracted
                     trackerType      =defaultTrackerType,   #WHEN TRACKING: tracker type such as MIL, Boosting...
                     isSaved          =defaultIsSquare,      #save image in output directory
-                    outDir           =None,                  #output directory for faces
+                    outDir           =None,                 #output directory for faces
                     logEnabled       =logEnabled            #ouput log info
             ):
         extractionFunctor = ExtractionMethodFactory.GetFunctor(extractionMethod)
@@ -73,6 +75,7 @@ class FaceExtractor:
             return extractionFunctor(
                 src             =src,
                 width           =width,
+                enlargeRate     =enlargeRate,
                 isSquare        =isSquare,
                 frameStart      =frameStart,
                 frameEnd        =frameEnd,
@@ -92,6 +95,7 @@ class FaceExtractor:
             return extractionFunctor(
                 src             =src,
                 width           =width,
+                enlargeRate     =enlargeRate,
                 isSquare        =isSquare,
                 frameStart      =frameStart,
                 frameEnd        =frameEnd,

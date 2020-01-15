@@ -9,6 +9,7 @@ from common_face_extraction import log
 def extractFacesDNN(
                     src,             #path to video source for extraction
                     width,           #width of extracted face
+                    enlargeRate,     #Rate to original bounding box to also be included (bigger boxes)
                     isSquare,        #output face as a squared of dim width x width
                     frameStart,      #Frame at which to begin extraction
                     frameEnd,        #Frame at which to end
@@ -59,6 +60,7 @@ def extractFacesDNN(
                 ok, face = fe.getFaceFromDetection(detections,
                                             i,
                                             width,
+                                            enlargeRate,
                                             isSquare,
                                             frame,
                                             frameIndex,

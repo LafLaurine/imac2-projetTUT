@@ -4,14 +4,14 @@
 ####Dependencies
 *OpenCV, OpenCV-contrib
 *numpy, imutils
+*CMake; Boost, Boost.Python, X11
+*dlib
 ####Setup
-	sudo apt install libopencv-dev
+	sudo apt install libopencv-dev build-essential cmake libgtk-3-dev libboost-all-dev
 	sudo apt install pip3
-	pip3 install numpy 
-	pip3 install opencv-python
-	pip3 install opencv-contrib-python
-	pip3 install imutils
+	pip3 install numpy opencv-python opencv-contrib-python imutils scipy scikit-image dlib
+	
 
 ####Usage
 ######Run example
-	python example_extract_faces.py [PATH_TO_VIDEO] [OUTPUT_DIRECTORY]
+	python3 example_extract_faces.py [PATH_TO_VIDEO] [OUTPUT_DIRECTORY]

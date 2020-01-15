@@ -1,36 +1,35 @@
 import numpy as np
-import imutils
 import cv2 #REQUIRES OpenCV 3
+import imutils
 import os
 
 class Face:
     #__frameIndex            : frame # at which the face was extracted
-    #__x1, __y1, __x2, __y2      : rectangle of the face in original image
+    #__box                   : of the face in original image
     #__isSquare              : is face saved as a square ?
     #__img                   : image data of the face (diff dimensions thant in original)
-    def __init__(self, frameIndex, x1, y1, x2, y2, isSquare, img):
+    def __init__(self, frameIndex, box, isSquare, img):
         self.__frameIndex = frameIndex
-        self.__x1 = x1
-        self.__y1 = y1
-        self.__x2 = x2
-        self.__y2 = y2
+        self.__box = tuple(box) #x1,y1,x2,y2
         self.__isSquare = isSquare
         self.__img = img
     def x1(self):
-        return self.__x1
+        return self.__box[0]
     def y1(self):
-        return self.__y1
+        return self.__box[1]
     def x2(self):
-        return self.__x2
+        return self.__box[2]
     def y2(self):
-        return self.__x2
+        return self.__box[3]
     def w(self):
-        return self.__x2 - self.__x1
+        return self.x2() - self.x1()
     def h(self):
-        return self.__y2 - self.__y1
+        return self.y2() - self.y1()
     def resizedWidth(self):
         return self.__img.shape[0]
-    def boundingBox(self):
+    def box(self):
+        return self.__box
+    def rectangle(self):
         return (self.x1(), self.y1(), self.w(), self.h())
     def frameIndex(self):
         return self.__frameIndex
@@ -72,8 +71,8 @@ class Person :
         self.__faces = [face]
         #create and init tracker with first face's bounding box
         self.__tracker = TrackerFactory.createTracker(trackerType) 
-        box = self.face(0).boundingBox()
-        ok = self.__tracker.init(frame,box)
+        box = self.face(0).box()
+        ok = self.initTracker(frame, box)
         if not ok:
             raise RuntimeError("Could not initialise tracker.")
         
@@ -106,42 +105,39 @@ class Person :
     def updateTracker(self, frame, frameIndex):
         #update bounding box from tracker
         ok, box = self.__tracker.update(frame)
-        box = tuple([int(x) for x in box])
-        box = (box[0], box[1], box[0]+box[2], box[1]+box[3])
-        #failure of tracking as False
         if not ok:
             return False, box
-        return True, box
+        box = tuple([int(x) for x in box])
+        rect = getRectangleFromBox(box)
+        #failure of tracking as False
+        return True, rect
 
-    def updateFaces(self, box, frame, frameIndex, minConfidence, net, netSize, mean):
-        #LAST CHECK: we try detecting faces on the box,
-        #so that we can discard bad tracker outputs 
-        cropped = getCroppedFromBoundingBox(box, frame, self.isSquare())
-        detections = detectFaces(cropped, net, netSize, mean)
-        if len(detections) == 0:
-            return False
-        #get first (and only, hopefully) face found
-        ok =  isFaceValidDetection(detections,
-                0,
-                cropped,
-                frameIndex,
-                minConfidence
-                )
-        if not ok:
-            #face was not good enough, sorry face
-            return False
-        #add face to list
-        cropped = imutils.resize(cropped, width=self.resizedWidth())
-        face = Face(frameIndex, box[0], box[1], box[2], box[3], self.isSquare(), cropped)
-        self.append(face)
-        return True
+    def initTracker(self, frame, box):
+        return self.__tracker.init(frame, box)
 
-    def update(self, frame, frameIndex, minConfidence, net, netSize, mean):
+    def updateFaces(self, listFace, rect, frame, frameIndex, minConfidence, net, netSize, mean):
+        #LAST PROCESS: we get the face closest to tracker from list of faces
+        closestFace = None
+        maxSurface = -1
+        for face in listFace:
+            surface =  getSurfaceIntersection(face.rectangle(), rect)
+            if maxSurface -1 or surface > maxSurface :
+                maxSurface = surface
+                closestFace = face
+        if closestFace is None:
+            return False
+        self.append(closestFace)
+        #Since the bounding box of the face change
+        #we need to reset tracker
+        self.initTracker(frame, closestFace.box())
+        return True 
+
+    def update(self, listFace, frame, frameIndex, minConfidence, net, netSize, mean):
         #need to update tracker first
-        ok, box = self.updateTracker(frame, frameIndex)
+        ok, rect = self.updateTracker(frame, frameIndex)
         if not ok:
             return False
-        ok = self.updateFaces(box, frame, frameIndex, minConfidence, net, netSize, mean)
+        ok = self.updateFaces(listFace, rect, frame, frameIndex, minConfidence, net, netSize, mean)
         return ok 
 
     def saveImages(self, outDir):
@@ -149,81 +145,114 @@ class Person :
             face.saveImage(outDir)
 
 def readFrame(cap, frameIndex):
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frameIndex-1)
-        #reading next frame
-        ok, frame = cap.read()
-        if not ok:
-    	    #if no frame has been grabbed
-            return False, None
-        return True, frame
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frameIndex-1)
+    #reading next frame
+    ok, frame = cap.read()
+    if not ok:
+    	#if no frame has been grabbed
+        return False, None
+    return True, frame
 
 def detectFaces(frame,
                 net,
                 netSize,
                 mean
                 ):
-        #get dimensions, convert to a blob
-        (h, w) = frame.shape[:2]
-        blob = cv2.dnn.blobFromImage(
-                    cv2.resize(frame,(netSize, netSize)),
-                    1.0, #scalefactor
-                    (netSize, netSize),
-                    mean)
-	#forward pass of blob through network, get prediction
-        net.setInput(blob)
-        detections = net.forward()
-        return detections
+    #get dimensions, convert to a blob
+    (h, w) = frame.shape[:2]
+    blob = cv2.dnn.blobFromImage(
+                cv2.resize(frame,(netSize, netSize)),
+                1.0, #scalefactor
+                (netSize, netSize),
+                mean)
+    #forward pass of blob through network, get prediction
+    net.setInput(blob)
+    detections = net.forward()
+    return detections
 
 def getCroppedFromBoundingBox(box, frame, isSquare):
-        #get bounding box dimensions
-        (x1, y1, x2, y2) = box
-        if isSquare:
-            w = x2 - x1
-            h = y2 - y1
-            #cropping as a square
-            addToSquareX = max(0, (h-w)//2)
-            addToSquareY = max(0, (w-h)//2)
-            x1 = x1 - addToSquareX
-            x2 = x2 + addToSquareX
-            y1 = y1 - addToSquareY
-            y2 = y2 + addToSquareY
-        return frame[y1:y2,x1:x2]
+    #get bounding box dimensions
+    (x1, y1, x2, y2) = box
+    if isSquare:
+        w = x2 - x1
+        h = y2 - y1
+        #cropping as a square
+        addToSquareX = max(0, (h-w)//2)
+        addToSquareY = max(0, (w-h)//2)
+        x1 = x1 - addToSquareX
+        x2 = x2 + addToSquareX
+        y1 = y1 - addToSquareY
+        y2 = y2 + addToSquareY
+    return frame[y1:y2,x1:x2]
+
+def enlargeBox(box, enlargeRate):
+    (x1, y1, x2, y2) = box
+    #enlarge box from centre
+    dX = x2 - x1
+    dY = y2 - y1
+    centre = (x1 + dX//2, y1 + dY//2)
+    facXEnlarge = int(dX*(1+enlargeRate/2)/2)
+    facYEnlarge = int(dY*(1+enlargeRate/2)/2)
+    enlarged = (centre[0] - facXEnlarge, centre[1] - facYEnlarge,
+                centre[0] + facXEnlarge, centre[1] + facYEnlarge)
+    return enlarged
+
 
 def getBoundingBoxFromDetection(detections,
                 detectionIndex,
+                enlargeRate,
                 frame
                 ):
-        (h, w) = frame.shape[:2]
-        box = (detections[0, 0, detectionIndex, 3:7]*np.array([w, h, w, h])).astype(int)
-        return box
+    (h, w) = frame.shape[:2]
+    dimList = [w,h,w,h]
+    box = (detections[0, 0, detectionIndex, 3:7]*np.array(dimList)).astype(int)
+    enlarged = enlargeBox(box, enlargeRate)
+    return enlarged
 
-#returns wheter the face at #index is valid
-def isFaceValidDetection(detections,
+#returns whether the face at #index is valid
+def isFaceDetectionValid(detections,
                 detectionIndex,
                 frame,
                 frameIndex,
                 minConfidence
                 ):
-    	#extract confidence, is it greater than minimum required ?
-        confidence = detections[0, 0, detectionIndex, 2]
-        #filter out weak detections
-        return confidence >= minConfidence
+    #extract confidence, is it greater than minimum required ?
+    confidence = detections[0, 0, detectionIndex, 2]
+    #filter out weak detections
+    return confidence >= minConfidence
 
 #returns whether the face at #index is valid, and Face
 def getFaceFromDetection(detections,
                   detectionIndex,
                   resizedWidth,
+                  enlargeRate,
                   isSquare,
                   frame,
                   frameIndex,
                   minConfidence
                   ):
-        if not isFaceValidDetection(detections, detectionIndex, frame, frameIndex, minConfidence):
-            #then that's not a good enough face, skipping.
-            return False, None
-        #compute the (x, y)-coordinates of bounding box
-        box = getBoundingBoxFromDetection(detections, detectionIndex, frame)
-        return True, getFaceFromBox(box, resizedWidth, isSquare, frame, frameIndex) 
+    if not isFaceDetectionValid(detections, detectionIndex, frame, frameIndex, minConfidence):
+        #then that's not a good enough face, skipping.
+        return False, None
+    #compute the (x, y)-coordinates of bounding box
+    box = getBoundingBoxFromDetection(detections, detectionIndex, enlargeRate, frame)
+    return True, getFaceFromBox(box, resizedWidth, isSquare, frame, frameIndex) 
+
+def getListFaceFromDetection(detections,
+                resizedWidth,
+                enlargeRate,
+                isSquare,
+                frame,
+                frameIndex,
+                minConfidence
+                ):
+    listFace = []
+    for i in range(len(detections)):
+        ok, face = getFaceFromDetection(detections, i, resizedWidth, enlargeRate, isSquare, frame, frameIndex, minConfidence)
+        if ok:
+            listFace.append(face)
+    return listFace
+
 
 def getFaceFromBox(box,
                     resizedWidth,
@@ -231,12 +260,37 @@ def getFaceFromBox(box,
                     frame,
                     frameIndex
                     ):
-        #cropping as expected
-        cropped = getCroppedFromBoundingBox(box, frame, isSquare)
-	#Resizing as requested
-        cropped = imutils.resize(cropped, width=resizedWidth)
-        face = Face(frameIndex,box[0],box[1],box[2],box[3],isSquare, cropped)
-        return face
+    #cropping as expected
+    cropped = getCroppedFromBoundingBox(box, frame, isSquare)
+    #Resizing as requested
+    cropped = imutils.resize(cropped, width=resizedWidth)
+    face = Face(frameIndex,box,isSquare, cropped)
+    return face
+
+def getIntersection(rectA, rectB):
+    if rectA[0] > rectB[0]:
+        rectA, rectB = rectB, rectA  
+    (xa1, ya1, xa2, ya2) = rectA
+    (xb1, yb1, xb2, yb2) = rectB
+    diffPlusX = max(0, xa2-xb1)
+    if ya1 <= yb1:
+        diffPlusY = max(0, ya2-ya1)
+        intersection = (xa1, ya1, xa1+diffPlusX, ya1+diffPlusY)
+    else:
+        diffPlusY = max(0, ya1-ya2)
+        intersection = (xa1, yb1, xa1+diffPlusX, yb1+diffPlusY)
+    return intersection
+
+def getSurface(rect):
+    (x1, y1, x2, y2) = rect
+    return (x2-x1)*(y2-y1)
+
+def getSurfaceIntersection(rectA, rectB):
+    return getSurface(getIntersection(rectA, rectB))
+
+def getRectangleFromBox(box):
+    (x1, y1, x2, y2) = box
+    return (x1, y1, x2 - x1, y2 - y1)
 
 def log(logEnabled, message):
     if logEnabled:

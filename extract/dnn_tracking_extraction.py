@@ -10,6 +10,7 @@ from common_face_extraction import log
 def extractFacesDNNTracking(
                     src,             #path to video source for extraction
                     width,           #width of extracted face
+                    enlargeRate,     #Rate to original bounding box to also be included (bigger boxes)
                     isSquare,        #output face as a squared of dim width x width
                     frameStart,      #Frame at which to begin extraction
                     frameEnd,        #Frame at which to end
@@ -53,6 +54,7 @@ def extractFacesDNNTracking(
                 ok, face =  fe.getFaceFromDetection(detections,
                                             i,
                                             width,
+                                            enlargeRate,
                                             isSquare,
                                             frame,
                                             frameStart,
@@ -91,10 +93,15 @@ def extractFacesDNNTracking(
             ok, frame = fe.readFrame(cap, frameIndex)
             if not ok:
                break
+            #Need to update detection too
+            #So that we can find faces closest to trackers
+            detections = fe.detectFaces(frame, net, netSize, mean)
+            listFace = fe.getListFaceFromDetection(detections, width, enlargeRate, isSquare, frame, frameIndex, minConfidence)
+            #
             personIndex=0
             for person in listPerson:
                 #updating person by updating tracker and face
-                if person.update(frame, frameIndex, minConfidence, net, netSize, mean) :
+                if person.update(listFace, frame, frameIndex, minConfidence, net, netSize, mean) :
                     #if their face was found
                     log(logEnabled, "[INFO] Found face belonging to #"+str(personIndex)+" at frame #"+str(frameIndex))
                 personIndex+=1
