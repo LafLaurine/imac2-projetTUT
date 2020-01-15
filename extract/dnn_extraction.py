@@ -6,84 +6,75 @@ import cv2
 import common_face_extraction as fe
 from common_face_extraction import log
 
-def extractFacesDNN(
-                    src,             #path to video source for extraction
-                    width,           #width of extracted face
-                    enlargeRate,     #Rate to original bounding box to also be included (bigger boxes)
-                    isSquare,        #output face as a squared of dim width x width
-                    frameStart,      #Frame at which to begin extraction
-                    frameEnd,        #Frame at which to end
-                    frameStep,       #read video every ... frames
-                    maxFrames,       #maximum number of frames to be read
-                    minConfidence,   #confidence threshold
-                    prototxt,        #path to prototxt configuration file
-                    model,           #path to model
-                    netSize,         #size of the processing dnn
-                    mean,            #mean colour to be substracted
-                    isSaved,         #are the faces to be saved ?
-                    outDir,          #output dir
-                    logEnabled       #log info
+
+def extract_faces_dnn(
+                    src,              #path to :video source for extraction
+                    width_resized,    #width of extracted face
+                    rate_enlarge,     #Rate to original bounding box to also be included (bigger boxes)
+                    is_square,        #output face as a squared of dim width_resized x width
+                    start_frame,      #Frame at which to begin extraction
+                    end_frame,        #Frame at which to end
+                    step_frame,       #read video every ... frames
+                    max_frame,        #maximum number of frames to be read
+                    min_confidence,   #confidence threshold
+                    prototxt,         #path to prototxt configuration file
+                    model,            #path to model
+                    size_net,         #size of the processing dnn
+                    mean,             #mean colour to be substracted
+                    is_saved,         #are the faces to be saved ?
+                    dir_out,          #output dir
+                    log_enabled       #log info
         ):
     
         # load model
-        log(logEnabled, "[INFO] loading model...")
+        log(log_enabled, "[INFO] loading model...")
         net = cv2.dnn.readNetFromCaffe(prototxt,model)
         #reading video input
-        log(logEnabled, "[INFO] reading video file...")
+        log(log_enabled, "[INFO] reading video file...")
         cap = cv2.VideoCapture(src)
         if not cap.isOpened():
             raise IOError("Video could not be read at path: "+src)
-	
-
-        #setting up frameEnd if necessary
-        if frameEnd is None :
-            totalFrames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            frameEnd = totalFrames - 1
+        #setting up end_frame if necessary
+        if end_frame is None:
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            end_frame = total_frames - 1
 
         k=0
-        nbFrames=0
-        frameIndex = frameStart
-        listFace = []
+        frame_count=0
+        index_frame = start_frame
+        list_faces = []
         while(cap.isOpened()
-                and frameIndex < frameEnd
-                and (maxFrames is None or nbFrames < maxFrames)):
+                and index_frame < end_frame
+                and (max_frame is None or frame_count < max_frame)):
             #getting right frame
-            #with regards to frameStart, frameEnd and frameStep
-            frameIndex = frameStart + frameStep*k
-            ok, frame = fe.readFrame(cap, frameIndex)
+            #with regards to start_frame, end_frame and step_frame
+            index_frame = start_frame + step_frame*k
+            ok, frame = fe.read_frame(cap, index_frame)
             if not ok :
                 break;
             #forward pass of blob through network, get prediction
-            detections = fe.detectFaces(frame, net, netSize, mean)
-            #loop over the detections
-            for i in range(detections.shape[2]):
-                ok, face = fe.getFaceFromDetection(detections,
-                                            i,
-                                            width,
-                                            enlargeRate,
-                                            isSquare,
+            list_detections = fe.detect_faces(frame, net, size_net, mean)
+            #get new faces from list of detections
+            new_faces = fe.faces_from_detection(list_detections,
+                                            width_resized,
+                                            rate_enlarge,
+                                            is_square,
                                             frame,
-                                            frameIndex,
-                                            minConfidence)
-                if not ok:
-                    #image was not close enough to a face
-                    continue
-                #adding face to list, saving if asked
-                listFace.append(face)
-                nbFrames += 1
-                log(logEnabled, "[INFO] detected face at frame #"+str(frameIndex))
-
-
-            k+=1
-	#freeing context
+                                            index_frame,
+                                            min_confidence)
+            list_faces += new_faces
+            if(len(new_faces) != 0):
+                frame_count += 1
+                log(log_enabled, "[INFO] detected faces at frame #"+str(index_frame))
+            k += 1
+        #freeing context
         cv2.destroyAllWindows()
         #saving images if requested
-        if isSaved:
-            log(logEnabled, "[INFO] saving faces in "+outDir+"...")
-            for face in listFace:
-                face.saveImage(outDir)
-
+        if is_saved:
+            log(log_enabled, "[INFO] saving faces in "+dir_out+"...")
+            for face in list_faces:
+                face.save_image(dir_out)
         #returning list of faces
-        log(logEnabled, "[INFO] done.")
-        return listFace
+        log(log_enabled, "[INFO] done.")
+        return list_faces
 

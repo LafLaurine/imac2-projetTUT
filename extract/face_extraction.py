@@ -1,12 +1,12 @@
 import os
 
 import common_face_extraction as fe
-from dnn_extraction import extractFacesDNN
-from dnn_tracking_extraction import extractFacesDNNTracking
+from dnn_extraction import extract_faces_dnn
+from dnn_tracking_extraction import extract_faces_dnn_tracking
 
 
 
-#INFO: using proposed method by sr6033
+#INFO: using caffe model and proposed method by sr6033
 # https://github.com/sr6033/face-detection-with-OpenCV-and-DNN
 # for face extraction from video input
 
@@ -27,96 +27,98 @@ from dnn_tracking_extraction import extractFacesDNNTracking
 #   'MOSSE'
 #   'CSRT'
 
-###DEFAULT CONFIGURATION###
-defaultExtractionMethod =  'DNN'
-defaultTrackerType = 'CSRT' #most accurate, quite slow
+### DEFAULT CONFIGURATION ###
+## Face detection model (can't touch this)
+method_extraction_default    = 'DNN'
+type_tracker_default         = 'CSRT' #most accurate, quite slow
 
-modelDir = "caffemodel"
-defaultPrototxt = modelDir+os.sep+"deploy.prototxt.txt"
-defaultModel = modelDir+os.sep+"res10_300x300_ssd_iter_140000.caffemodel"
+dir_model_default            = "caffemodel"
+prototxt_default             = dir_model_default + os.sep + "deploy.prototxt.txt"
+model_default                = dir_model_default + os.sep + "res10_300x300_ssd_iter_140000.caffemodel"
 
-defaultNetSize = 300
-defaultMean = (104.0, 177.0, 123.0)
+size_net_default             = 300
+mean_default                 = (104.0, 177.0, 123.0)
 
-defaultWidth = 300
-defaultEnlargeRate = 0.30
-defaultMinConfidence = 0.95
+## Extraction parameters
+width_resized_default                 = 300
+rate_enlarge_default           = 0.30
+min_confidence_default         = 0.95
 
-defaultFrameStep=1
-defaultIsSquare = True
-logEnabled = True
+set_frame_default=1
+is_square_default = True
+log_enabled_default = True
 
 
 class FaceExtractor:
     @staticmethod
-    def  extractFaces(
+    def extract_faces(
                     src,                                    #path to video source for extraction
-                    extractionMethod =defaultExtractionMethod,#name of extraction method to be used
-                    width            =defaultWidth,         #width of extracted face
-                    enlargeRate      =defaultEnlargeRate,   #Rate to original bounding box to also be included (bigger boxes)
-                    isSquare         =defaultIsSquare,      #output face as a squared of dim width x width
-                    frameStart       =0,                    #Frame at which to begin extraction
-                    frameEnd         =None,                 #Frame at which to end
-                    frameStep        =defaultFrameStep,     #read video every ... frames
-                    maxFrames        =None,                 #maximum number of frames to be read
+                    method_extraction =method_extraction_default,#name of extraction method to be used
+                    width_resized            =width_resized_default,         #width of extracted face
+                    rate_enlarge      =rate_enlarge_default,   #Rate to original bounding box to also be included (bigger boxes)
+                    is_square         =is_square_default,      #output face as a squared of dim width x width
+                    start_frame       =0,                    #Frame at which to begin extraction
+                    end_frame         =None,                 #Frame at which to end
+                    step_frame        =set_frame_default,     #read video every ... frames
+                    max_frame        =None,                 #maximum number of frames to be read
 
-                    minConfidence    =defaultMinConfidence, #confidence threshold
-                    prototxt         =defaultPrototxt,      #path to prototxt configuration file
-                    model            =defaultModel,         #path to model
-                    netSize          =defaultNetSize,       #size of the processing dnn
-                    mean             =defaultMean,          #mean colour to be substracted
-                    trackerType      =defaultTrackerType,   #WHEN TRACKING: tracker type such as MIL, Boosting...
-                    isSaved          =defaultIsSquare,      #save image in output directory
-                    outDir           =None,                 #output directory for faces
-                    logEnabled       =logEnabled            #ouput log info
+                    min_confidence    =min_confidence_default, #confidence threshold
+                    prototxt         =prototxt_default,      #path to prototxt configuration file
+                    model            =model_default,         #path to model
+                    size_net          =size_net_default,       #size of the processing dnn
+                    mean             =mean_default,          #mean colour to be substracted
+                    type_tracker      =type_tracker_default,   #WHEN TRACKING: tracker type such as MIL, Boosting...
+                    is_saved          =is_square_default,      #save image in output directory
+                    dir_out           =None,                 #output directory for faces
+                    log_enabled      =log_enabled_default            #ouput log info
             ):
-        extractionFunctor = ExtractionMethodFactory.GetFunctor(extractionMethod)
-        if extractionMethod == 'DNN_TRACKING' :
-            return extractionFunctor(
-                src             =src,
-                width           =width,
-                enlargeRate     =enlargeRate,
-                isSquare        =isSquare,
-                frameStart      =frameStart,
-                frameEnd        =frameEnd,
-                frameStep       =frameStep,
-                maxFrames       =maxFrames,
-                minConfidence   =minConfidence,
-                prototxt        =prototxt,
-                model           =model,
-                netSize         =netSize,
-                mean            =mean,
-                trackerType     =trackerType,
-                isSaved         =isSaved,
-                outDir          =outDir,
-                logEnabled      =logEnabled
+        functor_extraction = ExtractionMethod.get_functor(method_extraction)
+        if method_extraction == 'DNN_TRACKING' :
+            return functor_extraction(
+                src              =src,
+                width_resized    =width_resized,
+                rate_enlarge     =rate_enlarge,
+                is_square        =is_square,
+                start_frame      =start_frame,
+                end_frame        =end_frame,
+                step_frame       =step_frame,
+                max_frame        =max_frame,
+                min_confidence   =min_confidence,
+                prototxt         =prototxt,
+                model            =model,
+                size_net         =size_net,
+                mean             =mean,
+                type_tracker      =type_tracker,
+                is_saved         =is_saved,
+                dir_out          =dir_out,
+                log_enabled      =log_enabled
                 )
         else: #no tracking method
-            return extractionFunctor(
-                src             =src,
-                width           =width,
-                enlargeRate     =enlargeRate,
-                isSquare        =isSquare,
-                frameStart      =frameStart,
-                frameEnd        =frameEnd,
-                frameStep       =frameStep,
-                maxFrames       =maxFrames,
-                minConfidence   =minConfidence,
-                prototxt        =prototxt,
-                model           =model,
-                netSize         =netSize,
-                mean            =mean,
-                isSaved         =isSaved,
-                outDir          =outDir,
-                logEnabled      =logEnabled
+            return functor_extraction(
+                src              =src,
+                width_resized    =width_resized,
+                rate_enlarge     =rate_enlarge,
+                is_square        =is_square,
+                start_frame      =start_frame,
+                end_frame        =end_frame,
+                step_frame       =step_frame,
+                max_frame        =max_frame,
+                min_confidence   =min_confidence,
+                prototxt         =prototxt,
+                model            =model,
+                size_net         =size_net,
+                mean             =mean,
+                is_saved         =is_saved,
+                dir_out          =dir_out,
+                log_enabled      =log_enabled
                 )
 
 
-class ExtractionMethodFactory:
+class ExtractionMethod:
     @staticmethod
-    def GetFunctor(extractionMethod):
+    def get_functor(method_extraction):
         switch = {
-            'DNN'           : extractFacesDNN,
-            'DNN_TRACKING'  : extractFacesDNNTracking
+            'DNN'           : extract_faces_dnn,
+            'DNN_TRACKING'  : extract_faces_dnn_tracking
         }
-        return switch.get(extractionMethod, None)
+        return switch.get(method_extraction, None)

@@ -4,15 +4,16 @@ import imutils
 import os
 
 class Face:
-    #__frameIndex            : frame # at which the face was extracted
-    #__box                   : of the face in original image
-    #__isSquare              : is face saved as a square ?
-    #__img                   : image data of the face (diff dimensions thant in original)
-    def __init__(self, frameIndex, box, isSquare, img):
-        self.__frameIndex = frameIndex
+    #frame_index            : frame # at which the face was extracted
+    #box                   : of the face in original image
+    #is_square              : is face saved as a square ?
+    #img                   : image data of the face (diff dimensions thant in original)
+    def __init__(self, index_frame, box, is_square, img):
+        self.__index_frame = index_frame
         self.__box = tuple(box) #x1,y1,x2,y2
-        self.__isSquare = isSquare
+        self.__is_square = is_square
         self.__img = img
+
     def x1(self):
         return self.__box[0]
     def y1(self):
@@ -25,32 +26,33 @@ class Face:
         return self.x2() - self.x1()
     def h(self):
         return self.y2() - self.y1()
-    def resizedWidth(self):
+
+    def resized_width(self):
         return self.__img.shape[0]
     def box(self):
         return self.__box
     def rectangle(self):
         return (self.x1(), self.y1(), self.w(), self.h())
-    def frameIndex(self):
-        return self.__frameIndex
-    def isSquare(self):
-        return self.__isSquare
+    def index_frame(self):
+        return self.__index_frame
+    def is_square(self):
+        return self.__is_square
     def img(self):
         return self.__img
-    def saveImage(self, outDir):
+    def save_image(self, dir_out):
         #if output directory does not exist, create it
-        if not os.path.exists(outDir) :
-            os.mkdir(outDir)
-        elif not os.path.isdir(outDir):
+        if not os.path.exists(dir_out) :
+            os.mkdir(dir_out)
+        elif not os.path.isdir(dir_out):
             raise IOError("Given output directory is not a directory.")
         #building path to output
-        path = outDir+ os.sep + str(self.frameIndex())+"_("+str(self.x1())+'x'+str(self.y1())+").jpg"
+        path = dir_out+ os.sep + str(self.index_frame())+"_("+str(self.x1())+'x'+str(self.y1())+").jpg"
         #saving output
         cv2.imwrite(path, self.img())
 
 class TrackerFactory :
     @staticmethod
-    def createTracker(trackerType):
+    def create_tracker(type_tracker):
         switch = {
             'MIL'           : cv2.TrackerMIL_create,
             'BOOSTING'      : cv2.TrackerBoosting_create,
@@ -61,18 +63,18 @@ class TrackerFactory :
             'MOSSE'         : cv2.TrackerMOSSE_create,
             'CSRT'          : cv2.TrackerCSRT_create
         }
-        return switch.get(trackerType, None)()
+        return switch.get(type_tracker, None)()
 
 class Person :
-    #__faces                 : list of Faces belonging to Person in video
-    #__tracker               : tracker bound to Person
+    #faces                 : list of Faces belonging to Person in video
+    #tracker               : tracker bound to Person
     #
-    def __init__(self, face, frame, trackerType):
+    def __init__(self, face, frame, type_tracker):
         self.__faces = [face]
         #create and init tracker with first face's bounding box
-        self.__tracker = TrackerFactory.createTracker(trackerType) 
+        self.__tracker = TrackerFactory.create_tracker(type_tracker)
         box = self.face(0).box()
-        ok = self.initTracker(frame, box)
+        ok = self.init_tracker(frame, box)
         if not ok:
             raise RuntimeError("Could not initialise tracker.")
         
@@ -81,20 +83,20 @@ class Person :
         return self.__faces
     def face(self, index):
         return self.__faces[index]
-    def nbFaces(self):
+    def faces_count(self):
         return len(self.__faces)
 
-    def resizedWidth(self):
+    def resized_width(self):
         #set by first face
-        return self.face(0).resizedWidth()
-    def isSquare(self):
-        return self.face(0).isSquare()
+        return self.face(0).resized_width()
+    def is_square(self):
+        return self.face(0).is_square()
 
     def __iter__(self):
         self.__it = 0
         return self
     def __next__(self):
-        if self.__it >= self.nbFaces():
+        if self.__it >= self.faces_count():
             raise StopIteration
         face = self.face(self.__it)
         self.__it += 1
@@ -102,196 +104,196 @@ class Person :
 
     def append(self, face):
         self.__faces.append(face)
-    def updateTracker(self, frame, frameIndex):
+    def update_tracker(self, frame, frame_index):
         #update bounding box from tracker
         ok, box = self.__tracker.update(frame)
         if not ok:
             return False, box
         box = tuple([int(x) for x in box])
-        rect = getRectangleFromBox(box)
+        rect = rectangle_from_box(box)
         #failure of tracking as False
         return True, rect
 
-    def initTracker(self, frame, box):
+    def init_tracker(self, frame, box):
         return self.__tracker.init(frame, box)
 
-    def updateFaces(self, listFace, rect, frame, frameIndex, minConfidence, net, netSize, mean):
-        #LAST PROCESS: we get the face closest to tracker from list of faces
-        closestFace = None
-        maxSurface = -1
-        for face in listFace:
-            surface =  getSurfaceIntersection(face.rectangle(), rect)
-            if maxSurface -1 or surface > maxSurface :
-                maxSurface = surface
-                closestFace = face
-        if closestFace is None:
+    def update_faces(self, list_faces, rect, frame, index_frame):
+        #LAST STEP: we get the face closest to tracker from list of faces
+        face_closest = None
+        max_surface = -1
+        for face in list_faces:
+            surface = surface_intersection(face.rectangle(), rect)
+            if max_surface -1 or surface > max_surface:
+                max_surface = surface
+                face_closest = face
+        if face_closest is None:
             return False
-        self.append(closestFace)
+        self.append(face_closest)
         #Since the bounding box of the face change
         #we need to reset tracker
-        self.initTracker(frame, closestFace.box())
+        self.init_tracker(frame, face_closest.box())
         return True 
 
-    def update(self, listFace, frame, frameIndex, minConfidence, net, netSize, mean):
+    def update(self, list_faces, frame, index_frame):
         #need to update tracker first
-        ok, rect = self.updateTracker(frame, frameIndex)
+        ok, rect = self.update_tracker(frame, index_frame)
         if not ok:
             return False
-        ok = self.updateFaces(listFace, rect, frame, frameIndex, minConfidence, net, netSize, mean)
+        ok = self.update_faces(list_faces, rect, frame, index_frame)
         return ok 
 
-    def saveImages(self, outDir):
+    def save_images(self, dir_out):
         for face in self.faces():
-            face.saveImage(outDir)
+            face.save_image(dir_out)
 
-def readFrame(cap, frameIndex):
-    cap.set(cv2.CAP_PROP_POS_FRAMES, frameIndex-1)
+def read_frame(cap, index_frame):
+    cap.set(cv2.CAP_PROP_POS_FRAMES, index_frame-1)
     #reading next frame
     ok, frame = cap.read()
     if not ok:
-    	#if no frame has been grabbed
+        #if no frame has been grabbed
         return False, None
     return True, frame
 
-def detectFaces(frame,
+def detect_faces(frame,
                 net,
-                netSize,
+                size_net,
                 mean
                 ):
     #get dimensions, convert to a blob
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(
-                cv2.resize(frame,(netSize, netSize)),
+                cv2.resize(frame,(size_net, size_net)),
                 1.0, #scalefactor
-                (netSize, netSize),
+                (size_net, size_net),
                 mean)
     #forward pass of blob through network, get prediction
     net.setInput(blob)
     detections = net.forward()
     return detections
 
-def getCroppedFromBoundingBox(box, frame, isSquare):
+def crop_from_box(box, frame, is_square):
     #get bounding box dimensions
     (x1, y1, x2, y2) = box
-    if isSquare:
+    if is_square:
         w = x2 - x1
         h = y2 - y1
         #cropping as a square
-        addToSquareX = max(0, (h-w)//2)
-        addToSquareY = max(0, (w-h)//2)
-        x1 = x1 - addToSquareX
-        x2 = x2 + addToSquareX
-        y1 = y1 - addToSquareY
-        y2 = y2 + addToSquareY
-    return frame[y1:y2,x1:x2]
+        x_offset = max(0, (h-w)//2)
+        y_offset = max(0, (w-h)//2)
+        x1 = x1 - x_offset
+        x2 = x2 + x_offset
+        y1 = y1 - y_offset
+        y2 = y2 + y_offset
+    return frame[y1:y2, x1:x2]
 
-def enlargeBox(box, enlargeRate):
+def enlarged_box(box, rate_enlarge):
     (x1, y1, x2, y2) = box
     #enlarge box from centre
-    dX = x2 - x1
-    dY = y2 - y1
-    centre = (x1 + dX//2, y1 + dY//2)
-    facXEnlarge = int(dX*(1+enlargeRate/2)/2)
-    facYEnlarge = int(dY*(1+enlargeRate/2)/2)
-    enlarged = (centre[0] - facXEnlarge, centre[1] - facYEnlarge,
-                centre[0] + facXEnlarge, centre[1] + facYEnlarge)
+    w = x2 - x1
+    h = y2 - y1
+    centre = (x1 + w//2, y1 + h//2)
+    x_enlarge = int((w/2) * (1 + rate_enlarge/2))
+    y_enlarge = int((h/2) * (1 + rate_enlarge/2))
+    enlarged = (centre[0] - x_enlarge, centre[1] - y_enlarge,
+                centre[0] + x_enlarge, centre[1] + y_enlarge)
     return enlarged
 
 
-def getBoundingBoxFromDetection(detections,
-                detectionIndex,
-                enlargeRate,
+def box_from_detection(list_detections,
+                index_detection,
+                rate_enlarge,
                 frame
                 ):
     (h, w) = frame.shape[:2]
-    dimList = [w,h,w,h]
-    box = (detections[0, 0, detectionIndex, 3:7]*np.array(dimList)).astype(int)
-    enlarged = enlargeBox(box, enlargeRate)
+    list_dim = [w, h, w, h]
+    box = (list_detections[0, 0, index_detection, 3:7]*np.array(list_dim)).astype(int)
+    enlarged = enlarged_box(box, rate_enlarge)
     return enlarged
 
 #returns whether the face at #index is valid
-def isFaceDetectionValid(detections,
-                detectionIndex,
+def is_face_valid(list_detections,
+                index_detection,
                 frame,
-                frameIndex,
-                minConfidence
+                index_frame,
+                min_confidence
                 ):
     #extract confidence, is it greater than minimum required ?
-    confidence = detections[0, 0, detectionIndex, 2]
+    confidence = list_detections[0, 0, index_detection, 2]
     #filter out weak detections
-    return confidence >= minConfidence
+    return confidence >= min_confidence
 
 #returns whether the face at #index is valid, and Face
-def getFaceFromDetection(detections,
-                  detectionIndex,
-                  resizedWidth,
-                  enlargeRate,
-                  isSquare,
+def face_from_detection(list_detections,
+                  index_detection,
+                  width_resized,
+                  rate_enlarge,
+                  is_square,
                   frame,
-                  frameIndex,
-                  minConfidence
+                  index_frame,
+                  min_confidence
                   ):
-    if not isFaceDetectionValid(detections, detectionIndex, frame, frameIndex, minConfidence):
+    if not is_face_valid(list_detections, index_detection, frame, index_frame, min_confidence):
         #then that's not a good enough face, skipping.
         return False, None
     #compute the (x, y)-coordinates of bounding box
-    box = getBoundingBoxFromDetection(detections, detectionIndex, enlargeRate, frame)
-    return True, getFaceFromBox(box, resizedWidth, isSquare, frame, frameIndex) 
+    box = box_from_detection(list_detections, index_detection, rate_enlarge, frame)
+    return True, face_from_box(box, width_resized, is_square, frame, index_frame)
 
-def getListFaceFromDetection(detections,
-                resizedWidth,
-                enlargeRate,
-                isSquare,
+def faces_from_detection(list_detections,
+                width_resized,
+                rate_enlarge,
+                is_square,
                 frame,
-                frameIndex,
-                minConfidence
+                index_frame,
+                min_confidence
                 ):
-    listFace = []
-    for i in range(len(detections)):
-        ok, face = getFaceFromDetection(detections, i, resizedWidth, enlargeRate, isSquare, frame, frameIndex, minConfidence)
+    list_faces = []
+    for i in range(len(list_detections)):
+        ok, face = face_from_detection(list_detections, i, width_resized, rate_enlarge, is_square, frame, index_frame, min_confidence)
         if ok:
-            listFace.append(face)
-    return listFace
+            list_faces.append(face)
+    return list_faces
 
 
-def getFaceFromBox(box,
-                    resizedWidth,
-                    isSquare,
+def face_from_box(box,
+                    width_resized,
+                    is_square,
                     frame,
-                    frameIndex
+                    index_frame
                     ):
     #cropping as expected
-    cropped = getCroppedFromBoundingBox(box, frame, isSquare)
+    cropped = crop_from_box(box, frame, is_square)
     #Resizing as requested
-    cropped = imutils.resize(cropped, width=resizedWidth)
-    face = Face(frameIndex,box,isSquare, cropped)
+    cropped = imutils.resize(cropped, width=width_resized)
+    face = Face(index_frame,box,is_square, cropped)
     return face
 
-def getIntersection(rectA, rectB):
-    if rectA[0] > rectB[0]:
-        rectA, rectB = rectB, rectA  
-    (xa1, ya1, xa2, ya2) = rectA
-    (xb1, yb1, xb2, yb2) = rectB
-    diffPlusX = max(0, xa2-xb1)
-    if ya1 <= yb1:
-        diffPlusY = max(0, ya2-ya1)
-        intersection = (xa1, ya1, xa1+diffPlusX, ya1+diffPlusY)
+def rectangle_intersection(rect_a, rect_b):
+    if rect_a[0] > rect_b[0]:
+        rect_a, rect_b = rect_b, rect_a
+    (x1_a, y1_a, x2_a, y2_a) = rect_a
+    (x1_b, y1_b, x2_b, y2_b) = rect_b
+    x_inter = max(0, x2_a - x1_b)
+    if y1_a <= y1_b:
+        y_inter = max(0, y2_a - y1_a)
+        intersection = (x1_a, y1_a, x1_a+x_inter, y1_a+y_inter)
     else:
-        diffPlusY = max(0, ya1-ya2)
-        intersection = (xa1, yb1, xa1+diffPlusX, yb1+diffPlusY)
+        y_inter = max(0, y1_a-y2_a)
+        intersection = (x1_a, y1_b, x1_a+x_inter, y1_b+y_inter)
     return intersection
 
-def getSurface(rect):
+def surface(rect):
     (x1, y1, x2, y2) = rect
     return (x2-x1)*(y2-y1)
 
-def getSurfaceIntersection(rectA, rectB):
-    return getSurface(getIntersection(rectA, rectB))
+def surface_intersection(rect_a, rect_b):
+    return surface(rectangle_intersection(rect_a, rect_b))
 
-def getRectangleFromBox(box):
+def rectangle_from_box(box):
     (x1, y1, x2, y2) = box
     return (x1, y1, x2 - x1, y2 - y1)
 
-def log(logEnabled, message):
-    if logEnabled:
+def log(log_enabled, message):
+    if log_enabled:
         print(message)
