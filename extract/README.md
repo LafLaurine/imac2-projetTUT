@@ -4,7 +4,7 @@
 #### Dependencies
 * OpenCV, OpenCV-contrib
 * numpy, imutils
-* CMake; Boost, Boost.Python, X11
+* CMake, Boost, Boost.Python, X11
 * dlib
 #### Setup
 	sudo apt install libopencv-dev build-essential cmake libgtk-3-dev libboost-all-dev

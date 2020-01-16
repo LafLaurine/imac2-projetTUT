@@ -1,9 +1,35 @@
 import numpy as np
 import cv2 #REQUIRES OpenCV 3
-import imutils
 import os
 
 import common_utils as ut
+
+
+class TrackerType:
+    mil           = "MIL"
+    boosting      = "BOOSTING"
+    kcf           = "KCF"
+    tld           = "TLD"
+    medianflow    = "MEDIANFLOX"
+    goturn        = "GOTURN"
+    mosse         = "MOSSE"
+    csrt          = "CSRT"
+    @staticmethod
+    def create_tracker(type_tracker):
+        switch = {
+            TrackerType.mil           : cv2.TrackerMIL_create,
+            TrackerType.boosting      : cv2.TrackerBoosting_create,
+            TrackerType.kcf           : cv2.TrackerKCF_create,
+            TrackerType.tld           : cv2.TrackerTLD_create,
+            TrackerType.medianflow    : cv2.TrackerMedianFlow_create,
+            TrackerType.goturn        : cv2.TrackerGOTURN_create,
+            TrackerType.mosse         : cv2.TrackerMOSSE_create,
+            TrackerType.csrt          : cv2.TrackerCSRT_create
+        }
+        construct_tracker = switch.get(type_tracker, None)
+        if construct_tracker is None:
+            raise ValueError("Tracker type not recognised: " + type_tracker)
+        return construct_tracker()
 
 class Face:
     #__box                   : Bounding box object of the face in original image
@@ -148,22 +174,6 @@ def compute_detection(frame,
     list_detections = net.forward()
     return list_detections
 
-
-class TrackerType:
-    @staticmethod
-    def create_tracker(type_tracker):
-        switch = {
-            'MIL'           : cv2.TrackerMIL_create,
-            'BOOSTING'      : cv2.TrackerBoosting_create,
-            'KCF'           : cv2.TrackerKCF_create,
-            'TLD'           : cv2.TrackerTLD_create,
-            'MEDIANFLOW'    : cv2.TrackerMedianFlow_create,
-            'GOTURN'        : cv2.TrackerGOTURN_create,
-            'MOSSE'         : cv2.TrackerMOSSE_create,
-            'CSRT'          : cv2.TrackerCSRT_create
-        }
-        return switch.get(type_tracker, None)()
-
 def box_from_detection(list_detections,
                 index_detection,
                 rate_enlarge,
@@ -212,10 +222,9 @@ def faces_from_detection(list_detections,
             list_faces.append(face)
     return list_faces
 
-
 def face_from_box(box, frame):
     face_image = box.crop_image(frame.image())
-    return Face(ut.Frame(face_image, frame.index()), box)
+    return Face(ut.Frame(face_image, frame.index(), frame.to_search()), box)
 
 def load_network_detection(config_detection, model_detection):
     return cv2.dnn.readNetFromCaffe(config_detection, model_detection)

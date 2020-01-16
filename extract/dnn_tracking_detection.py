@@ -34,24 +34,13 @@ def detect_faces_dnn_tracking(
         #Now that we have the people present at start_frame
         #We get faces when asked by tracking
         log(log_enabled, "[INFO] tracking faces...")
-        k = 0
-        index_former = None
         for frame in list_frames:
             #updating frame
             index_frame = frame.index()
-            if index_former is None:
-                inder_former = index_frame
-            #TODO: change frame extraction so that we get
-            #every frame between frame_start and frame_end
-            #and flag those with will be searched for faces
-            #for it_frame in range(index_frame, inder_former):
-                #update trackers at every frame
-                #otherwise it might not be able to find the face
-            #    ok, frame = fdet.read_frame(cap, it_frame)
-            #    frame_update = ???
-            #    for person in list_people:
-            #        person.update_tracker(frame_update, it_frame)
-                    
+            ###UPDATING TRACKER AT EVERY FRAME
+            #otherwise it might not be able to find the face
+            for person in list_people:
+                person.update_tracker(frame,)
             #Need to update detection too
             #So that we can find faces closest to trackers
             detections = fdet.compute_detection(frame, net, size_net, mean)
@@ -59,7 +48,9 @@ def detect_faces_dnn_tracking(
                                                      rate_enlarge,
                                                      frame,
                                                      min_confidence)
-            #updating people
+            ###UPDATING PEOPLE IF FRAME IS TO BE SEARCHED
+            if not frame.to_search():
+                continue
             index_person=0
             for person in list_people:
                 #updating person by updating tracker and face
@@ -67,5 +58,4 @@ def detect_faces_dnn_tracking(
                     #if their face was found
                     log(log_enabled, "[INFO] Found face belonging to #"+str(index_person)+" at frame #"+str(index_frame))
                 index_person += 1
-            k += 1
         return list_people

@@ -1,16 +1,16 @@
-
 import cv2 #requires OpenCV version 3 !..
 
 class Frame:
     # __image
     # __index
-    # __to_detect : is the frame to be searched for faces ? !!TODO
-    def __init__(self, image, index):
+    # __to_searcht : is the frame to be searched for faces ? !!TODO
+    def __init__(self, image, index, to_search):
         self.__image = image
         self.__index = index
+        self.__to_search = to_search
 
     @staticmethod
-    def read(cap, index_frame):
+    def read(cap, index_frame, to_search):
         assert(cap.isOpened())
         cap.set(cv2.CAP_PROP_POS_FRAMES, index_frame - 1)
         # reading next frame
@@ -18,12 +18,14 @@ class Frame:
         if not ok:
             # if no frame has been grabbed
             return False, None
-        return True, Frame(image, index_frame)
+        return True, Frame(image, index_frame, to_search)
 
     def image(self):
         return self.__image
     def index(self):
         return self.__index
+    def to_search(self):
+        return self.__to_search
     def w(self):
         return self.__image.shape[1]
     def h(self):
@@ -52,7 +54,7 @@ class Rectangle:
     def h(self):
         return self.__h
     def tuple(self):
-        return (self.x1(), self.y1(), self.x2(), self.y2())
+        return (self.x(), self.y(), self.w(), self.h())
 
     def intersection(self, rect):
         if self.x() > rect.x():
@@ -128,18 +130,39 @@ class BoundingBox:
         y2 = y2 + y_offset
         return BoundingBox(x1, y1, x2, y2).crop_image(image)
 
+    @staticmethod
+    def from_rectangle(rect):
+        return BoundingBox(rect.x(), rect.y(), rect.x() + rect.w(), rect.y() + rect.h())
 
 def read_frames_from_source(src,
                             start_frame,
                             end_frame,
                             step_frame,
-                            max_frame):
+                            max_frame,
+                            to_track):
     cap = cv2.VideoCapture(src)
     if not cap.isOpened():
         raise IOError("Video could not be read at path: " + src)
+    #fixing end_frame
     if end_frame is None:
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         end_frame = total_frames - 1
+    #
+    if to_track:
+        functor_read_frames = read_frames_from_capture_tracking
+    else:
+        functor_read_frames = read_frames_from_capture_base
+    list_frames = functor_read_frames(cap, start_frame, end_frame, step_frame, max_frame)
+    #freeing video
+    cap.release()
+    return list_frames
+
+
+def read_frames_from_capture_base(cap,
+                            start_frame,
+                            end_frame,
+                            step_frame,
+                            max_frame):
     list_frames = []
     index_frame = start_frame
     frame_count = 0
@@ -151,17 +174,35 @@ def read_frames_from_source(src,
         # getting right frame
         # with regards to start_frame, end_frame and step_frame
         index_frame = start_frame + step_frame * k
-        ok, frame = Frame.read(cap, index_frame)
+        ok, frame = Frame.read(cap, index_frame, to_search=True)
         if not ok:
             break;
         list_frames.append(frame)
         k+=1
-    #freeing video
-    cap.release()
     #returning list of frames
     return list_frames
 
-
+def read_frames_from_capture_tracking(cap,
+                            start_frame,
+                            end_frame,
+                            step_frame,
+                            max_frame):
+    list_frames = []
+    index_frame = start_frame
+    frame_count = 0
+    while(cap.isOpened()
+          and index_frame < end_frame
+          and (max_frame is None or frame_count < max_frame)):
+        #we read every frame from start to finish
+        #but only if frame_index = start_frame + step_frame * k
+        #do we tag it as one to be searched
+        to_search =  ((index_frame - start_frame) % step_frame == 0)
+        ok, frame = Frame.read(cap, index_frame, to_search)
+        if not ok:
+            break
+        list_frames.append(frame)
+        index_frame += 1
+    return  list_frames
 
 def log(log_enabled, message):
     if log_enabled:

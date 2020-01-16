@@ -12,7 +12,7 @@ min_confidence = 0.95
 
 rate_enlarge = 0.20 #in [0,1]
 start_frame = 44
-step_frame = 1
+step_frame = 10
 
 if __name__ == "__main__" :
     if len(sys.argv) != 3:

@@ -34,6 +34,9 @@ def detect_faces_dnn(
             if(len(list_detections) != 0):
                 log(log_enabled, "[INFO] detected faces at frame #"+str(frame.index()))
         #returning list of peole (only one)
-        list_people = [person]
+        if person is None:
+            list_people = []
+        else:
+            list_people = [person]
         return list_people
 
