@@ -1,5 +1,10 @@
-import cv2  # requires OpenCV version 3 !..
+import os
 
+import cv2  # requires OpenCV version 3
+
+# using PNG lossless to save images
+ext_codec_default = ".png"
+param_codec_default = [cv2.IMWRITE_PNG_COMPRESSION, 0]
 
 class Frame:
     # __image
@@ -11,9 +16,8 @@ class Frame:
         self.__to_search = to_search
 
     @staticmethod
-    def read(cap, index_frame, to_search):
+    def read_next(cap, index_frame, to_search):
         assert (cap.isOpened())
-        cap.set(cv2.CAP_PROP_POS_FRAMES, index_frame - 1)
         # reading next frame
         ok, image = cap.read()
         if not ok:
@@ -39,8 +43,23 @@ class Frame:
     def dim(self):
         return tuple((self.w(), self.h()))
 
-    def save(self, filepath):
-        cv2.imwrite(filepath, self.image())
+    def save(self, dir_out, x=0, y=0, ext_codec=ext_codec_default, param_codec=param_codec_default):
+        #if output directory does not exist, create it
+        if not os.path.exists(dir_out):
+            os.mkdir(dir_out)
+        elif not os.path.isdir(dir_out):
+            raise NotADirectoryError(dir_out)
+        #building filepath to output
+        filepath = dir_out + os.sep + \
+                   str(self.index())+"_(x"+str(x) + \
+                   'y' + str(y)
+        #adding extension (OpenCV will encode accordingly)
+        filepath += ext_codec
+        #saving output
+        ok = cv2.imwrite(filepath, self.image(), params=param_codec)
+        if not ok:
+            raise IOError("Could not save image at path: " + filepath)
+
 
 
 class Rectangle:
@@ -212,21 +231,35 @@ def read_frames_from_source(src,
     cap = cv2.VideoCapture(src)
     if not cap.isOpened():
         raise IOError("Video could not be read at path: " + src)
-    # fixing end_frame
+    # checking step_frame
+    if step_frame < 0:
+        raise ValueError("Step should be strictly positive integer.")
+    # TODO: Actually catching these exceptions
+    # setting end_frame
     if end_frame is None:
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         end_frame = total_frames - 1
-    #
+    # jumping to start_frame
+    jump_forward(cap, start_frame)
     if to_track:
         # TODO: CHECK WITH MULTIPLE PEOPLE
         # from_capture_tracking is just too long to compute
-        functor_read_frames = read_frames_from_capture_base
+        functor_read_frames = read_frames_from_capture_tracking
     else:
         functor_read_frames = read_frames_from_capture_base
     list_frames = functor_read_frames(cap, start_frame, end_frame, step_frame, max_frame)
     # freeing video
     cap.release()
     return list_frames
+
+def jump_forward(cap, jump_frame):
+    # we jump to the frame that's step_frame ahead
+    ok = True
+    i = 0
+    while (i < jump_frame - 1) and ok:
+        ok, placeholder = cap.read()
+        i += 1
+    return ok
 
 
 def read_frames_from_capture_base(cap,
@@ -240,12 +273,13 @@ def read_frames_from_capture_base(cap,
     while (cap.isOpened()
            and index_frame < end_frame
            and (max_frame is None or frame_count < max_frame)):
-        # getting right frame
-        # with regards to start_frame, end_frame and step_frame
+        # jumpin' to the next frame to be read -> skipping step_frame - 1 frames
+        jump_forward(cap, step_frame)
+        # computin' index
         index_frame = start_frame + step_frame * frame_count
-        ok, frame = Frame.read(cap, index_frame, to_search=True)
+        ok, frame = Frame.read_next(cap, index_frame, to_search=True)
         if not ok:
-            break;
+            break
         list_frames.append(frame)
         frame_count += 1
     # returning list of frames
@@ -267,7 +301,7 @@ def read_frames_from_capture_tracking(cap,
         # but only if frame_index = start_frame + step_frame * k
         # do we tag it as one to be searched
         to_search = ((index_frame - start_frame) % step_frame == 0)
-        ok, frame = Frame.read(cap, index_frame, to_search)
+        ok, frame = Frame.read_next(cap, index_frame, to_search)
         if not ok:
             break
         list_frames.append(frame)

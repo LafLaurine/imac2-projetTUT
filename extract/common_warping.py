@@ -11,7 +11,7 @@ def compute_feature_person(person, net):
 
 def compute_feature_face(face, net):
     # face was already extracted, so we
-    # run the network on the whole image
+    # run the network on the whole cropped image
     shape = net(np.array(face.image()), dlib.rectangle(0, 0, face.w(), face.h()))
     face.set_features(face_utils.shape_to_np(shape))
 

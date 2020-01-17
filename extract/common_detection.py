@@ -9,6 +9,16 @@ from dnn_detection import detect_faces_dnn
 from dnn_tracking_detection import detect_faces_dnn_tracking
 
 
+class FaceDetector:
+    # __method
+    # __functor
+    def __init__(self, method_detection):
+        self.__method = method_detection
+        self.__functor = DetectionMethod.get_functor(self.__method)
+
+    def detect_people(self):
+        pass
+
 class DetectionMethod:
     dnn          = "DNN"
     dnn_tracking = "DNN_TRACKING"
@@ -26,6 +36,13 @@ class DetectionMethod:
     @staticmethod
     def to_track(method_detection):
         return method_detection == DetectionMethod.dnn_tracking
+
+
+class DetectionFunctor:
+    # __ ???
+    # TODO !
+    pass
+
 
 
 def compute_detection(frame,

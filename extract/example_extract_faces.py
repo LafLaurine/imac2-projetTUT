@@ -3,16 +3,16 @@ import sys
 from face_extraction import FaceExtractor
 
 # base arguments
-method_detection = 'DNN_TRACKING'
+method_detection = 'DNN'
 type_tracker = "CSRT"
-is_saved = True
+are_saved = True
 log_enabled = True
 
-min_confidence = 0.95
+min_confidence = 0.90
 
-rate_enlarge = 0.30 #in proportion of detected face, so that it does not crop chin and such
-start_frame = 44
-step_frame = 10
+rate_enlarge = 0.1 #in proportion of detected face, so that it does not crop chin and such
+start_frame = 20
+step_frame = 1
 max_frame = None
 
 if __name__ == "__main__" :
@@ -30,7 +30,7 @@ if __name__ == "__main__" :
             max_frame=max_frame,
             min_confidence=min_confidence,
             type_tracker=type_tracker,
-            is_saved=is_saved,
+            are_saved=are_saved,
             dir_out=dir_out,
             log_enabled=log_enabled
             )

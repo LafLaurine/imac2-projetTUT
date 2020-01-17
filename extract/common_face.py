@@ -1,6 +1,5 @@
 import numpy as np
 import cv2 #REQUIRES OpenCV 3
-import os
 
 import common_utils as ut
 
@@ -14,6 +13,7 @@ class Face:
     def __init__(self, frame, box):
         self.__frame = frame
         self.__box = box
+        self.__features = None
 
     def x1(self):
         return self.box().x1()
@@ -41,34 +41,26 @@ class Face:
 
     def set_image(self, image):
         self.__frame = ut.Frame(image, self.index_frame(), to_search=True)
-
     def set_features(self, features):
         self.__features = features
 
     def is_valid(self):
+        if self.features() is None:
+            raise ValueError("Features need to be set before validation.")
+        rel_box = ut.BoundingBox(0, 0, self.w(), self.h())
         for (x, y) in self.features():
-            if not ut.Point2D(x, y).is_in(self.box()):
+            pos = ut.Point2D(x, y)
+            if not pos.is_in(rel_box):
                 # if feature was not found in the face (bounding box too small or face occlusion)
                 return False
         return True
 
-    def save_image(self, dir_out, ext_image=".jpg"):
-        #if output directory does not exist, create it
-        if not os.path.exists(dir_out):
-            os.mkdir(dir_out)
-        elif not os.path.isdir(dir_out):
-            raise IOError("Given output directory is not a directory.")
-        #building path to output
-        filepath = dir_out + os.sep + \
-               str(self.index_frame())+"_(x"+str(self.x1()) +\
-               'y' + str(self.y1()) + \
-                ext_image
-        #saving output
-        self.__frame.save(filepath)
+    def save_image(self, dir_out):
+        self.__frame.save(dir_out, self.x1(), self.y1())
 
     def write_features(self, radius=2):
         for (x, y) in self.features():
-            cv2.circle(self.image(), (x,y), radius, color=(0, 255, 0))
+            cv2.circle(self.image(), (x, y), radius, color=(0, 255, 0))
 
 
 class Person:
@@ -158,9 +150,13 @@ class Person:
         return ok
 
     def cull_faces(self):
-        for face in self.faces():
+        i = 0
+        while i < self.face_count():
+            face = self.face(i)
             if not face.is_valid():
                 self.remove(face)
+            else:
+                i += 1
 
     def save_images(self, dir_out):
         for face in self.faces():

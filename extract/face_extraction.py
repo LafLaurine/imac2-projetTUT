@@ -1,5 +1,4 @@
 import os
-
 import cv2
 
 import common_utils as ut
@@ -48,7 +47,7 @@ model_feature_default            = dir_model_feature_default + os.sep + "shape_p
 ## Detection parameters
 method_detection_default         = DetectionMethod.dnn_tracking
 type_tracker_default             = TrackerType.csrt #most accurate, quite slow
-rate_enlarge_default             = 0.30
+rate_enlarge_default             = 0.90
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
@@ -67,7 +66,7 @@ mode_border_default              = cv2.BORDER_REFLECT
 method_resize_default            = cv2.INTER_LINEAR
 pair_resize_default              = (300, 300)
 
-is_saved_default                 = False
+are_saved_default                 = False
 log_enabled_default              = True
 
 class FaceExtractor:
@@ -95,7 +94,7 @@ class FaceExtractor:
                 model_feature           = model_feature_default,
 
                 type_tracker            = type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
-                is_saved                = is_saved_default,  # save image in output directory
+                are_saved               = are_saved_default,  # save image in output directory
                 dir_out                 = None,  # output directory for faces
                 log_enabled             = log_enabled_default  # ouput log info
                 ):
@@ -125,12 +124,10 @@ class FaceExtractor:
                                  mode_border,
                                  method_resize,
                                  net_feature
-                                 )
-
-        if is_saved:
-            log(log_enabled, "[INFO] saving output to " + dir_out)
-            for person in list_people:
-                person.save_images(dir_out)
+                             )
+        if are_saved:
+            log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
+            FaceExtractor.save_people(list_people, dir_out)
 
         log(log_enabled, "[INFO] success.")
         return list_people
@@ -187,8 +184,8 @@ class FaceExtractor:
                     mode_border,
                     method_resize,
                     net_feature,
-            ):
-        #TODO: features and warping
+                    ):
+        # TODO: features and warping
         warper = FeatureWarper(pair_resize,
                             pairs_interest_prop,
                             mode_border,
@@ -198,4 +195,10 @@ class FaceExtractor:
         for person in list_people:
             warp.compute_feature_person(person, net_feature)
             warper.warp_person(person)
+
+    @staticmethod
+    def save_people(list_people, dir_out):
+        # does that mean I'm a doctor now?
+        for person in list_people:
+            person.save_images(dir_out)
 
