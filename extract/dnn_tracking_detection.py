@@ -1,4 +1,4 @@
-import common_face_detection as fdet
+import common_detection as det
 from common_utils import log
 
 
@@ -18,15 +18,15 @@ def detect_faces_dnn_tracking(
         if( len(list_frames) != 0):
             frame = list_frames[0]
             #forward pass of blob through network, get prediction
-            detections = fdet.compute_detection(frame, net, size_net, mean)
-            list_faces = fdet.faces_from_detection(detections,
+            detections = det.compute_detection(frame, net, size_net, mean)
+            list_faces = det.faces_from_detection(detections,
                                             rate_enlarge,
                                             frame,
                                             min_confidence)
             #loop over detected faces
             for face in list_faces:
                 #every face belongs to a new person we'll have to track
-                list_people.append(fdet.Person(face, frame, type_tracker))
+                list_people.append(det.Person(face, frame, type_tracker))
                 log(log_enabled, "[INFO] found face at  #"+str(face.index_frame()))
         if list_people == []:
             log(log_enabled, "[INFO] none found.")
@@ -40,11 +40,11 @@ def detect_faces_dnn_tracking(
             ###UPDATING TRACKER AT EVERY FRAME
             #otherwise it might not be able to find the face
             for person in list_people:
-                person.update_tracker(frame,)
+                person.update_tracker(frame)
             #Need to update detection too
             #So that we can find faces closest to trackers
-            detections = fdet.compute_detection(frame, net, size_net, mean)
-            list_faces = fdet.faces_from_detection(detections,
+            detections = det.compute_detection(frame, net, size_net, mean)
+            list_faces = det.faces_from_detection(detections,
                                                      rate_enlarge,
                                                      frame,
                                                      min_confidence)

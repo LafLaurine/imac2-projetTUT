@@ -33,7 +33,7 @@ class TrackerType:
 
 class Face:
     #__box                   : Bounding box object of the face in original image
-    #__frame                   : Frame object (w/ frame_index), diff dimensions thant original
+    #__frame                   : Frame object (w/ frame_index), diff dimensions than original
     def __init__(self, frame, box):
         self.__frame = frame
         self.__box = box
@@ -59,6 +59,9 @@ class Face:
         return self.__frame.index()
     def image(self):
         return self.__frame.image()
+
+    def replace_image(self, image):
+        self.__frame = ut.Frame(image, self.index_frame(), to_search=True)
 
     def save_image(self, dir_out):
         #if output directory does not exist, create it
@@ -114,15 +117,19 @@ class Person:
         face = self.face(self.__it)
         self.__it += 1
         return face
+
     def append(self, face):
         self.__faces.append(face)
+
+    def set_face(self, index, face):
+        self.__faces[index] = face
 
     def update_tracker(self, frame):
         #update bounding box from tracker
         ok, bad_box = self.__tracker.update(frame.image())
         if not ok:
             return False, None
-        box = ut.BoundingBox(bad_box[0], bad_box[1], bad_box[2], bad_box[3])
+        box = ut.BoundingBox(*bad_box)
         #failure of tracking as False
         return True, box
 

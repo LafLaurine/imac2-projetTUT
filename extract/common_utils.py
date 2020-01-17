@@ -3,7 +3,7 @@ import cv2 #requires OpenCV version 3 !..
 class Frame:
     # __image
     # __index
-    # __to_searcht : is the frame to be searched for faces ? !!TODO
+    # __to_search : is the frame to be searched for faces ?
     def __init__(self, image, index, to_search):
         self.__image = image
         self.__index = index
@@ -19,6 +19,7 @@ class Frame:
             # if no frame has been grabbed
             return False, None
         return True, Frame(image, index_frame, to_search)
+
 
     def image(self):
         return self.__image
@@ -134,6 +135,51 @@ class BoundingBox:
     def from_rectangle(rect):
         return BoundingBox(rect.x(), rect.y(), rect.x() + rect.w(), rect.y() + rect.h())
 
+
+class Point2D:
+    # __x
+    # __y
+    def __init__(self, x, y):
+        self.__x = x
+        self.__y = y
+
+    def x(self):
+        return self.__x
+
+    def y(self):
+        return self.__y
+
+    def __add__(self, point):
+        return Point2D(self.x() + point.x(), self.y() + point.y())
+
+    def __sub__(self, point):
+        return Point2D(self.x() - point.x(), self.y() - point.y())
+
+    def __mul__(self, alpha):
+        return Point2D(self.x() * alpha, self.y() * alpha)
+
+    def element_wise_prod(self, point):
+        return Point2D(self.x()*point.x(), self.y()*point.y())
+
+    def tuple(self):
+        return (self.x(), self.y())
+    def list(self):
+        return [self.x(), self.y()]
+
+    @staticmethod
+    def average(list_points):
+        sum = Point2D(0, 0)
+        for point in list_points:
+            sum += point
+        return sum * (1 / len(list_points))
+
+    @staticmethod
+    def build_from_list(list_coords):
+        list_points = []
+        for (x,y) in list_coords:
+            list_points.append(Point2D(x,y))
+        return list_points
+
 def read_frames_from_source(src,
                             start_frame,
                             end_frame,
@@ -166,19 +212,17 @@ def read_frames_from_capture_base(cap,
     list_frames = []
     index_frame = start_frame
     frame_count = 0
-    k = 0
-    #todo ::::!!!
     while (cap.isOpened()
            and index_frame < end_frame
            and (max_frame is None or frame_count < max_frame)):
         # getting right frame
         # with regards to start_frame, end_frame and step_frame
-        index_frame = start_frame + step_frame * k
+        index_frame = start_frame + step_frame * frame_count
         ok, frame = Frame.read(cap, index_frame, to_search=True)
         if not ok:
             break;
         list_frames.append(frame)
-        k+=1
+        frame_count+=1
     #returning list of frames
     return list_frames
 
@@ -196,12 +240,13 @@ def read_frames_from_capture_tracking(cap,
         #we read every frame from start to finish
         #but only if frame_index = start_frame + step_frame * k
         #do we tag it as one to be searched
-        to_search =  ((index_frame - start_frame) % step_frame == 0)
+        to_search = ((index_frame - start_frame) % step_frame == 0)
         ok, frame = Frame.read(cap, index_frame, to_search)
         if not ok:
             break
         list_frames.append(frame)
         index_frame += 1
+        frame_count += 1
     return  list_frames
 
 def log(log_enabled, message):
