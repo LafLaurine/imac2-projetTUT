@@ -7,9 +7,10 @@ from common_utils import log
 import common_detection as det
 import common_warping as warp
 
-from dnn_detection import detect_faces_dnn
-from dnn_tracking_detection import detect_faces_dnn_tracking
 from feature_warping import FeatureWarper
+
+from common_detection import DetectionMethod
+from common_tracking import TrackerType
 
 #INFO: using caffe model and proposed method by sr6033
 # https://github.com/sr6033/face-detection-with-OpenCV-and-DNN
@@ -17,39 +18,21 @@ from feature_warping import FeatureWarper
 
 #TODO: could be issues with faces too close to the edges of the image
 # in case of squared output. Might be a problem.
-
-#Detection method can be any of:
-#   'DNN'            : using DNN
-#   'DNN_TRACKING'   : using DNN with tracking
-
-#Tracking type can be any of:
-#   'MIL'
-#   'BOOSTING'
-#   'KCF'
-#   'TLD'
-#   'MEDIANFLOW'
-#   'GOTURN'
-#   'MOSSE'
-#   'CSRT'
-
-class DetectionMethod:
-    dnn          = "DNN"
-    dnn_tracking = "DNN_TRACKING"
-    @staticmethod
-    def get_functor(method_detection):
-        switch = {
-            DetectionMethod.dnn           : detect_faces_dnn,
-            DetectionMethod.dnn_tracking  : detect_faces_dnn_tracking
-        }
-        functor_detection = switch.get(method_detection, None)
-        if functor_detection is None:
-            raise ValueError("Detection method not recognised: " + method_detection)
-        return functor_detection
-
-    @staticmethod
-    def to_track(method_detection):
-        return method_detection == DetectionMethod.dnn_tracking
-
+""""
+Detection method can be any of:
+   'DNN'            : using DNN
+   'DNN_TRACKING'   : using DNN with tracking
+"""
+"""Tracking type can be any of:
+   'MIL'
+   'BOOSTING'
+   'KCF'
+   'TLD'
+   'MEDIANFLOW'
+   'GOTURN'
+   'MOSSE'
+   'CSRT'
+"""
 ### DEFAULT CONFIGURATION ###
 ## Face detection model (can't touch this)
 dir_model_detection_default      = "detection_model"
@@ -64,22 +47,25 @@ model_feature_default            = dir_model_feature_default + os.sep + "shape_p
 
 ## Detection parameters
 method_detection_default         = DetectionMethod.dnn_tracking
-type_tracker_default             = det.TrackerType.csrt #most accurate, quite slow
+type_tracker_default             = TrackerType.csrt #most accurate, quite slow
 rate_enlarge_default             = 0.30
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
 ##Feature warping parameters
-pair_left_eye_default        = (0.4, 0.2) #IN [0, 1], proportion of face image dimensions
-pair_right_eye_default       = (0.6, 0.2)
-pair_mouth_default           = (0.5, 0.7)
-pairs_interest_prop_default = (pair_left_eye_default,
+pair_left_eye_default            = (0.72, 0.4)
+pair_right_eye_default           = (0.28, 0.4) #IN [0, 1], proportion of face image dimensions
+pair_mouth_default               = (0.5, 0.75)
+pairs_interest_prop_default      = (pair_left_eye_default,
                                pair_right_eye_default,
                                pair_mouth_default)
 
-mode_border_default              = cv2.BORDER_DEFAULT
+"""
+Border mode  
+"""
+mode_border_default              = cv2.BORDER_REFLECT
 method_resize_default            = cv2.INTER_LINEAR
-pair_resize_default               = (300, 300)
+pair_resize_default              = (300, 300)
 
 is_saved_default                 = False
 log_enabled_default              = True
@@ -98,7 +84,7 @@ class FaceExtractor:
                 max_frame               = None,  # maximum number of frames to be read
                 min_confidence          = min_confidence_default,  # confidence threshold
 
-                mode_border              = mode_border_default,
+                mode_border             = mode_border_default,
                 method_resize           = method_resize_default,
 
                 config_detection        = config_detection_default,  # path to prototxt configuration file
@@ -132,7 +118,6 @@ class FaceExtractor:
                                                 type_tracker,
                                                 log_enabled
                                                 )
-
         log(log_enabled, "[INFO] warping faces...")
         FaceExtractor.warp_faces(list_people,
                                  pair_resize,
@@ -141,6 +126,7 @@ class FaceExtractor:
                                  method_resize,
                                  net_feature
                                  )
+
         if is_saved:
             log(log_enabled, "[INFO] saving output to " + dir_out)
             for person in list_people:
@@ -208,7 +194,8 @@ class FaceExtractor:
                             mode_border,
                             method_resize,
                             )
+        # TODO: discard faces which do not display the necessary points of interest? Done.
         for person in list_people:
-            list_array_features = warp.compute_feature_person(person, net_feature)
-            warper.warp_person(person, list_array_features)
+            warp.compute_feature_person(person, net_feature)
+            warper.warp_person(person)
 

@@ -4,13 +4,13 @@ from face_extraction import FaceExtractor
 
 # base arguments
 method_detection = 'DNN_TRACKING'
-type_tracker = 'MOSSE'
+type_tracker = "CSRT"
 is_saved = True
 log_enabled = True
 
 min_confidence = 0.95
 
-rate_enlarge = 0.50 #in proportion of
+rate_enlarge = 0.30 #in proportion of detected face, so that it does not crop chin and such
 start_frame = 44
 step_frame = 10
 max_frame = None
