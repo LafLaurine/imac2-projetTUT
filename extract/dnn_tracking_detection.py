@@ -1,4 +1,4 @@
-import common_detection as det
+import common_face_detection as fdet
 from common_utils import log
 
 
@@ -18,8 +18,8 @@ def detect_faces_dnn_tracking(
         if( len(list_frames) != 0):
             frame = list_frames[0]
             #forward pass of blob through network, get prediction
-            detections = det.compute_detection(frame, net, size_net, mean)
-            list_faces = det.faces_from_detection(detections,
+            detections = fdet.compute_detection(frame, net, size_net, mean)
+            list_faces = fdet.faces_from_detection(detections,
                                             rate_enlarge,
                                             frame,
                                             min_confidence)

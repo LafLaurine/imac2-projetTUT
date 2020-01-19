@@ -10,12 +10,13 @@ log_enabled = True
 
 min_confidence = 0.90
 
-rate_enlarge = 0.1 #in proportion of detected face, so that it does not crop chin and such
+rate_enlarge = 0.70 #in proportion of detected face, so that it does not crop chin and such
 start_frame = 20
-step_frame = 1
+end_frame = None
+step_frame = 5
 max_frame = None
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("usage : $ extract_faces.py [PATH_TO_VID] [OUTPUT_DIR]")
     else:
@@ -26,6 +27,7 @@ if __name__ == "__main__" :
             rate_enlarge=rate_enlarge,
             method_detection=method_detection,
             start_frame=start_frame,
+            end_frame=end_frame,
             step_frame=step_frame,
             max_frame=max_frame,
             min_confidence=min_confidence,

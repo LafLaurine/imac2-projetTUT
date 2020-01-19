@@ -17,7 +17,8 @@ class Frame:
 
     @staticmethod
     def read_next(cap, index_frame, to_search):
-        assert (cap.isOpened())
+        if not cap.isOpened():
+            raise EOFError("Video capture is over.")
         # reading next frame
         ok, image = cap.read()
         if not ok:
@@ -66,10 +67,10 @@ class Rectangle:
     # __x, __y, __w, __h
 
     def __init__(self, x, y, w, h):
-        self.__x = x
-        self.__y = y
-        self.__w = w
-        self.__h = h
+        self.__x = int(x)
+        self.__y = int(y)
+        self.__w = int(w)
+        self.__h = int(h)
 
     def x(self):
         return self.__x

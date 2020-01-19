@@ -1,4 +1,4 @@
-import common_detection as det
+import common_face_detection as fdet
 from common_face import Face, Person
 
 from common_utils import log
@@ -17,10 +17,10 @@ def detect_faces_dnn(
     person = None
     for frame in list_frames:
         # forward pass of blob through network, get prediction
-        list_detections = det.compute_detection(frame, net, size_net, mean)
+        list_detections = fdet.compute_detection(frame, net, size_net, mean)
         # IMPORTANT; since we do not track people in this method
         # we can only assume that is only one person.
-        list_faces = det.faces_from_detection(list_detections,
+        list_faces = fdet.faces_from_detection(list_detections,
                                            rate_enlarge,
                                            frame,
                                            min_confidence)
