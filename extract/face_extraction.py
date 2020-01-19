@@ -3,12 +3,14 @@ import cv2
 
 import common_utils as ut
 from common_utils import log
-import common_detection as det
-import common_warping as warp
 
-from feature_warping import FeatureWarper
+import common_face_detection as fdet
+import common_landmark_detection as ldet
 
-from common_detection import DetectionMethod
+
+from landmark_warping import FeatureWarper
+
+from common_face_detection import DetectionMethod
 from common_tracking import TrackerType
 
 #INFO: using caffe model and proposed method by sr6033
@@ -34,20 +36,20 @@ Detection method can be any of:
 """
 ### DEFAULT CONFIGURATION ###
 ## Face detection model (can't touch this)
-dir_model_detection_default      = "detection_model"
-config_detection_default         = dir_model_detection_default + os.sep + "deploy.prototxt.txt"
-model_detection_default          = dir_model_detection_default + os.sep + "res10_300x300_ssd_iter_140000.caffemodel"
+dir_model_face_default = "face_model"
+config_face_default         = dir_model_face_default + os.sep + "deploy.prototxt.txt"
+model_face_default          = dir_model_face_default + os.sep + "res10_300x300_ssd_iter_140000.caffemodel"
 size_net_default                 = 300
 mean_default                     = (104.0, 177.0, 123.0)
 ## Feature warping model
-dir_model_feature_default        = "feature_model"
-model_feature_default            = dir_model_feature_default + os.sep + "shape_predictor_68_face_landmarks.dat"
+dir_model_landmark_default = "landmark_model"
+model_landmark_default            = dir_model_landmark_default + os.sep + "lbfmodel.yaml"
 
 
 ## Detection parameters
 method_detection_default         = DetectionMethod.dnn_tracking
 type_tracker_default             = TrackerType.csrt #most accurate, quite slow
-rate_enlarge_default             = 0.90
+rate_enlarge_default             = 0.70
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
@@ -70,6 +72,9 @@ are_saved_default                 = False
 log_enabled_default              = True
 
 class FaceExtractor:
+
+    # TODO: move dnn parameters to a config file
+
     @staticmethod
     def extract_faces(
                 src,  # path to video source for extraction
@@ -86,12 +91,12 @@ class FaceExtractor:
                 mode_border             = mode_border_default,
                 method_resize           = method_resize_default,
 
-                config_detection        = config_detection_default,  # path to prototxt configuration file
-                model_detection         = model_detection_default,  # path to model
+                config_face        = config_face_default,  # path to prototxt configuration file
+                model_face         = model_face_default,  # path to model
                 size_net                = size_net_default,  # size of the processing dnn
                 mean                    = mean_default,  # mean colour to be substracted
 
-                model_feature           = model_feature_default,
+                model_landmark           = model_landmark_default,
 
                 type_tracker            = type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
                 are_saved               = are_saved_default,  # save image in output directory
@@ -100,8 +105,8 @@ class FaceExtractor:
                 ):
         #first, load detection and warping models
         log(log_enabled, "[INFO] loading models...")
-        net_detection = det.load_network_detection(config_detection, model_detection)
-        net_feature = warp.load_network_feature(model_feature)
+        net_detection = fdet.load_network_detection(config_face, model_face)
+        net_landmark = ldet.load_network_landmark(model_landmark)
         #then, read frames from input video source
         log(log_enabled, "[INFO] reading video file...")
         list_frames = FaceExtractor.read_frames(src, start_frame, end_frame, step_frame, max_frame, method_detection)
@@ -119,11 +124,12 @@ class FaceExtractor:
                                                 )
         log(log_enabled, "[INFO] warping faces...")
         FaceExtractor.warp_faces(list_people,
+                                 list_frames,
                                  pair_resize,
                                  pairs_interest_prop,
                                  mode_border,
                                  method_resize,
-                                 net_feature
+                                 net_landmark
                              )
         if are_saved:
             log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
@@ -179,11 +185,12 @@ class FaceExtractor:
 
     @staticmethod
     def warp_faces(list_people,
+                   list_frames,
                     pair_resize,
                     pairs_interest_prop,
                     mode_border,
                     method_resize,
-                    net_feature,
+                    net_landmark,
                     ):
         # TODO: features and warping
         warper = FeatureWarper(pair_resize,
@@ -193,7 +200,7 @@ class FaceExtractor:
                             )
         # TODO: discard faces which do not display the necessary points of interest? Done.
         for person in list_people:
-            warp.compute_feature_person(person, net_feature)
+            ldet.compute_landmarks_person(person, list_frames, net_landmark)
             warper.warp_person(person)
 
     @staticmethod
