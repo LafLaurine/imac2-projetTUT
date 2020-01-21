@@ -1,0 +1,9 @@
+Voici le code non clean pour l'entraînement (df_CNN) et le test complet de la précision. 
+
+Il y a des bouts de code à commenter pour l'entraînement, certains à ne pas exécuter, je te laisse adapter tout ça. 
+Pour l'évaluation, la seule variable à régler est le 'split' qui indique à quel moment couper les prédictions entre les deux classes pour calculer le score final sur le dataset entier de test (non pas un batch aléatoire, ce qui est fait durant l'entraînement). 
+
+Attention au surapprentissage qui arrive très très vite en finetunant, et à ne pas désapprendre le dataset sur lequel il a été entraîné initialiement. Je te dirais de commencer avec un pas de 10^-5 avec l'optimiseur Adams en ordre de grandeur depuis le réseau pré-entraîné et un batchsize de 64.
+Potentiellement freezer les deux premières couches, mais à voir en fonction de comment ça se comporte.
+
+Pour le score vidéo sur les vidéo, il faut utiliser les prédictions moyennes, tu as déjà le script.

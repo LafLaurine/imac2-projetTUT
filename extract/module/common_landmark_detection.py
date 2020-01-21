@@ -1,8 +1,8 @@
 import numpy as np
 import cv2 # REQUIRES OpenCV >= 4.3 ? For Facemark python bindings.
 
-from common_utils import Rectangle
-from landmark_detection import LandmarkExtractor, CPPRect
+from . import common_utils as ut
+from . import landmark_detection as lndd
 
 # Facemark uses a 68-point landmark detector
 
@@ -13,7 +13,7 @@ def compute_landmarks_person(person, list_frames, net):
         whole_frame = next(frame for frame in list_frames if frame.index() == face.index_frame())
         ok = compute_landmarks_face(face, whole_frame, net)
         if not ok:
-            pass # for now
+            continue# for now
 
 
 def compute_landmarks_face(face, frame_whole, net):
@@ -21,7 +21,7 @@ def compute_landmarks_face(face, frame_whole, net):
     # on the whole input image.
     # Face holds information on the region of interest -> a cv::Rect
     # So how does that translate to python ?
-    cpp_rectangle = CPPRect(*face.rectangle().tuple())
+    cpp_rectangle = lndd.CPPRect(*face.rectangle().tuple())
     landmarks_whole_coords = net.fit(frame_whole.image(), cpp_rectangle)
     if landmarks_whole_coords is None:
         return False
@@ -33,14 +33,13 @@ def load_network_landmark(model_landmark):
     # Will use frontal faces only
     # net = cv2.face.createFacemarkLBF()
     # net.loadModel(model_landmark)
-    net = LandmarkExtractor(model_landmark)
+    net = lndd.LandmarkExtractor(model_landmark)
     return net
 
 
-def build_landmarks_from_coords(landmarks_whole_coords: np.ndarray, rect: Rectangle):
-    list_landmarks = []
+def build_landmarks_from_coords(landmarks_whole_coords: np.ndarray, rect: ut.Rectangle):
+    list_landmarks = landmarks_whole_coords
     for i in range(len(landmarks_whole_coords)):
-        x = int(landmarks_whole_coords[i][0].round()) - rect.x()
-        y = int(landmarks_whole_coords[i][1].round()) - rect.y()
-        list_landmarks.append((x, y))
+        list_landmarks[i][0] -= rect.x()
+        list_landmarks[i][1] -= rect.y()
     return list_landmarks
