@@ -1,23 +1,11 @@
 import numpy as np
 import cv2 #REQUIRES OpenCV 3
 
-import common_utils as ut
-from common_face import Face, Person
+from . import common_utils as ut
+from . import common_face as fc
 
+from . import dnn_detection as ddet
 
-from dnn_detection import detect_faces_dnn
-from dnn_tracking_detection import detect_faces_dnn_tracking
-
-
-class FaceDetector:
-    # __method
-    # __functor
-    def __init__(self, method_detection):
-        self.__method = method_detection
-        self.__functor = DetectionMethod.get_functor(self.__method)
-
-    def detect_people(self):
-        pass
 
 class DetectionMethod:
     dnn          = "DNN"
@@ -25,8 +13,8 @@ class DetectionMethod:
     @staticmethod
     def get_functor(method_detection):
         switch = {
-            DetectionMethod.dnn           : detect_faces_dnn,
-            DetectionMethod.dnn_tracking  : detect_faces_dnn_tracking
+            DetectionMethod.dnn           : ddet.detect_faces_dnn,
+            DetectionMethod.dnn_tracking  : ddet.detect_faces_dnn_tracking
         }
         functor_detection = switch.get(method_detection, None)
         if functor_detection is None:
@@ -109,9 +97,9 @@ def faces_from_detection(list_detections,
             list_faces.append(face)
     return list_faces
 
-def face_from_box(box, frame):
+def face_from_box(box, frame: ut.Frame):
     face_image = box.crop_image(frame.image())
-    return Face(ut.Frame(face_image, frame.index(), frame.to_search()), box)
+    return fc.Face(ut.Frame(face_image, frame.index(), frame.to_search()), box)
 
 def load_network_detection(config_detection, model_detection):
     return cv2.dnn.readNetFromCaffe(config_detection, model_detection)

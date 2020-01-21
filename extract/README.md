@@ -19,4 +19,4 @@
 
 #### Usage
 ###### Run example
-	python3 example_extract_faces.py [PATH_TO_VIDEO] [OUTPUT_DIRECTORY]
+	python3 example_extract_faces.py  [-h] --source SOURCE --dest DEST

@@ -22,9 +22,7 @@ static void *init_ar() {
 }
 
 
-PyObject* FacemarkHandler::fit(PyObject* image,
-                               cv::Rect face
-)
+PyObject* FacemarkHandler::fit(PyObject* image, cv::Rect face)
 {
     cv::Mat cppImage;
     std::vector<std::vector<cv::Point2f>> cppLandmarks;
@@ -33,11 +31,7 @@ PyObject* FacemarkHandler::fit(PyObject* image,
     bool ret = _facemark->fit(cppImage, cppFace, cppLandmarks);
     if( !ret && cppLandmarks.empty())
         return nullptr;
-
-    cv::Mat cppMatLandmarks;
-
-    cppMatLandmarks = buildMatFromVector(cppLandmarks.at(0));
-
+    cv::Mat cppMatLandmarks = buildMatFromVector(cppLandmarks.at(0));
     return pbcvt::fromMatToNDArray(cppMatLandmarks);
 }
 

@@ -1,5 +1,48 @@
-import common_face_detection as fdet
-from common_utils import log
+
+from . import common_utils as ut
+from . import common_face as fc
+from . import common_face_detection as fdet
+
+
+
+def detect_faces_dnn(
+        list_frames,  #
+        rate_enlarge,  # Rate to original bounding box to also be included (bigger boxes)
+        min_confidence,  # confidence threshold
+        net,
+        size_net,  # size of the processing dnn
+        mean,  # mean colour to be substracted
+        log_enabled  # log info
+):
+    person = None
+    for frame in list_frames:
+        # forward pass of blob through network, get prediction
+        list_detections = fdet.compute_detection(frame, net, size_net, mean)
+        # IMPORTANT; since we do not track people in this method
+        # we can only assume that is only one person.
+        list_faces = fdet.faces_from_detection(list_detections,
+                                           rate_enlarge,
+                                           frame,
+                                           min_confidence)
+        if len(list_faces) == 0:
+            continue
+        # so we only get the first result VALID from detection
+        # get first new face VALID from detection
+        face = list_faces[0]
+        if person is None:
+            # can't find the joke, but I know there's one somewhere
+            # we don't track in this method
+            person = fc.Person(face, frame, None, is_tracked=False)
+        else:
+            person.append(face)
+        ut.log(log_enabled, "[INFO] detected faces at frame #" + str(frame.index()))
+    # returning list of peole (only one)
+    if person is None:
+        list_people = []
+        ut.log(log_enabled, "[INFO] none found.")
+    else:
+        list_people = [person]
+    return list_people
 
 
 def detect_faces_dnn_tracking(
@@ -26,14 +69,14 @@ def detect_faces_dnn_tracking(
             #loop over detected faces
             for face in list_faces:
                 #every face belongs to a new person we'll have to track
-                list_people.append(det.Person(face, frame, type_tracker))
-                log(log_enabled, "[INFO] found face at  #"+str(face.index_frame()))
+                list_people.append(fc.Person(face, frame, type_tracker))
+                ut.log(log_enabled, "[INFO] found face at  #"+str(face.index_frame()))
         if list_people == []:
-            log(log_enabled, "[INFO] none found.")
+            ut.log(log_enabled, "[INFO] none found.")
             return []
         #Now that we have the people present at start_frame
         #We get faces when asked by tracking
-        log(log_enabled, "[INFO] tracking faces...")
+        ut.log(log_enabled, "[INFO] tracking faces...")
         for frame in list_frames:
             #updating frame
             index_frame = frame.index()
@@ -43,8 +86,8 @@ def detect_faces_dnn_tracking(
                 person.update_tracker(frame)
             #Need to update detection too
             #So that we can find faces closest to trackers
-            detections = det.compute_detection(frame, net, size_net, mean)
-            list_faces = det.faces_from_detection(detections,
+            detections = fdet.compute_detection(frame, net, size_net, mean)
+            list_faces = fdet.faces_from_detection(detections,
                                                      rate_enlarge,
                                                      frame,
                                                      min_confidence)
@@ -56,6 +99,6 @@ def detect_faces_dnn_tracking(
                 #updating person by updating tracker and face
                 if person.update(list_faces, frame):
                     #if their face was found
-                    log(log_enabled, "[INFO] Found face belonging to #"+str(index_person)+" at frame #"+str(index_frame))
+                    ut.log(log_enabled, "[INFO] Found face belonging to #"+str(index_person)+" at frame #"+str(index_frame))
                 index_person += 1
         return list_people
