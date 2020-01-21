@@ -23,7 +23,7 @@ name_model_landmark_default      = "lbfmodel.yaml"
 ## Detection parameters
 method_detection_default         = fdet.DetectionMethod.dnn_tracking
 type_tracker_default             = trck.TrackerType.csrt #most accurate, quite slow
-rate_enlarge_default             = 0.70
+rate_enlarge_default             = 0.20 # Higher than that might cause the landmark detection to fail
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
@@ -44,6 +44,7 @@ pair_resize_default              = (300, 300)
 
 # options
 are_saved_default                 = False
+are_saved_landmarks_default       = False
 are_warped_default                = True
 are_culled_default                = True
 log_enabled_default               = True
@@ -54,7 +55,7 @@ log_enabled_default               = True
 # TODO: could be issues with faces too close to the edges of the image
 # in case of squared output. Might be a problem.
 """"
-Detection method can be any of:
+Detection method can either of:
    'DNN'            : using DNN
    'DNN_TRACKING'   : using DNN with tracking
 """
@@ -103,7 +104,7 @@ class FaceExtractor:
                 method_detection        = method_detection_default,  # name of extraction method to be used
                 pair_resize             = pair_resize_default,  # width of extracted face
                 pairs_interest_prop     = pairs_interest_prop_default,
-                rate_enlarge            = rate_enlarge_default,  # Rate to original bounding box to also be included (bigger boxes)
+                rate_enlarge            = rate_enlarge_default, # Rate to original bounding box to also be included (bigger boxes)
                 start_frame             = 0,  # Frame at which to begin extraction
                 end_frame               = None,  # Frame at which to end
                 step_frame              = step_frame_default,  # read video every ... frames
@@ -125,6 +126,7 @@ class FaceExtractor:
                 are_culled              = are_culled_default,
                 type_tracker            = type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
                 are_saved               = are_saved_default,  # save image in output directory
+                are_saved_landmarks     = are_saved_landmarks_default,  # write landmarks to output
                 dir_out                 = None,  # output directory for faces
                 log_enabled             = log_enabled_default  # output log info
                 ):
@@ -163,7 +165,7 @@ class FaceExtractor:
                                  )
         if are_saved:
             ut.log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
-            FaceExtractor.save_people(list_people, dir_out)
+            FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks)
 
         ut.log(log_enabled, "[INFO] success.")
         return list_people
@@ -254,8 +256,8 @@ class FaceExtractor:
                 warper.warp_person(person)
 
     @staticmethod
-    def save_people(list_people, dir_out):
+    def save_people(list_people, dir_out, are_saved_landmarks):
         # does that mean I'm a doctor now?
         for person in list_people:
-            person.save_images(dir_out)
+            person.save_images(dir_out, are_saved_landmarks)
 

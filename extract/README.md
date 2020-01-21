@@ -19,4 +19,4 @@
 
 #### Usage
 ###### Run example
-	python3 example_extract_faces.py  [-h] --source SOURCE --dest DEST
+	python3 example_extract_faces.py  [-h] --source SOURCE --dest DEST --method FACE_DETECTION_METHOD

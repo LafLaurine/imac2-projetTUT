@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 #from forgery_detection.classifiers import Georges, Hector, Jean
 from ..common_classifier import Classifier, Meso4
 
-from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
 from scipy.ndimage.filters import gaussian_filter
 
@@ -49,8 +48,8 @@ def suppress_context(batch, sigma = 2):
 
 
 
-def load_generators_learning(
-        rescale=1/255,
+def load_data_generators_learning(
+        rescale
         # TODO: add as arguments
 ):
     data_generator_training = ImageDataGenerator(
@@ -65,7 +64,7 @@ def load_generators_learning(
         validation_split=0.1)
 
     data_generator_validation = ImageDataGenerator(
-        rescale=rescale,  # 1/255
+        rescale=rescale,
         # samplewise_center=True,
         # samplewise_std_normalization=True,
         horizontal_flip=True,
@@ -103,7 +102,6 @@ def load_dataset_learning(
 
 def split_classifier(
         classifier,
-        weights_path,
         split_layer=0
 ):
     # split_layer : 0, 4 or 6
@@ -115,10 +113,10 @@ def split_classifier(
     model.summary()
     ## Freeze layers
     print('\nFreezing', split_layer,  'layers ...')
-    for layer in model.layers[:split]:
+    for layer in model.layers[:split_layer]:
         layer.trainable = False
 
-    for layer in model.layers[split:]:
+    for layer in model.layers[split_layer:]:
         layer.trainable = True
     for i, layer in enumerate(model.layers):
         print(i, layer.name, layer.trainable)
@@ -133,7 +131,6 @@ def learn_from_generator(
         batch_size,
         number_epochs,
         step_save_weights_temp: int, # Step in epochs at which the weights are saved temporarily
-        dir_weights_temp,
         number_decimals=3
 ):
     ## Train
@@ -154,15 +151,15 @@ def learn_from_generator(
             mean_loss = 0
             mean_accuracy = 0
         
-            for x_batch, y_batch in generator_training:
+            for image, label in generator_training:
                 #if residual:
                 #    x_batch = suppressContext(x_batch)
-                loss = classifier.fit(x_batch, y_batch)
+                loss = classifier.fit(image, label)
                 mean_loss += loss[0]
                 mean_accuracy += loss[1]
                 batches += 1
                 if batches >= batch_size:
-                    print('eq', np.round(np.mean(classifier.predict(x_batch)), decimals=number_decimals))
+                    print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
                     break
 
             if (e % step_save_weights_temp == 0):
@@ -235,12 +232,12 @@ def find_worst_classified(classifier, generator_validation):
     print('\nfind worst classified ...')
     validation_a, validation_b = generator_validation.next()
     indices_bad = []
-    validation_z = classifier.predict(aTest)
+    validation_z = classifier.predict(validation_a)
     validation_diff = np.abs(validation_b.flatten() - validation_z.flatten())
     for i in range(validation_b.shape[0]):
         if validation_diff[i] > 0.5:
             indices_bad.append(i)
-    print(len(bad_index), "found")
+    print(len(indices_bad), "found")
 
     for i in range(3):
         plt.subplot(1, 3, i+1)
@@ -261,16 +258,14 @@ def plot_weights(classifier):
     plt.figure()
     for i in range(8):
         plt.subplot(2, 4, i+1)
-        plt.imshow(convWeight[:, :, :, i], interpolation="none")
+        plt.imshow(weights_conv[:, :, :, i], interpolation="none")
         plt.axis('off')
     plt.show()
 
-## Show intermediate representation
 
-def show_intermidiate(classifier, generator):
+def show_intermidiate(classifier, generator, accuracy_plot):
+    ## Show intermediate representation
     a, b = generator.next()
-    #c = hide_eyes(a)
-    ## sur une image
     print('\nshow layers ...')
     model = classifier.get_model()
     img = a[0:1]
@@ -297,5 +292,5 @@ def show_intermidiate(classifier, generator):
 
     plt.show()
     ##
-    for i in accuracyPlot[80:]:
+    for i in accuracy_plot[80:]:
         print(i)

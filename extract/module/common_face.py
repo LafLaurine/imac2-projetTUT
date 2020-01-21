@@ -64,7 +64,7 @@ class Face:
     def save_image(self, dir_out):
         self.__frame.save(dir_out, self.x1(), self.y1())
 
-    def write_features(self, radius=2, colour=(0, 255, 0)):
+    def write_landmarks(self, radius=2, colour=(0, 255, 0)):
         for i in range(len(self.features())):
             pos = self.get_feature_position(i)
             x, y = pos.tuple()
@@ -166,7 +166,8 @@ class Person:
             else:
                 i += 1
 
-    def save_images(self, dir_out):
+    def save_images(self, dir_out, are_saved_landmarks):
         for face in self.faces():
-            #face.write_features()
+            if are_saved_landmarks:
+                face.write_landmarks()
             face.save_image(dir_out)

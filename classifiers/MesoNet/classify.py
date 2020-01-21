@@ -2,6 +2,7 @@ import os
 import numpy as np
 
 from .module.learning import df_learning as lrn
+from .module.test import df_test as tst
 from .module import common_classifier as clf
 from keras.preprocessing.image import ImageDataGenerator
 
@@ -50,6 +51,7 @@ def print_info():
     print('Isao Echizen      (NII)')
     print('------------------------------\n')
 
+print_info()
 
 class ClassifierLoader:
     meso4_df          = 'MESO4_DF'
@@ -62,7 +64,7 @@ class ClassifierLoader:
                        dir_weights_temp     =dir_weights_temp_default,
                        learning_rate        =learning_rate_default,
                        name_weights         = None
-                        ):
+                       ):
         switch = {
             ClassifierLoader.meso4_df        : (clf.Meso4, weights_meso4_df_default),
             ClassifierLoader.meso4_f2f       : (clf.Meso4, weights_meso4_f2f_default),
@@ -82,74 +84,52 @@ class ClassifierLoader:
         return classifier
 
 def learn_from_dir(name_classifier,
-                   path_database,
+                   dir_database,
                    batch_size_training=batch_size_training_default,
                    batch_size_validation=batch_size_validation_default,
                    number_epochs=number_epochs_default,
                    learning_rate=learning_rate_default,
                    step_save_weights_temp=step_save_weights_temp_default,
-                   dir_weights_temp=dir_weights_temp_default,
                    target_size=target_size_default,
                    rescale=rescale_default
                    ):
-    print_info()
-    data_generator_training, data_generator_validation = lrn.load_generators_learning(rescale)
-    generator_training,  generator_validation = lrn.load_dataset_learning(path_database,
-                                                                            data_generator_training,
-                                                                            data_generator_validation,
-                                                                            batch_size_training,
-                                                                            batch_size_validation,
-                                                                            target_size)
-    classifier = ClassifierLoader.get_classifier(name_classifier, learning_rate=learning_rate, name_weights=None)
+    data_generator_training, data_generator_validation = lrn.load_data_generators_learning(rescale)
+    generator_training,  generator_validation = lrn.load_dataset_learning(dir_database,
+                                                                          data_generator_training,
+                                                                          data_generator_validation,
+                                                                          batch_size_training,
+                                                                          batch_size_validation,
+                                                                          target_size)
+    classifier = ClassifierLoader.get_classifier(name_classifier,
+                                                 learning_rate=learning_rate,
+                                                 name_weights=None)
     lrn.learn_from_generator(classifier,
-                                  generator_training,
-                                  generator_validation,
-                                  batch_size_training,
-                                  number_epochs,
-                                  step_save_weights_temp,
-                                  dir_weights_temp)
+                             generator_training,
+                             generator_validation,
+                             batch_size_training,
+                             number_epochs,
+                             step_save_weights_temp)
+    return
 
 
 
-def test_from_dir(
-        classifier_name,
-        database_path,
-        target_size=target_size_default,
-        batch_size=batch_size_test_default,
-        rescale=rescale_default
-):
-    # 1 - Load the model and its pretrained weights
-    classifier = ClassifierLoader.get_classifier(classifier_name)
-
-    # 2 - Flow images from directory and predict
-    data_generator = ImageDataGenerator(rescale=rescale)
-
-
-    generator = data_generator.flow_from_directory(
-        database_path,
-        shuffle=False,
-        target_size=target_size,
-        batch_size=batch_size,
-        class_mode='binary',
-        subset='training')
-
-    print("Flowing images from", database_path)
-
-    # 3 - Predict images by batch
-    number_images = generator.classes.shape[0]
-    number_epochs = n_images // batchSize
-
-    predicted = np.ones((number_images, 1)) / 2.
-
-    for e in range(number_epochs + 1):
-        X, Y = generator.next()
-        print("Epoch ", e + 1, "/", number_epochs + 1)
-        prediction = classifier.predict(X)
-        predicted[(e * batchSize):(e * batchSize + prediction.shape[0])] = prediction
-
-    print('Mean prediction  :', np.mean(predicted, axis=0)[0])
-    print('Deepfake percent :', np.mean(predicted < 0.5))
-
-    for i in range(len(predicted)):
-        image_id = "%3d" % (i)
-        print(image_id,' ',predicted[i])
+def test_from_dir(name_classifier,
+                  dir_input,
+                  batch_size=batch_size_test_default,
+                  learning_rate=learning_rate_default,
+                  target_size=target_size_default,
+                  rescale=rescale_default
+                  ):
+    # Flow images from directory and predict
+    data_generator_test = tst.load_data_generator_test(rescale=rescale)
+    generator_test = tst.load_dataset_test(dir_input,
+                                           data_generator_test,
+                                           batch_size,
+                                           target_size)
+    classifier = ClassifierLoader.get_classifier(name_classifier,
+                                                 learning_rate=learning_rate,
+                                                 name_weights=None)
+    tst.test_from_generator(classifier,
+                            generator_test,
+                            batch_size)
+    return
