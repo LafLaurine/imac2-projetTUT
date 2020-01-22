@@ -4,7 +4,8 @@ import cv2
 from .module import common_utils as ut
 from .module import common_face as fc
 from .module import common_face_detection as fdet
-from .module import common_landmark_detection as ldet
+#from .module import common_landmark_detection as ldet
+from .module import common_landmark_detection_alt as ldet
 from .module import common_tracking as trck
 from .module import landmark_warping as lndm
 
@@ -18,12 +19,13 @@ mean_default                     = (104.0, 177.0, 123.0)
 ## Feature warping model
 dir_model_landmark_default       = "landmark_model"
 name_model_landmark_default      = "lbfmodel.yaml"
+name_model_landmark_alt_default      = "shape_predictor_68_face_landmarks.dat"
 
 
 ## Detection parameters
 method_detection_default         = fdet.DetectionMethod.dnn_tracking
 type_tracker_default             = trck.TrackerType.csrt #most accurate, quite slow
-rate_enlarge_default             = 0.20 # Higher than that might cause the landmark detection to fail
+rate_enlarge_default             = 0.90 # (Higher than that might cause the landmark detection to fail) Not for alt method
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
@@ -117,7 +119,7 @@ class FaceExtractor:
                 dir_model_face          = dir_model_face_default,
                 dir_model_landmark      = dir_model_landmark_default,
                 name_model_face         = name_model_face_default,
-                name_model_landmark     = name_model_landmark_default,
+                name_model_landmark     = name_model_landmark_alt_default,
                 name_config_model_face  = name_config_model_face_default,  # path to prototxt configuration file
                 size_net                = size_net_default,  # size of the processing dnn
                 mean                    = mean_default,  # mean colour to be substracted

@@ -70,7 +70,6 @@ class LandmarkWarper:
 
         # Finally we can compute the warped image
         image_warped = self.__warp_image(face.image(), matrix_warp)
-
         # Face is updated with warping
         face.set_image(image_warped)
 

@@ -18,7 +18,7 @@ def load_dataset_test(dir_database,
         shuffle=False,
         target_size=target_size,
         batch_size=batch_size_test,
-        class_mode=None
+        class_mode='binary'
     )
     print("Flowing images from", dir_database)
     return generator_test
@@ -34,7 +34,7 @@ def test_from_generator(classifier,
     predicted = np.ones((number_images, 1)) / 2.
 
     for e in range(number_epochs+1):
-        image = generator_test.next()
+        image, label = generator_test.next()
         print("Epoch ", e + 1, "/", number_epochs + 1)
         prediction = classifier.predict(image)
         predicted[(e * batch_size_test):(e * batch_size_test + len(prediction))] = prediction
