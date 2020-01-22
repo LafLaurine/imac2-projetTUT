@@ -1,9 +1,8 @@
 import numpy as np
 import cv2 #REQUIRES OpenCV 3
 
-import common_utils as ut
-
-from common_tracking import TrackerType
+from . import common_utils as ut
+from . import common_tracking as trck
 
 
 class Face:
@@ -42,26 +41,35 @@ class Face:
     def set_image(self, image):
         self.__frame = ut.Frame(image, self.index_frame(), to_search=True)
     def set_features(self, features):
-        self.__features = features
+        self.__features = np.array(features)
+
+    def get_feature_position(self, index_feature):
+        x, y = self.features()[index_feature][0], self.features()[index_feature][1]
+        return ut.Point2D(x, y)
 
     def is_valid(self):
         if self.features() is None:
             raise ValueError("Features need to be set before validation.")
+        if len(self.features()) == 0:
+            return False
         rel_box = ut.BoundingBox(0, 0, self.w(), self.h())
-        for (x, y) in self.features():
-            pos = ut.Point2D(x, y)
+        for i in range(len(self.features())):
+            pos = self.get_feature_position(i)
             if not pos.is_in(rel_box):
                 # if feature was not found in the face (bounding box too small or face occlusion)
                 return False
+            i += 1
         return True
 
     def save_image(self, dir_out):
         self.__frame.save(dir_out, self.x1(), self.y1())
 
-    def write_features(self, radius=2):
-        for (x, y) in self.features():
-            cv2.circle(self.image(), (x, y), radius, color=(0, 255, 0))
-
+    def write_landmarks(self, radius=2, colour=(0, 255, 0)):
+        for i in range(len(self.features())):
+            pos = self.get_feature_position(i)
+            x, y = pos.tuple()
+            cv2.circle(self.image(), (int(x), int(y)), radius, color=colour)
+            i += 1
 
 class Person:
     #__faces                 : list of Faces belonging to Person in video
@@ -73,7 +81,7 @@ class Person:
         #create and init tracker with first face's bounding box
         self.__is_tracked = is_tracked
         if self.__is_tracked:
-            self.__tracker = TrackerType.create_tracker(type_tracker)
+            self.__tracker = trck.TrackerType.create_tracker(type_tracker)
             box = self.face(0).box()
             ok = self.__init_tracker(frame, box)
             if not ok:
@@ -158,6 +166,8 @@ class Person:
             else:
                 i += 1
 
-    def save_images(self, dir_out):
+    def save_images(self, dir_out, are_saved_landmarks):
         for face in self.faces():
+            if are_saved_landmarks:
+                face.write_landmarks()
             face.save_image(dir_out)

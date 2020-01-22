@@ -1,5 +1,5 @@
 import os
-
+import numpy as np
 import cv2  # requires OpenCV version 3
 
 # using PNG lossless to save images
@@ -17,7 +17,8 @@ class Frame:
 
     @staticmethod
     def read_next(cap, index_frame, to_search):
-        assert (cap.isOpened())
+        if not cap.isOpened():
+            raise EOFError("Video capture is over.")
         # reading next frame
         ok, image = cap.read()
         if not ok:
@@ -51,7 +52,7 @@ class Frame:
             raise NotADirectoryError(dir_out)
         #building filepath to output
         filepath = dir_out + os.sep + \
-                   str(self.index())+"_(x"+str(x) + \
+                   str(self.index())+"_x"+str(x) + \
                    'y' + str(y)
         #adding extension (OpenCV will encode accordingly)
         filepath += ext_codec
@@ -66,10 +67,10 @@ class Rectangle:
     # __x, __y, __w, __h
 
     def __init__(self, x, y, w, h):
-        self.__x = x
-        self.__y = y
-        self.__w = w
-        self.__h = h
+        self.__x = int(x)
+        self.__y = int(y)
+        self.__w = int(w)
+        self.__h = int(h)
 
     def x(self):
         return self.__x
@@ -215,9 +216,10 @@ class Point2D:
         return res * (1 / len(list_points))
 
     @staticmethod
-    def build_from_list(list_coords):
+    def build_from_array(array_coords):
         list_points = []
-        for (x, y) in list_coords:
+        for i in range(len(array_coords)):
+            x, y = array_coords[i][0], array_coords[i][1]
             list_points.append(Point2D(x, y))
         return list_points
 
