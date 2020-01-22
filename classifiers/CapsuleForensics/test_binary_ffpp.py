@@ -28,8 +28,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default ='databases/faceforensicspp', help='path to dataset')
 parser.add_argument('--test_set', default ='test', help='test set')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
+<<<<<<< HEAD
 parser.add_argument('--batch_size', type=int, default=4, help='input batch size')
 parser.add_argument('--image_size', type=int, default=300, help='the height / width of the input image to network')
+=======
+parser.add_argument('--batchSize', type=int, default=4, help='input batch size')
+parser.add_argument('--imageSize', type=int, default=300, help='the height / width of the input image to network')
+>>>>>>> CapsuleForensics
 parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
 parser.add_argument('--outf', default='checkpoints/binary_faceforensicspp', help='folder to output model checkpoints')
 parser.add_argument('--random', action='store_true', default=False, help='enable randomness for routing matrix')
@@ -43,7 +48,11 @@ if __name__ == '__main__':
     text_writer = open(os.path.join(opt.outf, 'test.txt'), 'w')
 
     transform_fwd = transforms.Compose([
+<<<<<<< HEAD
         transforms.Resize((opt.image_size, opt.image_size)),
+=======
+        transforms.Resize((opt.imageSize, opt.imageSize)),
+>>>>>>> CapsuleForensics
         transforms.ToTensor(),
         transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
         ])
