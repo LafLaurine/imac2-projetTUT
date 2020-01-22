@@ -9,7 +9,7 @@ log_enabled = True
 
 min_confidence = 0.90
 
-rate_enlarge = 0.20  # proportional the detected face, so that it does not crop the chin, and such
+rate_enlarge = 0.90  # proportional the detected face, so that it does not crop the chin, and such
 start_frame = 0
 end_frame = None
 step_frame = 1

@@ -4,19 +4,19 @@ import dlib
 import imutils.face_utils as face_utils
 
 
-def compute_feature_person(person, net):
+def compute_landmarks_person(person, list_frames, net):
     for face in person:
-        compute_feature_face(face, net)
+        compute_landmarks_face(face, list_frames, net)
 
 
-def compute_feature_face(face, net):
+def compute_landmarks_face(face, list_frames, net):
     # face was already extracted, so we
     # run the network on the whole cropped image
     shape = net(np.array(face.image()), dlib.rectangle(0, 0, face.w(), face.h()))
     face.set_features(face_utils.shape_to_np(shape))
 
 
-def load_network_feature(model_extraction):
+def load_network_landmark(model_extraction):
     # Will use frontal faces only
     net = dlib.shape_predictor(model_extraction)
     return net
