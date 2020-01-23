@@ -29,6 +29,7 @@ number_workers_default=1
 
 beta1_default = 0.9
 beta2_default = 0.999
+betas_default = (beta1_default, beta2_default)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset',                             default ='databases/faceforensicspp',             help='path to root dataset')
@@ -58,7 +59,7 @@ def get_loaders_learning(manual_seed,
                           name_model='train.csv',
                           number_workers=number_workers_default,
                           gpu_id=gpu_id_default,
-                          betas=(beta1, 0.999)
+                          betas=betas_default
                           ):
     #  =================================================
     print("Random Seed: ", manual_seed)
@@ -97,75 +98,7 @@ if __name__ == "__main__":
     #
     method_open = 'a' if (resume > 0) else 'w'
     text_writer = open(os.path.join(dir_out, name_model), method_open)
-    vgg_ext = model_big.VggExtractor("""
-Copyright (c) 2019, National Institute of Informatics
-All rights reserved.
-Author: Huy H. Nguyen
------------------------------------------------------
-Script for training Capsule-Forensics-v2 on FaceForensics++ database (Real, DeepFakes, Face2Face, FaceSwap)
-"""
-
-import sys
-sys.setrecursionlimit(15000)
-import os
-import random
-import torch
-import torch.backends.cudnn as cudnn
-import numpy as np
-from torch.autograd import Variable
-from torch.optim import Adam
-import torch.utils.data
-import torchvision.datasets as dset
-import torchvision.transforms as transforms
-from tqdm import tqdm
-import argparse
-from sklearn import metrics
-import model_big
-
-gpu_id_default = -1
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--dataset',                             default ='databases/faceforensicspp',             help='path to root dataset')
-parser.add_argument('--train_set',                           default ='train',                                 help='train set')
-parser.add_argument('--val_set',                             default ='validation',                            help='validation set')
-parser.add_argument('--workers',        type=int,            default = 1,                                      help='number of data loading workers')
-parser.add_argument('--batch_size',     type=int,            default=32,                                       help='batch size')
-parser.add_argument('--image_size',     type=int,            default=300,                                      help='the height / width of the input image to network')
-parser.add_argument('--niter',          type=int,            default=25,                                       help='number of epochs to train for')
-parser.add_argument('--lr',             type=float,          default=0.0005,                                   help='learning rate')
-parser.add_argument('--beta1',          type=float,          default=0.9,                                      help='beta1 for adam')
-parser.add_argument('--resume',         type=int,            default=0,                                        help="choose a epochs to resume from (0 to train from scratch)")
-parser.add_argument('--dir_out',                             default='checkpoints/multiclass_faceforensicspp', help='folder to output model checkpoints')
-parser.add_argument('--disable_random', action='store_true', default=False,                                    help='disable randomness for routing matrix')
-parser.add_argument('--dropout',        type=float,          default=0.05,                                     help='dropout percentage')
-parser.add_argument('--manual_seed',    type=int,            default=random.randint(1, 10000),                 help='manual seed')
-
-
-
-
-def load_(manual_seed,
-                          learning_rate,
-                          dir_out,
-                          size_image,
-                          path_dataset,
-                          set_training,
-                          set_validation,
-                          name_model='train.csv',
-                          gpu_id=gpu_id_default,
-                          betas=(opt.beta1, 0.999)
-                          ):
-    #  =================================================
-    print("Random Seed: ", manual_seed)
-    random.seed(manual_seed)
-    torch.manual_seed(manual_seed)
-    capnet = model_big.CapsuleNet(4, gpu_id)
-
-    optimiser = Adam(capnet.parameters(), lr=learning_rate, betas=betas)
-
-    if resume > 0:
-        capnet.load_state_dict(torch.load(os.path.join(dir_out, 'capsule_' + str(resume) + '.pt')))
-        capnet.train(mode=True)
-        optimiser.load_state_dict(torch.load(os.path.join(dir_out, 'optim_' + str(resume) + '.pt')))
+    vgg_ext = model_big.VggExtractor(
 
     transform_fwd = transforms.Compose([
         transforms.Resize((size_image, size_image)),

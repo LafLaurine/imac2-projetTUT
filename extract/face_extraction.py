@@ -23,8 +23,8 @@ name_model_landmark_alt_default      = "shape_predictor_68_face_landmarks.dat"
 
 
 ## Detection parameters
-method_detection_default         = fdet.DetectionMethod.dnn_tracking
-type_tracker_default             = trck.TrackerType.csrt #most accurate, quite slow
+method_detection_default         = "DNN_TRACKING"
+type_tracker_default             = "CSRT" #most accurate, quite slow
 rate_enlarge_default             = 0.90 # (Higher than that might cause the landmark detection to fail) Not for alt method
 min_confidence_default           = 0.95
 step_frame_default               = 1
@@ -72,8 +72,6 @@ Detection method can either of:
    'CSRT'
 """
 
-
-#For dlib’s 68-point facial landmark detector:
 class LandmarkFinder:
     jaw             = 'jaw'
     right_eyebrow   = 'right_eyebrow'

@@ -1,4 +1,6 @@
-import cv2 # Requires OpenCV 3.4
+import cv2# Requires OpenCV 3 >
+
+(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
 class TrackerType:
     mil           = "MIL"
@@ -11,6 +13,8 @@ class TrackerType:
     csrt          = "CSRT"
     @staticmethod
     def create_tracker(type_tracker):
+        if int(major_ver) < 4 and int(minor_ver) < 3:
+            return cv2.Tracker_create(type_tracker)
         switch = {
             TrackerType.mil           : cv2.TrackerMIL_create,
             TrackerType.boosting      : cv2.TrackerBoosting_create,
