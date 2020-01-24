@@ -42,26 +42,35 @@ class Frame:
         return self.__image.shape[0]
 
     def dim(self):
-        return tuple((self.w(), self.h()))
+        return Point2D(self.w(), self.h())
 
-    def save(self, dir_out, x=0, y=0, ext_codec=ext_codec_default, param_codec=param_codec_default):
-        #if output directory does not exist, create it
+    def get_cropped(self, box):
+        x1, y1, x2, y2 = box.tuple()
+        print(box.tuple())
+        image_cropped = self.image()[y1:y2, x1:x2]
+        return image_cropped
+
+    def save(self, dir_out, box, ext_codec=ext_codec_default, param_codec=param_codec_default):
+        #building filepath to output
+        #cropped = self.get_cropped(box)
+        filename = str(self.index())+"_x"+str(box.x1()) + \
+                   'y' + str(box.y1())
+        Frame.__save_image(self.image(), dir_out, filename, ext_codec, param_codec)
+
+
+    @staticmethod
+    def __save_image(image, dir_out, filename, ext_codec, param_codec):
+        # if output directory does not exist, create it
         if not os.path.exists(dir_out):
             os.mkdir(dir_out)
         elif not os.path.isdir(dir_out):
             raise NotADirectoryError(dir_out)
-        #building filepath to output
-        filepath = dir_out + os.sep + \
-                   str(self.index())+"_x"+str(x) + \
-                   'y' + str(y)
-        #adding extension (OpenCV will encode accordingly)
-        filepath += ext_codec
-        #saving output
-        ok = cv2.imwrite(filepath, self.image(), params=param_codec)
+        filepath = dir_out + os.sep + filename + ext_codec
+        # adding extension (OpenCV will encode accordingly)
+        # saving output
+        ok = cv2.imwrite(filepath, image, params=param_codec)
         if not ok:
             raise IOError("Could not save image at path: " + filepath)
-
-
 
 class Rectangle:
     # __x, __y, __w, __h
@@ -114,10 +123,10 @@ class BoundingBox:
     # __x1, __y1, __x2, __y2
 
     def __init__(self, x1, y1, x2, y2):
-        self.__x1 = x1
-        self.__y1 = y1
-        self.__x2 = x2
-        self.__y2 = y2
+        self.__x1 = int(x1)
+        self.__y1 = int(y1)
+        self.__x2 = int(x2)
+        self.__y2 = int(y2)
 
     def x1(self):
         return self.__x1
@@ -139,6 +148,8 @@ class BoundingBox:
 
     def tuple(self):
         return self.x1(), self.y1(), self.x2(), self.y2()
+    def list(self):
+        return [self.x1(), self.y1(), self.x2(), self.y2()]
 
     def enlarge(self, rate_enlarge):
         # enlarge box from centre
@@ -205,8 +216,8 @@ class Point2D:
         return [self.x(), self.y()]
 
     def is_in(self, box: BoundingBox):
-        return (box.x1() <= self.x() and self.x() <= box.x2()
-                and box.y1() <= self.y() and self.y() <= box.y2())
+        return (box.x1() <= self.x() <= box.x2()
+                and box.y1() <= self.y()  <= box.y2())
 
     @staticmethod
     def average(list_points):

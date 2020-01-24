@@ -23,16 +23,16 @@ name_model_landmark_alt_default      = "shape_predictor_68_face_landmarks.dat"
 
 
 ## Detection parameters
-method_detection_default         = fdet.DetectionMethod.dnn_tracking
-type_tracker_default             = trck.TrackerType.csrt #most accurate, quite slow
+method_detection_default         = "DNN_TRACKING"
+type_tracker_default             = "CSRT" #most accurate, quite slow
 rate_enlarge_default             = 0.90 # (Higher than that might cause the landmark detection to fail) Not for alt method
 min_confidence_default           = 0.95
 step_frame_default               = 1
 
 ##Feature warping parameters
-pair_left_eye_default            = (0.66, 0.4)
-pair_right_eye_default           = (0.33, 0.4) #IN [0, 1], proportion of face image dimensions
-pair_mouth_default               = (0.5, 0.75)
+pair_left_eye_default            = (0.66, 0.35)
+pair_right_eye_default           = (0.33, 0.35) #IN [0, 1], proportion of face image dimensions
+pair_mouth_default               = (0.5, 0.72)
 pairs_interest_prop_default      = (pair_left_eye_default,
                                pair_right_eye_default,
                                pair_mouth_default)
@@ -42,7 +42,7 @@ Border mode
 """
 mode_border_default              = cv2.BORDER_REFLECT
 method_resize_default            = cv2.INTER_LINEAR
-pair_resize_default              = (300, 300)
+pair_resize_default              = (256, 256)
 
 # options
 are_saved_default                 = False
@@ -72,8 +72,6 @@ Detection method can either of:
    'CSRT'
 """
 
-
-#For dlib’s 68-point facial landmark detector:
 class LandmarkFinder:
     jaw             = 'jaw'
     right_eyebrow   = 'right_eyebrow'
@@ -155,8 +153,7 @@ class FaceExtractor:
                                                 log_enabled
                                                 )
         ut.log(log_enabled, "[INFO] warping faces...")
-        FaceExtractor.detect_landmarks(list_people,
-                                     list_frames,
+        FaceExtractor.warp_from_landmarks(list_people,
                                      are_warped,
                                      are_culled,
                                      pair_resize,
@@ -168,7 +165,6 @@ class FaceExtractor:
         if are_saved:
             ut.log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
             FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks)
-
         ut.log(log_enabled, "[INFO] success.")
         return list_people
 
@@ -223,10 +219,9 @@ class FaceExtractor:
                 type_tracker     = type_tracker,
                 log_enabled      = log_enabled
                 )
-        else: #no tracking method
+        else:  # no-tracking method
             return functor_detection(
                 list_frames      = list_frames,
-                rate_enlarge     = rate_enlarge,
                 min_confidence   = min_confidence,
                 net              = net,
                 size_net         = size_net,
@@ -235,8 +230,7 @@ class FaceExtractor:
                 )
 
     @staticmethod
-    def detect_landmarks(list_people,
-                   list_frames,
+    def warp_from_landmarks(list_people,
                     are_warped,
                     are_culled,
                     pair_resize,
@@ -251,7 +245,7 @@ class FaceExtractor:
                             method_resize,
                             )
         for person in list_people:
-            ldet.compute_landmarks_person(person, list_frames, net_landmark)
+            ldet.compute_landmarks_person(person, net_landmark)
             if are_culled:
                 person.cull_faces()
             if are_warped:
@@ -259,7 +253,6 @@ class FaceExtractor:
 
     @staticmethod
     def save_people(list_people, dir_out, are_saved_landmarks):
-        # does that mean I'm a doctor now?
         for person in list_people:
-            person.save_images(dir_out, are_saved_landmarks)
+            person.save_faces(dir_out, are_saved_landmarks)
 

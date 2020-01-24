@@ -7,7 +7,6 @@ from . import common_face_detection as fdet
 
 def detect_faces_dnn(
         list_frames,  #
-        rate_enlarge,  # Rate to original bounding box to also be included (bigger boxes)
         min_confidence,  # confidence threshold
         net,
         size_net,  # size of the processing dnn
@@ -21,7 +20,6 @@ def detect_faces_dnn(
         # IMPORTANT; since we do not track people in this method
         # we can only assume that is only one person.
         list_faces = fdet.faces_from_detection(list_detections,
-                                           rate_enlarge,
                                            frame,
                                            min_confidence)
         if len(list_faces) == 0:
@@ -47,7 +45,6 @@ def detect_faces_dnn(
 
 def detect_faces_dnn_tracking(
                     list_frames,
-                    rate_enlarge,     #Rate to original bounding box to also be included (bigger boxes)
                     net,
                     size_net,         #size of the processing dnn
                     min_confidence,   #confidence threshold
@@ -63,7 +60,6 @@ def detect_faces_dnn_tracking(
             #forward pass of blob through network, get prediction
             detections = fdet.compute_detection(frame, net, size_net, mean)
             list_faces = fdet.faces_from_detection(detections,
-                                            rate_enlarge,
                                             frame,
                                             min_confidence)
             #loop over detected faces

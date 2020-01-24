@@ -7,10 +7,10 @@ type_tracker = "CSRT"
 are_saved = True
 log_enabled = True
 
-min_confidence = 0.90
+min_confidence = 0.85
 
-rate_enlarge = 0.90  # proportional the detected face, so that it does not crop the chin, and such
-start_frame = 0
+rate_enlarge = 0.20  # proportional the detected face, so that it does not crop the chin, and such
+start_frame = 400
 end_frame = None
 step_frame = 1
 max_frame = 50
@@ -42,6 +42,7 @@ if __name__ == "__main__":
         min_confidence=min_confidence,
         type_tracker=type_tracker,
         are_warped=are_warped,
+        are_culled=are_culled,
         are_saved=are_saved,
         are_saved_landmarks=are_saved_landmarks,
         dir_out=dir_out,

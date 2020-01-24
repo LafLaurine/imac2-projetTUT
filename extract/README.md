@@ -14,7 +14,7 @@
 	sudo apt install pip3
 	pip3 install numpy
 	sudo apt install libopencv-dev build-essential cmake libgtk-3-dev libboost-all-dev
-	pip3 install opencv-python opencv-contrib-python 
+	pip3 install opencv-contrib-python 
 	
 
 #### Usage
