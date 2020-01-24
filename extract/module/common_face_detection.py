@@ -51,14 +51,12 @@ def compute_detection(frame,
 
 def box_from_detection(list_detections,
                        index_detection,
-                       rate_enlarge,
                        frame
                        ):
-    (w, h) = frame.dim()
+    (w, h) = frame.dim().tuple()
     list_dim = [w, h, w, h]
     list_dim = (list_detections[0, 0, index_detection, 3:7]*np.array(list_dim)).astype(int)
     box = ut.BoundingBox(list_dim[0], list_dim[1], list_dim[2], list_dim[3])
-    box.enlarge(rate_enlarge)
     return box
 
 #returns whether the detection at #index is valid
@@ -74,7 +72,6 @@ def is_detection_valid(list_detections,
 #returns whether the face at #index is valid, and Face
 def face_from_detection(list_detections,
                         index_detection,
-                        rate_enlarge,
                         frame,
                         min_confidence
                         ):
@@ -82,24 +79,23 @@ def face_from_detection(list_detections,
         #then that's not a good enough face, skipping.
         return False, None
     #compute the (x, y)-coordinates of bounding box
-    box = box_from_detection(list_detections, index_detection, rate_enlarge, frame)
+    box = box_from_detection(list_detections, index_detection, frame)
     return True, face_from_box(box, frame)
 
 def faces_from_detection(list_detections,
-                         rate_enlarge,
                          frame,
                          min_confidence
                          ):
     list_faces = []
     for i in range(len(list_detections)):
-        ok, face = face_from_detection(list_detections, i, rate_enlarge, frame,  min_confidence)
+        ok, face = face_from_detection(list_detections, i, frame,  min_confidence)
         if ok:
             list_faces.append(face)
     return list_faces
 
 def face_from_box(box, frame: ut.Frame):
-    face_image = box.crop_image(frame.image())
-    return fc.Face(ut.Frame(face_image, frame.index(), frame.to_search()), box)
+    # TODO: DONE HERE
+    return fc.Face(ut.Frame(frame.image(), frame.index(), frame.to_search()), box)
 
 def load_network_detection(config_detection, model_detection):
     return cv2.dnn.readNetFromCaffe(config_detection, model_detection)

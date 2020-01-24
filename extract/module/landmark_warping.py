@@ -30,13 +30,13 @@ class LandmarkFinder:
 
 
 class LandmarkWarper:
-    # __points_interest_baseline
+    # __points_interest_prop
     # __mode_border
     # __method_resize
     # __dim_resize
     def __init__(self, pair_resize, pairs_interest_prop, mode_border, method_resize):
         self.__dim_resize = ut.Point2D(*pair_resize)
-        self.__points_interest_baseline = LandmarkWarper.baseline_from_prop(pairs_interest_prop, self.dim_resize())
+        self.__points_interest_baseline = self.__baseline_from_prop(pairs_interest_prop)
         self.__mode_border = mode_border
         self.__method_resize = method_resize
 
@@ -64,14 +64,15 @@ class LandmarkWarper:
         the eyes and the mouth
         """
         # first, we compute the positions of the three points of interest
-        points_interest_face = LandmarkWarper.__get_points_interest(face.features())
+        points_interest_face = LandmarkWarper.__get_points_interest(face.landmarks())
         # Then we get warp matrix from opencv FROM Face TO BASELINE
-        matrix_warp = self.__get_warp_matrix(points_interest_face)
-
+        mat_warp = self.__get_transform_matrix(points_interest_face)
         # Finally we can compute the warped image
-        image_warped = self.__warp_image(face.image(), matrix_warp)
+        image_warped = self.__warp_image(face.image(), mat_warp)
+        w, h = self.dim_resize().tuple()
+        box_warped = ut.BoundingBox(0, 0, w, h)
         # Face is updated with warping
-        face.set_image(image_warped)
+        face.set_warped(box_warped, image_warped)
 
     def __warp_image(self, image, matrix_warp):
         return cv2.warpAffine(image,
@@ -81,17 +82,48 @@ class LandmarkWarper:
                               self.mode_border()
                               )
 
-    def __get_warp_matrix(self, points_interest_face):
-        mat_src = np.float32([point.list() for point in points_interest_face])
-        mat_dest = np.float32([point.list() for point in self.points_interest_baseline()])
+    @staticmethod
+    def __warp_box(box, mat_warp):
+        x1, y1, x2, y2 = box.tuple()
+        # perspectiveTransform expects 3D arrays
+        p1 = LandmarkWarper.__warp_coords(x1, y1, mat_warp)
+        p2 = LandmarkWarper.__warp_coords(x1, y2, mat_warp)
+        p3 = LandmarkWarper.__warp_coords(x2, y1, mat_warp)
+        p4 = LandmarkWarper.__warp_coords(x2, y2, mat_warp)
+        # taking smallest box containing the warped one
+        x1_warped = min(x1, p1[0], p2[0])
+        y1_warped = min(y1, p1[1], p3[1])
+        x2_warped = max(x2, p3[0], p4[0])
+        y2_warped = max(y2, p2[1], p4[1])
+        box_warped = ut.BoundingBox(x1_warped, y1_warped, x2_warped, y2_warped)
+        return box_warped
+
+    @staticmethod
+    def __warp_coords(x, y, mat_warp):
+        # res = M * (x, y, w)
+        x_warped = mat_warp[0][0]*x + mat_warp[0][1]*y + mat_warp[0][2]
+        y_warped = mat_warp[1][0]*x + mat_warp[1][1]*y + mat_warp[1][2]
+        return x_warped, y_warped
+
+
+    def __get_transform_matrix(self, points_interest_face):
+        mat_src, mat_dest = LandmarkWarper.__get_matrices_src_dest(points_interest_face, self.points_interest_baseline())
         return cv2.getAffineTransform(mat_src, mat_dest)
 
     @staticmethod
-    def baseline_from_prop(pairs_interest_prop, dim_resize):
-        # result's points of interest
+    def __get_matrices_src_dest(points_interest_face, points_interest_baseline):
+        mat_src = np.float32([point.list() for point in points_interest_face])
+        mat_dest = np.float32([point.list() for point in points_interest_baseline])
+        return mat_src, mat_dest
+
+    def __baseline_from_prop(self, pairs_interest_prop):
+        # resulting points of interest
         list_interest_baseline = []
+        w, h = self.dim_resize().tuple()
+        point_dim = ut.Point2D(w, h)
         for pair_interest in pairs_interest_prop:
-            list_interest_baseline.append(ut.Point2D(*pair_interest).element_wise_prod(dim_resize))
+            point_interest = ut.Point2D(*pair_interest)
+            list_interest_baseline.append(point_interest.element_wise_prod(point_dim))
         return tuple(list_interest_baseline)
 
 

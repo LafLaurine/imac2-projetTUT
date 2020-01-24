@@ -6,13 +6,19 @@ from . import common_tracking as trck
 
 
 class Face:
-    # __box                   : Bounding box object of the face in original image
-    # __frame                 : Frame object (w/ frame_index), diff dimensions than original
-    # __features              : array of features added before warping
+    # __box_original                   : Bounding box object of the face in original image
+    # __frame_original                 : Frame object (w/ frame_index), diff dimensions than original
+    # __landmarks             : array of features added before warping
+    # __is_warped
+    # __box_warped
+    # __frame_warped
     def __init__(self, frame, box):
         self.__frame = frame
         self.__box = box
-        self.__features = None
+        self.__landmarks = None
+        self.__is_warped = False
+        self.__box_warped = None
+        self.__frame_warped = None
 
     def x1(self):
         return self.box().x1()
@@ -31,42 +37,57 @@ class Face:
         return self.__box
     def rectangle(self):
         return ut.Rectangle.from_box(self.box())
+    def frame(self):
+        return self.__frame
     def index_frame(self):
         return self.__frame.index()
     def image(self):
         return self.__frame.image()
-    def features(self):
-        return self.__features
+    def landmarks(self):
+        return self.__landmarks
 
     def set_image(self, image):
         self.__frame = ut.Frame(image, self.index_frame(), to_search=True)
-    def set_features(self, features):
-        self.__features = np.array(features)
+    def set_box(self, box):
+        self.__box = box
 
-    def get_feature_position(self, index_feature):
-        x, y = self.features()[index_feature][0], self.features()[index_feature][1]
+    def set_warped(self, box_warped, image_warped):
+        self.__set_box_warped(box_warped)
+        self.__set_image_warped(image_warped)
+        self.__is_warped = True
+
+    def __set_image_warped(self, image_warped):
+        self.__frame_warped = ut.Frame(image_warped, self.index_frame(), to_search=True)
+    def __set_box_warped(self, box_warped):
+        self.__box_warped = box_warped
+    def set_features(self, landmarks):
+        self.__landmarks = np.array(landmarks)
+
+    def get_landmark_position(self, index_landmark):
+        x, y = self.landmarks()[index_landmark][0], self.landmarks()[index_landmark][1]
         return ut.Point2D(x, y)
+        #return self.features()[index_feature]
 
     def is_valid(self):
-        if self.features() is None:
+        if self.landmarks() is None:
             raise ValueError("Features need to be set before validation.")
-        if len(self.features()) == 0:
-            return False
-        rel_box = ut.BoundingBox(0, 0, self.w(), self.h())
-        for i in range(len(self.features())):
-            pos = self.get_feature_position(i)
-            if not pos.is_in(rel_box):
-                # if feature was not found in the face (bounding box too small or face occlusion)
-                return False
-            i += 1
+        # TODO : FIND A BETTER CRITERIA
         return True
 
-    def save_image(self, dir_out):
-        self.__frame.save(dir_out, self.x1(), self.y1())
+    def save(self, dir_out, are_landmarks_saved):
+        if (not self.landmarks() is None) and are_landmarks_saved:
+            self.__write_landmarks()
+        self.__save_image(dir_out)
 
-    def write_landmarks(self, radius=2, colour=(0, 255, 0)):
-        for i in range(len(self.features())):
-            pos = self.get_feature_position(i)
+    def __save_image(self, dir_out):
+        if self.__is_warped:
+            self.__frame_warped.save(dir_out, self.__box_warped)
+        else:
+            self.frame().save(dir_out, self.box())
+
+    def __write_landmarks(self, radius=2, colour=(0, 255, 0)):
+        for i in range(len(self.landmarks())):
+            pos = self.get_landmark_position(i)
             x, y = pos.tuple()
             cv2.circle(self.image(), (int(x), int(y)), radius, color=colour)
             i += 1
@@ -166,8 +187,6 @@ class Person:
             else:
                 i += 1
 
-    def save_images(self, dir_out, are_saved_landmarks):
+    def save_faces(self, dir_out, are_saved_landmarks):
         for face in self.faces():
-            if are_saved_landmarks:
-                face.write_landmarks()
-            face.save_image(dir_out)
+            face.save(dir_out, are_saved_landmarks)
