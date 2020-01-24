@@ -9,7 +9,6 @@ Script for training Capsule-Forensics-v2 on FaceForensics++ database (Real, Deep
 import sys
 sys.setrecursionlimit(15000)
 import os
-import random
 import torch
 import torch.backends.cudnn as cudnn
 import numpy as np
@@ -63,7 +62,6 @@ def get_loaders_learning(manual_seed,
                           ):
     #  =================================================
     print("Random Seed: ", manual_seed)
-    random.seed(manual_seed)
     torch.manual_seed(manual_seed)
     capnet = model_big.CapsuleNet(4, gpu_id)
 

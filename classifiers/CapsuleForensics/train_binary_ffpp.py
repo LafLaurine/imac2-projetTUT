@@ -9,8 +9,8 @@ Script for training Capsule-Forensics-v2 on FaceForensics++ database (Real, Deep
 import sys
 sys.setrecursionlimit(15000)
 import os
-import random
 import torch
+import random
 import torch.backends.cudnn as cudnn
 import numpy as np
 from torch.autograd import Variable
@@ -22,6 +22,17 @@ from tqdm import tqdm
 import argparse
 from sklearn import metrics
 import model_big
+
+# Share dataset between training and test subsets
+class SamplerLearning(torch.utils.data.sampler):
+    def __init__(self, mask):
+        self.__mask = mask
+
+    def __iter__(self):
+        return (self.indices[i] for i in torch.nonzero(self.__mask))
+
+    def __len___(self):
+        return len(self.__mask)
 
 
 parser = argparse.ArgumentParser()
@@ -39,52 +50,126 @@ parser.add_argument('--resume', type=int, default=0, help="choose a epochs to re
 parser.add_argument('--outf', default='checkpoints/binary_faceforensicspp', help='folder to output model checkpoints')
 parser.add_argument('--disable_random', action='store_true', default=False, help='disable randomness for routing matrix')
 parser.add_argument('--dropout', type=float, default=0.05, help='dropout percentage')
-parser.add_argument('--manualSeed', type=int, help='manual seed')
+parser.add_argument('--seed_manual', type=int, help='manual seed')
 
 opt = parser.parse_args()
 print(opt)
 
 opt.random = not opt.disable_random
 
-if __name__ == "__main__":
+gpu_id_default = -1
 
-    if opt.manualSeed is None:
-        opt.manualSeed = random.randint(1, 10000)
-    print("Random Seed: ", opt.manualSeed)
-    random.seed(opt.manualSeed)
-    torch.manual_seed(opt.manualSeed)
+number_workers_default=1
 
-    if opt.resume > 0:
-        text_writer = open(os.path.join(opt.outf, 'train.csv'), 'a')
-    else:
-        text_writer = open(os.path.join(opt.outf, 'train.csv'), 'w')
+beta1_default = 0.9
+beta2_default = 0.999
+betas_default = (beta1_default, beta2_default)
+
+prop_training_default = 0.9  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
+
+
+def load_model_checkpoint(weights_path,
+                          dir_checkpoint,
+                          iteration_resume,
+                          learning_rate,
+                          betas,
+                          gpu_id
+                          ):
+    capnet = model_big.CapsuleNet(4, gpu_id)
+    optimizer = Adam(capnet.parameters(), lr=learning_rate, betas=betas)
+    if iteration_resume > 0:
+        capnet.load_state_dict(torch.load(os.path.join(dir_checkpoint, 'capsule_' + str(iteration_resume) + '.pt')))
+        capnet.train(mode=True)
+        optimizer.load_state_dict(torch.load(os.path.join(dir_checkpoint, 'optim_' + str(iteration_resume) + '.pt')))
+
+    mode_weights = 'a' if iteration_resume > 0 else 'w'
+    weights = open(weights_path, mode_weights)
+    return capnet, weights, optimizer
+
+def get_random_generator_torch(seed_manual):
+    print("Random Seed: ", seed_manual)
+    torch.manualSeed(seed_manual)
+    return torch.Generator()
+
+
+def load_dataloaders_learning(size_image,
+                          path_dataset,
+                          prop_training,
+                          batch_size,
+                          seed_manual,
+                          number_workers=number_workers_default,
+                          ):
+    #  =================================================
+
+    transform_fwd = transforms.Compose([
+        transforms.Resize((size_image, size_image)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+    ])
+
+    # random number generator
+    generator = get_random_generator_torch(seed_manual)
+
+    # Computing training and validation datasets from whole directory
+    dataset_learning = dset.ImageFolder(path_dataset, transform=transform_fwd)
+    number_images = len(dataset_learning)
+    number_images_training = int(number_images * prop_training)
+
+    sampler_training = SamplerLearning(torch.randint(0, number_images, size=(1, number_images_training)))
+    sampler_validation = SamplerLearning(sampler_training - list(range(0, number_images)))
+
+
+    transform_fwd = transforms.Compose([
+        transforms.Resize((size_image, size_image)),
+        transforms.ToTensor(),
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+    ])
+    dataloader_training = torch.utils.data.DataLoader(dataset_learning,
+                                                      batch_size=batch_size,
+                                                      sampler = sampler_training,
+                                                      shuffle=True,
+                                                      num_workers=int(number_workers))
+
+    dataloader_valuation = torch.utils.data.DataLoader(dataset_learning,
+                                                       batch_size=batch_size,
+                                                       sampler = sampler_validation,
+                                                       shuffle=False,
+                                                       num_workers=int(number_workers))
+    return dataloader_training, dataloader_valuation
+
+
+def learn_from_dir(dir_dataset,
+                   dir_checkpoint,
+                   iteration_resume,
+                   learning_rate,
+                   betas,
+                   gpu_id,
+                   size_image,
+                   prop_training,
+                   batch_size,
+                   seed_manual,
+                   number_workers=number_workers_default,
+):
+    if seed_manual is None:
+        seed_manual = random.randint(1, 10000)
+    print("Random Seed: ", opt.seed_manual)
+    random.seed(opt.seed_manual)
+    torch.seed_manual(opt.seed_manual)
+
+    capnet, weights, optimizer = load_model_checkpoint(weights_path,
+                                            dir_checkpoint,
+                                            iteration_resume,
+                                            learning_rate,
+                                            betas,
+                                            gpu_id
+                                            )
 
 
     vgg_ext = model_big.VggExtractor()
-    capnet = model_big.CapsuleNet(2, opt.gpu_id)
     capsule_loss = model_big.CapsuleLoss(opt.gpu_id)
 
-    optimizer = Adam(capnet.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-
-    if opt.resume > 0:
-        capnet.load_state_dict(torch.load(os.path.join(opt.outf,'capsule_' + str(opt.resume) + '.pt')))
-        capnet.train(mode=True)
-        optimizer.load_state_dict(torch.load(os.path.join(opt.outf,'optim_' + str(opt.resume) + '.pt')))
-
-    transform_fwd = transforms.Compose([
-        transforms.Resize((opt.imageSize, opt.imageSize)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-        ])
-
-    dataset_train = dset.ImageFolder(root=os.path.join(opt.dataset, opt.train_set), transform=transform_fwd)
-    assert dataset_train
-    dataloader_train = torch.utils.data.DataLoader(dataset_train, batch_size=opt.batchSize, shuffle=True, num_workers=int(opt.workers))
-
-    dataset_val = dset.ImageFolder(root=os.path.join(opt.dataset, opt.val_set), transform=transform_fwd)
-    assert dataset_val
-    dataloader_val = torch.utils.data.DataLoader(dataset_val, batch_size=opt.batchSize, shuffle=False, num_workers=int(opt.workers))
-
+    dataloader_training, dataloader_validation = load_dataloaders_learning(size_image,
+                                                                           )
 
     for epoch in range(opt.resume+1, opt.niter+1):
         count = 0

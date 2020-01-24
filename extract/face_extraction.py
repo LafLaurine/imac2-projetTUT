@@ -42,7 +42,7 @@ Border mode
 """
 mode_border_default              = cv2.BORDER_REFLECT
 method_resize_default            = cv2.INTER_LINEAR
-pair_resize_default              = (300, 300)
+pair_resize_default              = (256, 256)
 
 # options
 are_saved_default                 = False

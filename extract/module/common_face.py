@@ -81,7 +81,7 @@ class Face:
 
     def __save_image(self, dir_out):
         if self.__is_warped:
-            self.__frame_warped.save(dir_out, self.__box_warped)
+            self.__frame_warped.save(dir_out, self.box())
         else:
             self.frame().save(dir_out, self.box())
 
