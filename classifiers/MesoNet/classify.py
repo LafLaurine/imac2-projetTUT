@@ -78,8 +78,8 @@ class ClassifierLoader:
         path_dir = os.path.dirname(os.path.realpath(__file__))
         if name_weights is None:
             name_weights = name_weights_default
-        path_dir_weights = path_dir + os.sep + dir_weights
-        path_dir_weights_temp = path_dir + os.sep + dir_weights_temp
+        path_dir_weights = os.path.join(path_dir, dir_weights)
+        path_dir_weights_temp = os.path.join(path_dir, dir_weights_temp)
         classifier = functor_classifier(learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
         return classifier
 

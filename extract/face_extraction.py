@@ -133,16 +133,16 @@ class FaceExtractor:
                                 ):
         # TODO: LOAD MODELS HERE, NOT AT EVERY STEP OF THE LOOP
         #
-        print("Allô ?")
         for path_dir, names_dirs, names_files in os.walk(dir_in):
             for name_file in names_files:
-                # checking for video input
+                # checking for video input
                 if not name_file.endswith(ext_codec):
                     continue
-                name_file_noext = os.path.splitext(os.path.basename(name_file))[0]
-                path_file = os.path.join(path_dir,name_file)
-                dir_out_frames = os.path.join(dir_out, name_file_noext)
-                # htne we extract faces from this video file
+                path_file = os.path.join(path_dir, name_file)
+                path_file_noext = os.path.splitext(path_file)[0]
+                dir_out_frames = os.path.join(dir_out, ut.get_path_without_basedir(path_file_noext))
+                # now we extract faces from this video file
+                # and save it in a specific directory
                 FaceExtractor.extract_faces_from_video(path_file,
                                                        method_detection,
                                                        pair_resize,

@@ -63,7 +63,7 @@ class Frame:
     def __save_image(image, dir_out, filename, ext_codec, param_codec):
         # if output directory does not exist, create it
         create_dir(dir_out)
-        filepath = dir_out + os.sep + filename + ext_codec
+        filepath = os.path.join(dir_out, filename + ext_codec)
         # adding extension (OpenCV will encode accordingly)
         # saving output
         ok = cv2.imwrite(filepath, image, params=param_codec)
@@ -325,9 +325,20 @@ def read_frames_from_capture_tracking(cap,
 def create_dir(dir_path):
     # if output directory does not exist, create it
     if not os.path.exists(dir_path):
-        os.mkdir(dir_path)
+        os.makedirs(dir_path)
     elif not os.path.isdir(dir_path):
         raise NotADirectoryError(dir_path)
+
+def get_path_without_basedir(path_in):
+    path_out = ""
+    it_path = path_in
+    while it_path:
+        head, tail = os.path.split(it_path)
+        if not head:
+            break
+        path_out = os.path.join(tail, path_out)
+        it_path = head
+    return path_out
 
 
 def log(log_enabled, message):
