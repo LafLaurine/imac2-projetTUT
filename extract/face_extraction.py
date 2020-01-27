@@ -99,7 +99,81 @@ class FaceExtractor:
     # TODO: move dnn parameters to a config file
 
     @staticmethod
-    def extract_faces(
+    def extract_faces_from_dir(
+            dir_in,  #
+            ext_codec, # file extension of a valid video file
+            method_detection=method_detection_default,  # name of extraction method to be used
+            pair_resize=pair_resize_default,  # width of extracted face
+            pairs_interest_prop=pairs_interest_prop_default,
+            rate_enlarge=rate_enlarge_default,  # Rate to original bounding box to also be included (bigger boxes)
+
+            # no start or end frame
+            step_frame=step_frame_default,  # read video every ... frames
+            max_frame=None,  # maximum number of frames to be read
+            min_confidence=min_confidence_default,  # confidence threshold
+
+            mode_border=mode_border_default,
+            method_resize=method_resize_default,
+
+            dir_model_face=dir_model_face_default,
+            dir_model_landmark=dir_model_landmark_default,
+            name_model_face=name_model_face_default,
+            name_model_landmark=name_model_landmark_alt_default,
+            name_config_model_face=name_config_model_face_default,  # path to prototxt configuration file
+            size_net=size_net_default,  # size of the processing dnn
+            mean=mean_default,  # mean colour to be substracted
+
+            are_warped=are_warped_default,
+            are_culled=are_culled_default,
+            type_tracker=type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
+            are_saved=are_saved_default,  # save image in output directory
+            are_saved_landmarks=are_saved_landmarks_default,  # write landmarks to output
+            dir_out=None,  # output directory for faces
+            log_enabled=log_enabled_default  # output log info
+                                ):
+        # TODO: LOAD MODELS HERE, NOT AT EVERY STEP OF THE LOOP
+        #
+        print("Allô ?")
+        for path_dir, names_dirs, names_files in os.walk(dir_in):
+            for name_file in names_files:
+                # checking for video input
+                if not name_file.endswith(ext_codec):
+                    continue
+                name_file_noext = os.path.splitext(os.path.basename(name_file))[0]
+                path_file = os.path.join(path_dir,name_file)
+                dir_out_frames = os.path.join(dir_out, name_file_noext)
+                # htne we extract faces from this video file
+                FaceExtractor.extract_faces_from_video(path_file,
+                                                       method_detection,
+                                                       pair_resize,
+                                                       pairs_interest_prop,
+                                                       rate_enlarge,
+
+                                                       step_frame=step_frame,
+                                                       max_frame=max_frame,
+                                                       min_confidence=min_confidence,
+                                                       mode_border=mode_border,
+                                                       method_resize=method_resize,
+                                                       dir_model_face=dir_model_face,
+                                                       dir_model_landmark=dir_model_landmark,
+                                                       name_model_face=name_model_face,
+                                                       name_model_landmark=name_model_landmark,
+                                                       name_config_model_face=name_config_model_face,
+                                                       size_net=size_net,
+                                                       mean=mean,
+                                                       are_warped=are_warped,
+                                                       are_culled=are_culled,
+                                                       type_tracker=type_tracker,
+                                                       are_saved=are_saved,
+                                                       are_saved_landmarks=are_saved_landmarks,
+                                                       dir_out=dir_out_frames
+                                                       )
+
+
+
+
+    @staticmethod
+    def extract_faces_from_video(
                 src,  # path to video source for extraction
                 method_detection        = method_detection_default,  # name of extraction method to be used
                 pair_resize             = pair_resize_default,  # width of extracted face

@@ -6,6 +6,7 @@ import cv2  # requires OpenCV version 3
 ext_codec_default = ".png"
 param_codec_default = [cv2.IMWRITE_PNG_COMPRESSION, 0]
 
+
 class Frame:
     # __image
     # __index
@@ -61,16 +62,14 @@ class Frame:
     @staticmethod
     def __save_image(image, dir_out, filename, ext_codec, param_codec):
         # if output directory does not exist, create it
-        if not os.path.exists(dir_out):
-            os.mkdir(dir_out)
-        elif not os.path.isdir(dir_out):
-            raise NotADirectoryError(dir_out)
+        create_dir(dir_out)
         filepath = dir_out + os.sep + filename + ext_codec
         # adding extension (OpenCV will encode accordingly)
         # saving output
         ok = cv2.imwrite(filepath, image, params=param_codec)
         if not ok:
             raise IOError("Could not save image at path: " + filepath)
+
 
 class Rectangle:
     # __x, __y, __w, __h
@@ -321,6 +320,14 @@ def read_frames_from_capture_tracking(cap,
         index_frame += 1
         frame_count += 1
     return list_frames
+
+
+def create_dir(dir_path):
+    # if output directory does not exist, create it
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
+    elif not os.path.isdir(dir_path):
+        raise NotADirectoryError(dir_path)
 
 
 def log(log_enabled, message):

@@ -15,6 +15,7 @@ end_frame = None
 step_frame = 1
 max_frame = 50
 
+
 parser = argparse.ArgumentParser(description="Extract faces and warp according to facial landmarks.")
 parser.add_argument("--source",    '-s', required=True, type=str, help="video from which to extract.")
 parser.add_argument("--dest",      '-d', required=True, type=str, help="directory in which to put extracted face.")
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     are_warped = not args["nowarp"]
     are_culled = not args["nocull"]
     are_saved_landmarks = args["landmarks"]
-    FaceExtractor.extract_faces(
+    FaceExtractor.extract_faces_from_video(
         src=src,
         rate_enlarge=rate_enlarge,
         method_detection=method_detection,
