@@ -41,7 +41,7 @@ number_epochs_default = 10
 batch_size_default = 20
 size_image_default = 256
 is_random_default = True,  # what exactly IS random?
-dropout_pers_default = 0.05
+dropout_perc_default = 0.05
 prop_training_default = 0.9  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
 # Share dataset between training and test subsets
 
@@ -161,7 +161,7 @@ def learn_from_dir(method_classifier,
                    batch_size=batch_size_default,
                    size_image=size_image_default,
                    is_random=is_random_default,  # what exactly IS random?
-                   dropout_pers=dropout_pers_default,
+                   dropout_perc=dropout_perc_default,
                    betas=betas_default,
                    gpu_id=gpu_id_default,
                    prop_training=prop_training_default,
@@ -205,7 +205,7 @@ def learn_from_dir(method_classifier,
 
             input_v = Variable(data_images)
             x = vgg_ext(input_v)
-            classes, class_ = capnet(x, random=is_random, dropout=dropout_pers)
+            classes, class_ = capnet(x, random=is_random, dropout=dropout_perc)
 
             loss_dis = capsule_loss(classes, Variable(data_labels, requires_grad=False))
             loss_dis_data = loss_dis.item()

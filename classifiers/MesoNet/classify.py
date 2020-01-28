@@ -111,7 +111,7 @@ def learn_from_dir(name_classifier,
 
 
 def test_from_dir(name_classifier,
-                  dir_input,
+                  dir_dataset_test,
                   batch_size=batch_size_test_default,
                   learning_rate=learning_rate_default,
                   target_size=target_size_default,
@@ -119,14 +119,18 @@ def test_from_dir(name_classifier,
                   ):
     # Flow images from directory and predict
     data_generator_test = tst.load_data_generator_test(rescale=rescale)
-    generator_test = tst.load_dataset_test(dir_input,
+    generator_test = tst.load_dataset_test(dir_dataset_test,
                                            data_generator_test,
                                            batch_size,
                                            target_size)
     classifier = ClassifierLoader.get_classifier(name_classifier,
                                                  learning_rate=learning_rate,
                                                  name_weights=None)
-    tst.test_from_generator(classifier,
+    mean_squared_error, accuracy = tst.test_from_generator(classifier,
                             generator_test,
                             batch_size)
+
+    print("Mean squared error: ", mean_squared_error)
+    print("Accuracy: ", accuracy)
+
     return

@@ -18,7 +18,6 @@ class ImageDataGeneratorMeso(ImageDataGenerator):
         super(ImageDataGenerator, self).__init__(*args, **kwargs)
 
     def flow_from_directory(self, *args, **kwargs):
-        print(kwargs)
         return super(ImageDataGenerator, self).flow_from_directory(*args, **kwargs, classes=DICT_LABELS)
 
 
