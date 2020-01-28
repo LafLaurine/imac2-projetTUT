@@ -5,15 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #from forgery_detection.classifiers import Georges, Hector, Jean
-from ..common_classifier import Classifier, Meso4
 
-from keras.preprocessing.image import ImageDataGenerator
+
+from .common_classifier import ImageDataGeneratorMeso
 from scipy.ndimage.filters import gaussian_filter
 
 
 import warnings
 warnings.filterwarnings('ignore', '.*Clipping input data to the valid range for imshow*')
-
 
 
 ## Preprocessing
@@ -51,7 +50,7 @@ def load_data_generators_learning(
         rescale
         # TODO: add as arguments
 ):
-    data_generator_training = ImageDataGenerator(
+    data_generator_training = ImageDataGeneratorMeso(
         rescale=rescale,
         # samplewise_center=True,
         # samplewise_std_normalization=True,
@@ -62,7 +61,7 @@ def load_data_generators_learning(
         horizontal_flip=True,
         validation_split=0.1)
 
-    data_generator_validation = ImageDataGenerator(
+    data_generator_validation = ImageDataGeneratorMeso(
         rescale=rescale,
         # samplewise_center=True,
         # samplewise_std_normalization=True,
@@ -73,8 +72,8 @@ def load_data_generators_learning(
 
 def load_dataset_learning(
         dir_dataset,
-        data_generator_training: ImageDataGenerator,
-        data_generator_validation: ImageDataGenerator,
+        data_generator_training: ImageDataGeneratorMeso,
+        data_generator_validation: ImageDataGeneratorMeso,
         batch_size_training,
         batch_size_validation,
         target_size: tuple,
@@ -82,14 +81,14 @@ def load_dataset_learning(
     ## Load dataset
     print('\nload dataset ...')
     generator_training = data_generator_training.flow_from_directory(
-        dir_dataset,
+        directory=dir_dataset,
         target_size=target_size,
         batch_size=batch_size_training,  # 75,
         class_mode='binary',
         subset='training')
 
     generator_validation = data_generator_validation.flow_from_directory(
-        dir_dataset,
+        directory=dir_dataset,
         target_size=target_size,
         batch_size=batch_size_validation, # 200
         class_mode='binary',

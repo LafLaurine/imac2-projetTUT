@@ -1,7 +1,7 @@
 import os
 
-from .module.learning import df_learning as lrn
-from .module.test import df_test as tst
+from .module import df_learning as lrn
+from .module import df_test as tst
 from .module import common_classifier as clf
 from keras.preprocessing.image import ImageDataGenerator
 

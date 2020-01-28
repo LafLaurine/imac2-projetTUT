@@ -1,9 +1,9 @@
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
+from .common_classifier import ImageDataGeneratorMeso
 
 
 def load_data_generator_test(rescale):
-    generator_test = ImageDataGenerator(rescale=rescale)
+    generator_test = ImageDataGeneratorMeso(rescale=rescale)
     return generator_test
 
 
@@ -13,7 +13,7 @@ def load_dataset_test(dir_database,
                       target_size: tuple
                      ):
     generator_test = data_generator_test.flow_from_directory(
-        dir_database,
+        directory=dir_database,
         shuffle=False,
         target_size=target_size,
         batch_size=batch_size_test,

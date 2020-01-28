@@ -20,6 +20,7 @@ from tqdm import tqdm
 from sklearn import metrics
 from . import model_big
 
+from ..common_labels import match_labels_dict
 
 gpu_id_default = -1
 
@@ -75,11 +76,18 @@ class ClassifierLoader:
             path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint_default)
         else:
             path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint)
-        print(path_dir, dir_checkpoint)
         path_model_state = os.path.join(path_dir_checkpoint, name_model_state)
         path_optimizer_state = os.path.join(path_dir_checkpoint, name_optimizer_state)
         classifier = functor_classifier(path_model_state, path_optimizer_state, iteration_resume, learning_rate, betas, gpu_id)
         return classifier
+
+class ImageFolderCapsule(dset.ImageFolder):
+    def __init__(self, *args, **kwargs):
+        super(ImageFolderCapsule, self).__init__(*args, **kwargs)
+        self.set_labels_idx()
+
+    def set_labels_idx(self):
+        match_labels_dict(self.class_to_idx)
 
 
 def load_model_checkpoint(path_model_state,
@@ -122,7 +130,7 @@ def load_dataloaders_learning(size_image,
     rng = np.random.default_rng()
 
     # Computing training and validation datasets from whole directory
-    dataset_learning = dset.ImageFolder(root=path_dataset, transform=transform_fwd)
+    dataset_learning = ImageFolderCapsule(root=path_dataset, transform=transform_fwd)
     number_images = len(dataset_learning)
     number_images_training = int(number_images * prop_training)
 
@@ -135,13 +143,13 @@ def load_dataloaders_learning(size_image,
                                           batch_size=batch_size,
                                           shuffle=True,
                                           num_workers=number_workers)
-
     dataloader_validation = data.DataLoader(subset_validation,
                                            batch_size=batch_size,
                                            shuffle=False,
                                            num_workers=number_workers)
-    print(dataset_learning.class_to_idx)
     return dataloader_training, dataloader_validation
+
+
 
 
 def learn_from_dir(method_classifier,

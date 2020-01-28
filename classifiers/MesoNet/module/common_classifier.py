@@ -6,7 +6,21 @@ from keras.models import Model as KerasModel
 from keras.layers import Input, Dense, Flatten, Conv2D, MaxPooling2D, BatchNormalization, Dropout, Reshape, Concatenate, LeakyReLU
 from keras.optimizers import Adam
 
+from keras.preprocessing.image import ImageDataGenerator
+
+from ...common_labels import DICT_LABELS
+
 IMGWIDTH = 256
+
+
+class ImageDataGeneratorMeso(ImageDataGenerator):
+    def __init__(self, *args, **kwargs):
+        super(ImageDataGenerator, self).__init__(*args, **kwargs)
+
+    def flow_from_directory(self, *args, **kwargs):
+        print(kwargs)
+        return super(ImageDataGenerator, self).flow_from_directory(*args, **kwargs, classes=DICT_LABELS)
+
 
 class Classifier:
     # _learning_rate
@@ -55,12 +69,12 @@ class Classifier:
 
 
     def save_weights(self):
-        make_dir_if_not_exist(self._path_dir_weights)
+        os.makedirs(self._path_dir_weights, exist_ok=True)
         path_weights = self._path_dir_weights + os.sep + self._name_weights
         self._model.save_weights(path_weights)
 
     def save_weights_temp(self, epoch):
-        make_dir_if_not_exist(self._path_dir_weights_temp)
+        os.makedirs(self._path_dir_weights_temp, exist_ok=True)
         path_weights_temp = self._path_dir_weights_temp + os.sep + self._name_weights + '_' + str(epoch)
         self._model.save_weights(path_weights_temp)
 
@@ -159,9 +173,3 @@ class MesoInception4(Classifier):
         y = Dense(1, activation = 'sigmoid')(y)
 
         return KerasModel(inputs = x, outputs = y)
-
-def make_dir_if_not_exist(path_dir):
-    if not os.path.exists(path_dir):
-        os.mkdir(path_dir)
-    elif not os.path.isdir(path_dir):
-        raise NotADirectoryError(path_dir)
