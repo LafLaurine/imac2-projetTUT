@@ -26,8 +26,9 @@ dl_rate_default = 1
 
 number_epochs_default = 10
 batch_size_test_default = 10
-batch_size_training_default = 10
-batch_size_validation_default = 10
+batch_size_learning_default = 10
+#
+batch_size_analysis_default = 10
 
 target_size_default = (256, 256)
 
@@ -83,8 +84,7 @@ class ClassifierLoader:
 
 def learn_from_dir(name_classifier,
                    dir_dataset,
-                   batch_size_training=batch_size_training_default,
-                   batch_size_validation=batch_size_validation_default,
+                   batch_size=batch_size_learning_default,
                    number_epochs=number_epochs_default,
                    learning_rate=learning_rate_default,
                    step_save_weights_temp=step_save_weights_temp_default,
@@ -95,8 +95,7 @@ def learn_from_dir(name_classifier,
     generator_training,  generator_validation = lrn.load_dataset_learning(dir_dataset,
                                                                           data_generator_training,
                                                                           data_generator_validation,
-                                                                          batch_size_training,
-                                                                          batch_size_validation,
+                                                                          batch_size,
                                                                           target_size)
     classifier = ClassifierLoader.get_classifier(name_classifier,
                                                  learning_rate=learning_rate,
@@ -104,7 +103,7 @@ def learn_from_dir(name_classifier,
     lrn.learn_from_generator(classifier,
                              generator_training,
                              generator_validation,
-                             batch_size_training,
+                             batch_size,
                              number_epochs,
                              step_save_weights_temp)
     return
@@ -113,7 +112,6 @@ def learn_from_dir(name_classifier,
 def test_from_dir(name_classifier,
                   dir_dataset_test,
                   batch_size=batch_size_test_default,
-                  learning_rate=learning_rate_default,
                   target_size=target_size_default,
                   rescale=rescale_default
                   ):
@@ -124,7 +122,6 @@ def test_from_dir(name_classifier,
                                            batch_size,
                                            target_size)
     classifier = ClassifierLoader.get_classifier(name_classifier,
-                                                 learning_rate=learning_rate,
                                                  name_weights=None)
     mean_squared_error, accuracy = tst.test_from_generator(classifier,
                             generator_test,
@@ -132,5 +129,19 @@ def test_from_dir(name_classifier,
 
     print("Mean squared error: ", mean_squared_error)
     print("Accuracy: ", accuracy)
-
     return
+
+def analyse_from_dir(name_classifier,
+                     dir_input,
+                     batch_size=batch_size_analysis_default,
+                     target_size=target_size_default,
+                     rescale=rescale_default):
+    data_generator_analysis = tst.load_data_generator_analysis(rescale)
+    generator_analysis = tst.load_dataset_test(dir_input,
+                                               data_generator_analysis,
+                                               batch_size,
+                                               target_size
+                                               )
+    classifier = ClassifierLoader.get_classifier(name_classifier, name_weights=None)
+
+

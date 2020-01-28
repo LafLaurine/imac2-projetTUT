@@ -74,8 +74,7 @@ def load_dataset_learning(
         dir_dataset,
         data_generator_training: ImageDataGeneratorMeso,
         data_generator_validation: ImageDataGeneratorMeso,
-        batch_size_training,
-        batch_size_validation,
+        batch_size,
         target_size: tuple,
 ):
     ## Load dataset
@@ -83,14 +82,14 @@ def load_dataset_learning(
     generator_training = data_generator_training.flow_from_directory(
         directory=dir_dataset,
         target_size=target_size,
-        batch_size=batch_size_training,  # 75,
+        batch_size=batch_size,  # 75,
         class_mode='binary',
         subset='training')
 
     generator_validation = data_generator_validation.flow_from_directory(
         directory=dir_dataset,
         target_size=target_size,
-        batch_size=batch_size_validation, # 200
+        batch_size=batch_size, # 200
         class_mode='binary',
         subset='validation')
 

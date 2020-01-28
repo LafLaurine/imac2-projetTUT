@@ -14,12 +14,15 @@ IMGWIDTH = 256
 
 
 class ImageDataGeneratorMeso(ImageDataGenerator):
+    __classes = DICT_LABELS
     def __init__(self, *args, **kwargs):
         super(ImageDataGenerator, self).__init__(*args, **kwargs)
 
     def flow_from_directory(self, *args, **kwargs):
-        return super(ImageDataGenerator, self).flow_from_directory(*args, **kwargs, classes=DICT_LABELS)
+        return super(ImageDataGenerator, self).flow_from_directory(*args, **kwargs, classes=ImageDataGeneratorMeso.__classes)
 
+    def get_classes(self):
+        return ImageDataGeneratorMeso.__classes.copy()
 
 class Classifier:
     # _learning_rate
@@ -69,12 +72,12 @@ class Classifier:
 
     def save_weights(self):
         os.makedirs(self._path_dir_weights, exist_ok=True)
-        path_weights = self._path_dir_weights + os.sep + self._name_weights
+        path_weights = os.path.join(self._path_dir_weights, self._name_weights)
         self._model.save_weights(path_weights)
 
     def save_weights_temp(self, epoch):
         os.makedirs(self._path_dir_weights_temp, exist_ok=True)
-        path_weights_temp = self._path_dir_weights_temp + os.sep + self._name_weights + '_' + str(epoch)
+        path_weights_temp = os.path.join(self._path_dir_weights_temp, self._name_weights + '_' + str(epoch))
         self._model.save_weights(path_weights_temp)
 
 
@@ -146,7 +149,7 @@ class MesoInception4(Classifier):
         return func
     
     def __init_model(self):
-        x = Input(shape = (IMGWIDTH, IMGWIDTH, 3))
+        x = Input(shape=(IMGWIDTH, IMGWIDTH, 3))
         
         x1 = self.InceptionLayer(1, 4, 4, 2)(x)
         x1 = BatchNormalization()(x1)
