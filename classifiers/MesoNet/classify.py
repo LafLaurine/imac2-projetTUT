@@ -1,5 +1,4 @@
 import os
-import numpy as np
 
 from .module.learning import df_learning as lrn
 from .module.test import df_test as tst
@@ -34,14 +33,11 @@ target_size_default = (256, 256)
 
 rescale_default = 1 / 255
 
-# database
-dir_database_default = 'database'
+# dataset
+dir_dataset_default = 'dataset'
 dir_deepfake_default = 'df'
 dir_real_default = 'real'
 dir_f2f_default = 'f2f'
-
-database_path_default = dir_database_default + dir_deepfake_default
-
 
 def print_info():
     print('\n---------- MesoNet -----------')
@@ -58,6 +54,7 @@ class ClassifierLoader:
     meso4_f2f          = 'MESO4_F2F'
     mesoception_df = 'MESOCEPTION_DF'
     mesoception_f2f = 'MESOCEPTION_F2F'
+
     @staticmethod
     def get_classifier(method_classifier,
                        dir_weights          =dir_weights_default,
@@ -73,7 +70,7 @@ class ClassifierLoader:
         }
         pair_classifier = switch.get(method_classifier, None)
         if pair_classifier is None:
-            raise ValueError('No classifier named: ' + method_classifier)
+            raise ValueError('No classifier called ' + method_classifier)
         functor_classifier, name_weights_default = pair_classifier
         path_dir = os.path.dirname(os.path.realpath(__file__))
         if name_weights is None:
@@ -83,8 +80,9 @@ class ClassifierLoader:
         classifier = functor_classifier(learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
         return classifier
 
+
 def learn_from_dir(name_classifier,
-                   dir_database,
+                   dir_dataset,
                    batch_size_training=batch_size_training_default,
                    batch_size_validation=batch_size_validation_default,
                    number_epochs=number_epochs_default,
@@ -94,7 +92,7 @@ def learn_from_dir(name_classifier,
                    rescale=rescale_default
                    ):
     data_generator_training, data_generator_validation = lrn.load_data_generators_learning(rescale)
-    generator_training,  generator_validation = lrn.load_dataset_learning(dir_database,
+    generator_training,  generator_validation = lrn.load_dataset_learning(dir_dataset,
                                                                           data_generator_training,
                                                                           data_generator_validation,
                                                                           batch_size_training,
@@ -110,7 +108,6 @@ def learn_from_dir(name_classifier,
                              number_epochs,
                              step_save_weights_temp)
     return
-
 
 
 def test_from_dir(name_classifier,

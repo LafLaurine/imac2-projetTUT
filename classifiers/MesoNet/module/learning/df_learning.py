@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 # cd Documents/NII/blurDetection
 
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -96,8 +95,8 @@ def load_dataset_learning(
         class_mode='binary',
         subset='validation')
 
-    ## ??
-    a, b = generator_training.next()
+    # ??
+    # a, b = generator_training.next()
     return generator_training, generator_validation
 
 def split_classifier(
@@ -162,7 +161,7 @@ def learn_from_generator(
                     print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
                     break
 
-            if (e % step_save_weights_temp == 0):
+            if e % step_save_weights_temp == 0:
                 # saving weights as a fallback
                 classifier.save_weights_temp(e)
         

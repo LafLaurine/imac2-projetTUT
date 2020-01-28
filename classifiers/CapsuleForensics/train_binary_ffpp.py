@@ -10,94 +10,105 @@ import sys
 sys.setrecursionlimit(15000)
 import os
 import torch
-import random
 import torch.backends.cudnn as cudnn
 import numpy as np
 from torch.autograd import Variable
-from torch.optim import Adam
-import torch.utils.data
+import torch.utils.data as data
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 from tqdm import tqdm
-import argparse
 from sklearn import metrics
-import model_big
+from . import model_big
 
-# Share dataset between training and test subsets
-class SamplerLearning(torch.utils.data.sampler):
-    def __init__(self, mask):
-        self.__mask = mask
-
-    def __iter__(self):
-        return (self.indices[i] for i in torch.nonzero(self.__mask))
-
-    def __len___(self):
-        return len(self.__mask)
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default ='databases/faceforensicspp', help='path to root dataset')
-parser.add_argument('--train_set', default ='train', help='train set')
-parser.add_argument('--val_set', default ='validation', help='validation set')
-parser.add_argument('--workers', type=int, help='number of data loading workers', default=0)
-parser.add_argument('--batchSize', type=int, default=4, help='batch size')
-parser.add_argument('--imageSize', type=int, default=300, help='the height / width of the input image to network')
-parser.add_argument('--niter', type=int, default=25, help='number of epochs to train for')
-parser.add_argument('--lr', type=float, default=0.0005, help='learning rate')
-parser.add_argument('--beta1', type=float, default=0.9, help='beta1 for adam')
-parser.add_argument('--gpu_id', type=int, default=0, help='GPU ID')
-parser.add_argument('--resume', type=int, default=0, help="choose a epochs to resume from (0 to train from scratch)")
-parser.add_argument('--outf', default='checkpoints/binary_faceforensicspp', help='folder to output model checkpoints')
-parser.add_argument('--disable_random', action='store_true', default=False, help='disable randomness for routing matrix')
-parser.add_argument('--dropout', type=float, default=0.05, help='dropout percentage')
-parser.add_argument('--seed_manual', type=int, help='manual seed')
-
-opt = parser.parse_args()
-print(opt)
-
-opt.random = not opt.disable_random
 
 gpu_id_default = -1
 
-number_workers_default=1
+number_workers_default = 1
+
 
 beta1_default = 0.9
 beta2_default = 0.999
 betas_default = (beta1_default, beta2_default)
 
+root_checkpoint = 'checkpoints'
+dir_checkpoint_binary_ffpp_default = "binary_faceforensicspp"
+name_model_state_default = 'model'
+name_optimizer_state_default = 'optim'
+
+learning_rate_default = 0.0001
+number_epochs_default = 10
+batch_size_default = 20
+size_image_default = 256
+is_random_default = True,  # what exactly IS random?
+dropout_pers_default = 0.05
 prop_training_default = 0.9  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
+# Share dataset between training and test subsets
+
+dir_checkpoint_binaray_ffpp_default = "binary_faceforensicspp"
+
+log_enabled_default = True
+
+class ClassifierLoader:
+    binary_ffpp = "BINARY_FFPP"
+
+    @staticmethod
+    def get_classifier(method_classifier,
+                       iteration_resume,
+                       learning_rate,
+                       betas,
+                       gpu_id,
+                       root_checkpoint=root_checkpoint,
+                       name_model_state=name_model_state_default,
+                       name_optimizer_state=name_optimizer_state_default,
+                       dir_checkpoint=None
+                       ):
+        switch = {
+            ClassifierLoader.binary_ffpp: (load_model_checkpoint, dir_checkpoint_binary_ffpp_default)
+        }
+
+        pair_classifier = switch.get(method_classifier, None)
+        if pair_classifier is None:
+            raise ValueError("No classifier called: " + method_classifier)
+        functor_classifier, dir_checkpoint_default = pair_classifier
+        path_dir = os.path.dirname(os.path.realpath(__file__))
+        if dir_checkpoint is None:
+            path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint_default)
+        else:
+            path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint)
+        print(path_dir, dir_checkpoint)
+        path_model_state = os.path.join(path_dir_checkpoint, name_model_state)
+        path_optimizer_state = os.path.join(path_dir_checkpoint, name_optimizer_state)
+        classifier = functor_classifier(path_model_state, path_optimizer_state, iteration_resume, learning_rate, betas, gpu_id)
+        return classifier
 
 
-def load_model_checkpoint(weights_path,
-                          dir_checkpoint,
+def load_model_checkpoint(path_model_state,
+                          path_optimizer_state,
                           iteration_resume,
                           learning_rate,
                           betas,
                           gpu_id
                           ):
-    capnet = model_big.CapsuleNet(4, gpu_id)
-    optimizer = Adam(capnet.parameters(), lr=learning_rate, betas=betas)
+    capnet = model_big.CapsuleNet(4, path_model_state, path_optimizer_state, learning_rate, betas, gpu_id)
     if iteration_resume > 0:
-        capnet.load_state_dict(torch.load(os.path.join(dir_checkpoint, 'capsule_' + str(iteration_resume) + '.pt')))
+        capnet.load_states(iteration_resume)
         capnet.train(mode=True)
-        optimizer.load_state_dict(torch.load(os.path.join(dir_checkpoint, 'optim_' + str(iteration_resume) + '.pt')))
-
-    mode_weights = 'a' if iteration_resume > 0 else 'w'
-    weights = open(weights_path, mode_weights)
-    return capnet, weights, optimizer
+    return capnet
 
 def get_random_generator_torch(seed_manual):
     print("Random Seed: ", seed_manual)
-    torch.manualSeed(seed_manual)
+    torch.manual_seed(seed_manual)
     return torch.Generator()
+
+def save_model_checkpoint(capnet, epoch):
+    capnet.save_states(epoch)
 
 
 def load_dataloaders_learning(size_image,
                           path_dataset,
                           prop_training,
                           batch_size,
-                          seed_manual,
-                          number_workers=number_workers_default,
+                          number_workers
                           ):
     #  =================================================
 
@@ -108,70 +119,70 @@ def load_dataloaders_learning(size_image,
     ])
 
     # random number generator
-    generator = get_random_generator_torch(seed_manual)
+    rng = np.random.default_rng()
 
     # Computing training and validation datasets from whole directory
-    dataset_learning = dset.ImageFolder(path_dataset, transform=transform_fwd)
+    dataset_learning = dset.ImageFolder(root=path_dataset, transform=transform_fwd)
     number_images = len(dataset_learning)
     number_images_training = int(number_images * prop_training)
 
-    sampler_training = SamplerLearning(torch.randint(0, number_images, size=(1, number_images_training)))
-    sampler_validation = SamplerLearning(sampler_training - list(range(0, number_images)))
+    list_training = rng.choice(number_images, size=number_images_training, replace=False)
+    list_validation = [x for x in range(number_images) if x not in list_training]
+    subset_training = data.Subset(dataset_learning, list_training)
+    subset_validation = data.Subset(dataset_learning, list_validation)
+
+    dataloader_training = data.DataLoader(subset_training,
+                                          batch_size=batch_size,
+                                          shuffle=True,
+                                          num_workers=number_workers)
+
+    dataloader_validation = data.DataLoader(subset_validation,
+                                           batch_size=batch_size,
+                                           shuffle=False,
+                                           num_workers=number_workers)
+    print(dataset_learning.class_to_idx)
+    return dataloader_training, dataloader_validation
 
 
-    transform_fwd = transforms.Compose([
-        transforms.Resize((size_image, size_image)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-    ])
-    dataloader_training = torch.utils.data.DataLoader(dataset_learning,
-                                                      batch_size=batch_size,
-                                                      sampler = sampler_training,
-                                                      shuffle=True,
-                                                      num_workers=int(number_workers))
-
-    dataloader_valuation = torch.utils.data.DataLoader(dataset_learning,
-                                                       batch_size=batch_size,
-                                                       sampler = sampler_validation,
-                                                       shuffle=False,
-                                                       num_workers=int(number_workers))
-    return dataloader_training, dataloader_valuation
-
-
-def learn_from_dir(dir_dataset,
-                   dir_checkpoint,
-                   iteration_resume,
-                   learning_rate,
-                   betas,
-                   gpu_id,
-                   size_image,
-                   prop_training,
-                   batch_size,
-                   seed_manual,
+def learn_from_dir(method_classifier,
+                   dir_dataset,
+                   root_checkpoint,
+                   iteration_resume=0, # 0 to start from scratch
+                   number_epochs=number_epochs_default,
+                   learning_rate=learning_rate_default,
+                   batch_size=batch_size_default,
+                   size_image=size_image_default,
+                   is_random=is_random_default,  # what exactly IS random?
+                   dropout_pers=dropout_pers_default,
+                   betas=betas_default,
+                   gpu_id=gpu_id_default,
+                   prop_training=prop_training_default,
                    number_workers=number_workers_default,
+                   log_enabled=log_enabled_default
 ):
-    if seed_manual is None:
-        seed_manual = random.randint(1, 10000)
-    print("Random Seed: ", opt.seed_manual)
-    random.seed(opt.seed_manual)
-    torch.seed_manual(opt.seed_manual)
+    # log_enabled = False
+    # if log_writer is not None:
+      #  log_enabled = True
+        # log_writer = open(log_writer, 'w')
 
-    capnet, weights, optimizer = load_model_checkpoint(weights_path,
-                                            dir_checkpoint,
-                                            iteration_resume,
-                                            learning_rate,
-                                            betas,
-                                            gpu_id
-                                            )
+    capnet = ClassifierLoader.get_classifier(method_classifier=method_classifier,
+                                             root_checkpoint=root_checkpoint,
+                                             iteration_resume=iteration_resume,
+                                             learning_rate=learning_rate,
+                                             betas=betas,
+                                             gpu_id=gpu_id)
 
 
     vgg_ext = model_big.VggExtractor()
-    capsule_loss = model_big.CapsuleLoss(opt.gpu_id)
+    capsule_loss = model_big.CapsuleLoss(gpu_id)
 
     dataloader_training, dataloader_validation = load_dataloaders_learning(size_image,
-                                                                           )
+                                                                           dir_dataset,
+                                                                           prop_training,
+                                                                           batch_size,
+                                                                           number_workers)
 
-    for epoch in range(opt.resume+1, opt.niter+1):
+    for epoch in range(iteration_resume+1, number_epochs+1):
         count = 0
         loss_train = 0
         loss_test = 0
@@ -179,32 +190,30 @@ def learn_from_dir(dir_dataset,
         tol_label = np.array([], dtype=np.float)
         tol_pred = np.array([], dtype=np.float)
 
-        for img_data, labels_data in tqdm(dataloader_train):
+        for data_images, data_labels in tqdm(dataloader_training):
+            data_labels[data_labels > 1] = 1
+            labels_images = data_labels.numpy().astype(np.float)
+            capnet.optimizer.zero_grad()
 
-            labels_data[labels_data > 1] = 1
-            img_label = labels_data.numpy().astype(np.float)
-            optimizer.zero_grad()
-
-            input_v = Variable(img_data)
+            input_v = Variable(data_images)
             x = vgg_ext(input_v)
-            classes, class_ = capnet(x, random=opt.random, dropout=opt.dropout)
+            classes, class_ = capnet(x, random=is_random, dropout=dropout_pers)
 
-            loss_dis = capsule_loss(classes, Variable(labels_data, requires_grad=False))
+            loss_dis = capsule_loss(classes, Variable(data_labels, requires_grad=False))
             loss_dis_data = loss_dis.item()
 
             loss_dis.backward()
-            optimizer.step()
+            capnet.optimizer.step()
 
             output_dis = class_.data.cpu().numpy()
             output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
             for i in range(output_dis.shape[0]):
-                if output_dis[i,1] >= output_dis[i,0]:
+                if output_dis[i, 1] >= output_dis[i,0]:
                     output_pred[i] = 1.0
                 else:
                     output_pred[i] = 0.0
-
-            tol_label = np.concatenate((tol_label, img_label))
+            tol_label = np.concatenate((tol_label, labels_images))
             tol_pred = np.concatenate((tol_pred, output_pred))
 
             loss_train += loss_dis_data
@@ -217,8 +226,7 @@ def learn_from_dir(dir_dataset,
         ########################################################################
 
         # do checkpointing & validation
-        torch.save(capnet.state_dict(), os.path.join(opt.outf, 'capsule_%d.pt' % epoch))
-        torch.save(optimizer.state_dict(), os.path.join(opt.outf, 'optim_%d.pt' % epoch))
+        save_model_checkpoint(capnet, epoch)
 
         capnet.eval()
 
@@ -227,29 +235,29 @@ def learn_from_dir(dir_dataset,
 
         count = 0
 
-        for img_data, labels_data in dataloader_val:
+        for data_images, data_labels in dataloader_validation:
 
-            labels_data[labels_data > 1] = 1
-            img_label = labels_data.numpy().astype(np.float)
+            data_labels[data_labels > 1] = 1
+            labels_images = data_labels.numpy().astype(np.float)
 
-            input_v = Variable(img_data)
+            input_v = Variable(data_images)
 
             x = vgg_ext(input_v)
             classes, class_ = capnet(x, random=False)
 
-            loss_dis = capsule_loss(classes, Variable(labels_data, requires_grad=False))
+            loss_dis = capsule_loss(classes, Variable(data_labels, requires_grad=False))
             loss_dis_data = loss_dis.item()
             output_dis = class_.data.cpu().numpy()
 
             output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
             for i in range(output_dis.shape[0]):
-                if output_dis[i,1] >= output_dis[i,0]:
+                if output_dis[i, 1] >= output_dis[i, 0]:
                     output_pred[i] = 1.0
                 else:
                     output_pred[i] = 0.0
 
-            tol_label = np.concatenate((tol_label, img_label))
+            tol_label = np.concatenate((tol_label, labels_images))
             tol_pred = np.concatenate((tol_pred, output_pred))
 
             loss_test += loss_dis_data
@@ -257,14 +265,14 @@ def learn_from_dir(dir_dataset,
 
         acc_test = metrics.accuracy_score(tol_label, tol_pred)
         loss_test /= count
-
-        print('[Epoch %d] Train loss: %.4f   acc: %.2f | Test loss: %.4f  acc: %.2f'
-        % (epoch, loss_train, acc_train*100, loss_test, acc_test*100))
-
-        text_writer.write('%d,%.4f,%.2f,%.4f,%.2f\n'
-        % (epoch, loss_train, acc_train*100, loss_test, acc_test*100))
-
-        text_writer.flush()
         capnet.train(mode=True)
 
-    text_writer.close()
+        if log_enabled:
+            print('[Epoch {0}] Train loss: {1}   acc: {2} | Test loss: {3}  acc: {4}'.format(epoch, loss_train, acc_train*100, loss_test, acc_test*100))
+
+            # log_writer.write('%d,%.4f,%.2f,%.4f,%.2f\n', epoch, loss_train, acc_train*100, loss_test, acc_test*100)))
+
+            # log_writer.flush()
+
+    # if log_enabled:
+       # log_writer.close()

@@ -112,7 +112,7 @@ class MesoInception4(Classifier):
                  path_dir_weights_temp
                  ):
         self._model = self.__init_model()
-        super().__init__(model, learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
+        super().__init__(self._model, learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
 
     def InceptionLayer(self, a, b, c, d):
         def func(x):

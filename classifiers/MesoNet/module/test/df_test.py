@@ -12,7 +12,6 @@ def load_dataset_test(dir_database,
                       batch_size_test,
                       target_size: tuple
                      ):
-    print(dir_database)
     generator_test = data_generator_test.flow_from_directory(
         dir_database,
         shuffle=False,
@@ -20,6 +19,7 @@ def load_dataset_test(dir_database,
         batch_size=batch_size_test,
         class_mode='binary'
     )
+
     print("Flowing images from", dir_database)
     return generator_test
 
@@ -43,5 +43,5 @@ def test_from_generator(classifier,
     print('Deepfake percent :', np.mean(predicted < 0.5))
 
     for i in range(len(predicted)):
-        image_id = "%3d" % (i)
+        image_id = str(i)
         print(image_id, ' ', predicted[i])

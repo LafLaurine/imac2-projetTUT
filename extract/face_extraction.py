@@ -2,11 +2,8 @@ import os
 import cv2
 
 from .module import common_utils as ut
-from .module import common_face as fc
 from .module import common_face_detection as fdet
-#from .module import common_landmark_detection as ldet
 from .module import common_landmark_detection_alt as ldet
-from .module import common_tracking as trck
 from .module import landmark_warping as lndm
 
 ### DEFAULT CONFIGURATION ###
@@ -228,14 +225,14 @@ class FaceExtractor:
                                                 )
         ut.log(log_enabled, "[INFO] warping faces...")
         FaceExtractor.warp_from_landmarks(list_people,
-                                     are_warped,
-                                     are_culled,
-                                     pair_resize,
-                                     pairs_interest_prop,
-                                     mode_border,
-                                     method_resize,
-                                     net_landmark
-                                 )
+                                          are_warped,
+                                          are_culled,
+                                          pair_resize,
+                                          pairs_interest_prop,
+                                          mode_border,
+                                          method_resize,
+                                          net_landmark
+                                          )
         if are_saved:
             ut.log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
             FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks)
@@ -250,11 +247,11 @@ class FaceExtractor:
                     name_config_model_face
                     ):
         path_dir = os.path.dirname(os.path.realpath(__file__))
-        path_dir_model_face = path_dir + os.sep + dir_model_face
-        path_dir_model_landmark = path_dir + os.sep + dir_model_landmark
-        path_model_face = path_dir_model_face + os.sep + name_model_face
-        path_model_landmark = path_dir_model_landmark + os.sep + name_model_landmark
-        path_config_model_face = path_dir_model_face + os.sep + name_config_model_face
+        path_dir_model_face = os.path.join(path_dir, dir_model_face)
+        path_dir_model_landmark = os.path.join(path_dir, dir_model_landmark)
+        path_model_face = os.path.join(path_dir_model_face, name_model_face)
+        path_model_landmark = os.path.join(path_dir_model_landmark, name_model_landmark)
+        path_config_model_face = os.path.join(path_dir_model_face, name_config_model_face)
         net_face = fdet.load_network_detection(path_config_model_face, path_model_face)
         net_landmark = ldet.load_network_landmark(path_model_landmark)
         return net_face, net_landmark
@@ -305,19 +302,18 @@ class FaceExtractor:
 
     @staticmethod
     def warp_from_landmarks(list_people,
-                    are_warped,
-                    are_culled,
-                    pair_resize,
-                    pairs_interest_prop,
-                    mode_border,
-                    method_resize,
-                    net_landmark,
-                    ):
-        warper = lndm.LandmarkWarper(pair_resize,
+                            are_warped,
+                            are_culled,
+                            pair_resize,
                             pairs_interest_prop,
                             mode_border,
                             method_resize,
-                            )
+                            net_landmark,
+                            ):
+        warper = lndm.LandmarkWarper(pair_resize,
+                                     pairs_interest_prop,
+                                     mode_border,
+                                     method_resize)
         for person in list_people:
             ldet.compute_landmarks_person(person, net_landmark)
             if are_culled:
