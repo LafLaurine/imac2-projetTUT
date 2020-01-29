@@ -13,7 +13,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     name_classifier = args["classifier"]
     dir_input = args["dir_input"]
-    classify.analyse_from_dir(
+    prediction = classify.analyse_from_dir(
         name_classifier=name_classifier,
         dir_input=dir_input)
-
+    prediction.print()

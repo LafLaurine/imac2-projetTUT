@@ -27,11 +27,12 @@ def learn_from_dataloaders(classifier,
                            dataloader_validation,
                            epoch_start,
                            number_epochs,
+                           step_save_checkpoint,
                            is_random,
                            perc_dropout):
     evals_learning = EvaluationLearning()
     epoch_end = epoch_start + number_epochs
-    for epoch in range(epoch_start + 1, epoch_end + 1):
+    for epoch in tqdm(range(epoch_start + 1, epoch_end + 1)):
         loss_training, acc_training = train_from_dataloader_epoch(classifier=classifier,
                                                                   loss_classifier=loss_classifier,
                                                                   extractor_vgg=extractor_vgg,
@@ -39,9 +40,8 @@ def learn_from_dataloaders(classifier,
                                                                   is_random=is_random,
                                                                   perc_dropout=perc_dropout)
 
-        ########################################################################
-        # do checkpointing & validation
-        save_model_checkpoint(classifier, epoch)
+        if epoch % step_save_checkpoint == 0 or epoch == epoch_end:
+                save_model_checkpoint(classifier, epoch)
 
         loss_validation, acc_validation = validate_from_dataloader_epoch(classifier=classifier,
                                                                          loss_classifier=loss_classifier,
@@ -60,6 +60,7 @@ def load_dataloaders_learning(classifier,
                               prop_training,
                               size_image,
                               batch_size,
+                              number_epochs,
                               number_workers
                               ):
     #  =================================================
@@ -75,11 +76,13 @@ def load_dataloaders_learning(classifier,
 
     # Computing training and validation datasets from whole directory
     dataset_learning = ImageFolderCapsule(classifier=classifier, root=path_dataset, transform=transform_fwd)
-    number_images = len(dataset_learning)
-    number_images_training = int(number_images * prop_training)
+    number_images_tot = len(dataset_learning)
+    number_images_learning = batch_size * number_epochs
+    number_images_training = int(number_images_learning * prop_training)
 
-    list_training = rng.choice(number_images, size=number_images_training, replace=False)
-    list_validation = [x for x in range(number_images) if x not in list_training]
+    list_learning = rng.choice(number_images_tot, size=number_images_learning, replace=False)
+    list_training = list_learning[rng.choice(number_images_learning, size=number_images_training, replace=False)]
+    list_validation = [x for x in list_learning if x not in list_training]
     subset_training = data.Subset(dataset_learning, list_training)
     subset_validation = data.Subset(dataset_learning, list_validation)
 
@@ -94,7 +97,6 @@ def load_dataloaders_learning(classifier,
     return dataloader_training, dataloader_validation
 
 
-
 def train_from_dataloader_epoch(classifier,
                                 loss_classifier,
                                 extractor_vgg,
@@ -102,15 +104,14 @@ def train_from_dataloader_epoch(classifier,
                                 is_random,
                                 perc_dropout
                                 ):
-            count = 0
             loss_training = 0
-
             tol_label = np.array([], dtype=np.float)
             tol_pred = np.array([], dtype=np.float)
 
+            count = 0
             # Training mode
             classifier.train()
-            for data_images, data_labels in tqdm(dataloader_training):
+            for data_images, data_labels in dataloader_training:
                 data_labels[data_labels > 1] = 1
                 labels_images = data_labels.numpy().astype(np.float)
                 classifier.optimizer.zero_grad()

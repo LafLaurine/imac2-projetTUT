@@ -73,7 +73,8 @@ def test_from_generator(classifier,
     # The following is important (mean squared)
     # We want to TEST MesoNet, we want to know how much it fails
     # Basically, we want to know the average error for real and deepfake images
-    evals_test = EvaluationTest(labels_predicted, labels_actual)
+    evals_test = EvaluationTest()
+    evals_test.set_error_from_predicted(labels_predicted, labels_actual)
     # The following information is actually irrelevant here
     # print('Mean prediction  :', np.mean(predicted, axis=0)[0])
     # print('Deepfake percent :', np.mean(predicted < 0.5))
@@ -95,5 +96,5 @@ def analyse_from_generator(classifier,
         index_end_pred = e * batch_size_analysis + len(batch_labels_predicted)
         #
         labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted
-    perc_analysis = Prediction(labels_predicted, classifier.get_classes())
-    return perc_analysis
+    prediction = Prediction(labels_predicted, classifier.get_classes())
+    return prediction

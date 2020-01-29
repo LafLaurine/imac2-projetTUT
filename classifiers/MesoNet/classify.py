@@ -61,13 +61,12 @@ def learn_from_dir(name_classifier,
                                                                           batch_size,
                                                                           target_size)
     evals_learning = lrn.learn_from_generator(classifier,
-                             generator_training,
-                             generator_validation,
-                             batch_size,
-                             number_epochs,
-                             step_save_weights_temp)
-    evals_learning.print()
-    return
+                                              generator_training,
+                                              generator_validation,
+                                              batch_size,
+                                              number_epochs,
+                                              step_save_weights_temp)
+    return evals_learning
 
 
 def test_from_dir(name_classifier,
@@ -88,11 +87,9 @@ def test_from_dir(name_classifier,
                                            batch_size,
                                            target_size)
     evals_test = tst.test_from_generator(classifier,
-                            generator_test,
-                            batch_size)
-
-    evals_test.print()
-    return
+                                         generator_test,
+                                         batch_size)
+    return evals_test
 
 def analyse_from_dir(name_classifier,
                      dir_input,
@@ -112,5 +109,5 @@ def analyse_from_dir(name_classifier,
                                                generator_analysis,
                                                batch_size)
 
-    prediction.print()
+    return prediction
 

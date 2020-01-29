@@ -14,8 +14,8 @@ if __name__ == "__main__":
     name_classifier = args["classifier"]
     dir_dataset_test = args["dataset"]
     batch_size = args["batch_size"]
-    classify.test_from_dir(
+    evals_test = classify.test_from_dir(
         name_classifier=name_classifier,
         dir_dataset_test=dir_dataset_test,
-        batch_size=batch_size
-    )
+        batch_size=batch_size)
+    evals_test.print()
