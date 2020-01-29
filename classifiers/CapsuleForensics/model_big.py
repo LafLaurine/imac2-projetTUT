@@ -158,7 +158,9 @@ class CapsuleNet(nn.Module):
     # added paths to saved states of model and optimiser
     # __path_model_state
     # __path_optimizer_state
-    def __init__(self, num_class, path_model_state, path_optimizer_state, lr, betas, gpu_id):
+    # added dict for class labels
+    # __dict_labels
+    def __init__(self, num_class, path_model_state, path_optimizer_state, dict_labels, lr, betas, gpu_id):
         super(CapsuleNet, self).__init__()
 
         self.num_class = num_class
@@ -168,9 +170,13 @@ class CapsuleNet(nn.Module):
         self.routing_stats = RoutingLayer(gpu_id=gpu_id, num_input_capsules=NO_CAPS, num_output_capsules=num_class, data_in=8, data_out=4, num_iterations=2)
 
         self.optimizer = Adam(self.parameters(), lr=lr, betas=betas)
+        self.__dict_labels = dict_labels
         self.__path_model_state = path_model_state
         self.__path_optimizer_state = path_optimizer_state
 
+
+    def get_classes(self):
+        return self.__dict_labels
 
     def weights_init(self, m):
         classname = m.__class__.__name__
@@ -180,21 +186,22 @@ class CapsuleNet(nn.Module):
             m.weight.data.normal_(1.0, 0.02)
             m.bias.data.fill_(0)
 
-    def __get_files_states(self, epoch):
-        file_model_state = self.__path_model_state + '_%d' % epoch
-        file_optimizer_state = self.__path_optimizer_state + '_%d' % epoch
-        return file_model_state, file_optimizer_state
+    def __get_filenames_states(self, epoch):
+        filename_model_state = self.__path_model_state + '_{0}.pt'.format(epoch)
+        filename_optimizer_state = self.__path_optimizer_state + '_{0}.pt'.format(epoch)
+        return filename_model_state, filename_optimizer_state
 
     def load_states(self, epoch):
         # setting paths to states
-        file_model_state, file_optimizer_state = self.__get_files_states(epoch)
-        self.load_state_dict(file_model_state)
-        self.optimizer.load_state_dict(file_optimizer_state)
+        filename_model_state, filename_optimizer_state = self.__get_filenames_states(epoch)
+        self.load_state_dict(torch.load(filename_model_state))
+        self.optimizer.load_state_dict(torch.load(filename_optimizer_state))
+        self.train(mode=True)
 
     def save_states(self, epoch):
-        file_model_state, file_optimizer_state = self.__get_files_states(epoch)
-        torch.save(self.state_dict(), file_model_state)
-        torch.save(self.optimizer.state_dict(), file_model_state)
+        filename_model_state, filename_optimizer_state = self.__get_filenames_states(epoch)
+        torch.save(self.state_dict(), filename_model_state)
+        torch.save(self.optimizer.state_dict(), filename_optimizer_state)
 
 
     def forward(self, x, random=False, dropout=0.0):
@@ -209,6 +216,7 @@ class CapsuleNet(nn.Module):
         class_ = class_.mean(dim=1)
 
         return classes, class_
+
 
 class CapsuleLoss(nn.Module):
     def __init__(self, gpu_id):

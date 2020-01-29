@@ -20,7 +20,7 @@ from tqdm import tqdm
 from sklearn import metrics
 from . import model_big
 
-from ..common_labels import match_labels_dict
+from ..common_labels import match_labels_dict, DICT_LABELS_DF, DICT_LABELS_F2F
 
 gpu_id_default = -1
 
@@ -33,7 +33,7 @@ betas_default = (beta1_default, beta2_default)
 
 root_checkpoint = 'checkpoints'
 dir_checkpoint_binary_ffpp_default = "binary_faceforensicspp"
-name_model_state_default = 'model'
+name_model_state_default = 'capsule'
 name_optimizer_state_default = 'optim'
 
 learning_rate_default = 0.0001
@@ -64,13 +64,15 @@ class ClassifierLoader:
                        dir_checkpoint=None
                        ):
         switch = {
-            ClassifierLoader.binary_ffpp: (load_model_checkpoint, dir_checkpoint_binary_ffpp_default)
+            ClassifierLoader.binary_ffpp: (load_model_checkpoint,
+                                           DICT_LABELS_DF,
+                                           dir_checkpoint_binary_ffpp_default)
         }
 
-        pair_classifier = switch.get(method_classifier, None)
-        if pair_classifier is None:
+        tuple_classifier = switch.get(method_classifier, None)
+        if tuple_classifier is None:
             raise ValueError("No classifier called: " + method_classifier)
-        functor_classifier, dir_checkpoint_default = pair_classifier
+        functor_classifier, dict_labels, dir_checkpoint_default = tuple_classifier
         path_dir = os.path.dirname(os.path.realpath(__file__))
         if dir_checkpoint is None:
             path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint_default)
@@ -78,26 +80,33 @@ class ClassifierLoader:
             path_dir_checkpoint = os.path.join(path_dir, root_checkpoint, dir_checkpoint)
         path_model_state = os.path.join(path_dir_checkpoint, name_model_state)
         path_optimizer_state = os.path.join(path_dir_checkpoint, name_optimizer_state)
-        classifier = functor_classifier(path_model_state, path_optimizer_state, iteration_resume, learning_rate, betas, gpu_id)
+        classifier = functor_classifier(path_model_state,
+                                        path_optimizer_state,
+                                        dict_labels,
+                                        iteration_resume,
+                                        learning_rate,
+                                        betas,
+                                        gpu_id)
         return classifier
 
 class ImageFolderCapsule(dset.ImageFolder):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, classifier, *args, **kwargs):
         super(ImageFolderCapsule, self).__init__(*args, **kwargs)
-        self.set_labels_idx()
+        self.set_labels_idx(classifier)
 
-    def set_labels_idx(self):
-        match_labels_dict(self.class_to_idx)
+    def set_labels_idx(self, classifier):
+        match_labels_dict(self.class_to_idx, classifier.get_classes())
 
 
 def load_model_checkpoint(path_model_state,
                           path_optimizer_state,
+                          dict_labels,
                           iteration_resume,
                           learning_rate,
                           betas,
                           gpu_id
                           ):
-    capnet = model_big.CapsuleNet(4, path_model_state, path_optimizer_state, learning_rate, betas, gpu_id)
+    capnet = model_big.CapsuleNet(4, path_model_state, path_optimizer_state, dict_labels, learning_rate, betas, gpu_id)
     if iteration_resume > 0:
         capnet.load_states(iteration_resume)
         capnet.train(mode=True)
@@ -112,12 +121,13 @@ def save_model_checkpoint(capnet, epoch):
     capnet.save_states(epoch)
 
 
-def load_dataloaders_learning(size_image,
-                          path_dataset,
-                          prop_training,
-                          batch_size,
-                          number_workers
-                          ):
+def load_dataloaders_learning(classifier,
+                              path_dataset,
+                              prop_training,
+                              size_image,
+                              batch_size,
+                              number_workers
+                              ):
     #  =================================================
 
     transform_fwd = transforms.Compose([
@@ -130,7 +140,7 @@ def load_dataloaders_learning(size_image,
     rng = np.random.default_rng()
 
     # Computing training and validation datasets from whole directory
-    dataset_learning = ImageFolderCapsule(root=path_dataset, transform=transform_fwd)
+    dataset_learning = ImageFolderCapsule(classifier=classifier, root=path_dataset, transform=transform_fwd)
     number_images = len(dataset_learning)
     number_images_training = int(number_images * prop_training)
 
@@ -155,7 +165,7 @@ def load_dataloaders_learning(size_image,
 def learn_from_dir(method_classifier,
                    dir_dataset,
                    root_checkpoint,
-                   iteration_resume=0, # 0 to start from scratch
+                   iteration_resume, # 0 to start from scratch
                    number_epochs=number_epochs_default,
                    learning_rate=learning_rate_default,
                    batch_size=batch_size_default,
@@ -168,11 +178,6 @@ def learn_from_dir(method_classifier,
                    number_workers=number_workers_default,
                    log_enabled=log_enabled_default
 ):
-    # log_enabled = False
-    # if log_writer is not None:
-      #  log_enabled = True
-        # log_writer = open(log_writer, 'w')
-
     capnet = ClassifierLoader.get_classifier(method_classifier=method_classifier,
                                              root_checkpoint=root_checkpoint,
                                              iteration_resume=iteration_resume,
@@ -184,11 +189,12 @@ def learn_from_dir(method_classifier,
     vgg_ext = model_big.VggExtractor()
     capsule_loss = model_big.CapsuleLoss(gpu_id)
 
-    dataloader_training, dataloader_validation = load_dataloaders_learning(size_image,
-                                                                           dir_dataset,
-                                                                           prop_training,
-                                                                           batch_size,
-                                                                           number_workers)
+    dataloader_training, dataloader_validation = load_dataloaders_learning(classifier=capnet,
+                                                                           path_dataset=dir_dataset,
+                                                                           prop_training=prop_training,
+                                                                           size_image=size_image,
+                                                                           batch_size=batch_size,
+                                                                           number_workers=number_workers)
 
     for epoch in range(iteration_resume+1, number_epochs+1):
         count = 0
@@ -278,9 +284,3 @@ def learn_from_dir(method_classifier,
         if log_enabled:
             print('[Epoch {0}] Train loss: {1}   acc: {2} | Test loss: {3}  acc: {4}'.format(epoch, loss_train, acc_train*100, loss_test, acc_test*100))
 
-            # log_writer.write('%d,%.4f,%.2f,%.4f,%.2f\n', epoch, loss_train, acc_train*100, loss_test, acc_test*100)))
-
-            # log_writer.flush()
-
-    # if log_enabled:
-       # log_writer.close()
