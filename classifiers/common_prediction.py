@@ -3,6 +3,8 @@ from . import common_labels as lab
 
 import operator as op
 
+from .common_labels import is_predicted_wrong
+
 class Prediction:
     # __dict_prop_analysis
     def __init__(self, labels_predicted, dict_labels):
@@ -58,9 +60,40 @@ class EvaluationLearning:
     def get_number_epochs(self):
         return len(self.__epochs)
 
+    def get_loss_diff(self, order):
+        return
+
+
     def print(self):
+        # TODO: TO KNOW
         for i, epoch in enumerate(self.__epochs):
-            print('Epoch {0}]:'.format(epoch))
+            print('Epoch {0}:'.format(epoch))
             print('    Training   -- loss: {0} | accuracy {1}'.format(self.__loss_training[i], self.__acc_training[i]))
             print('    Validation -- loss: {0} | accuracy {1}'.format(self.__loss_validation[i], self.__acc_validation[i]))
 
+class EvaluationTest:
+    # __error_predicted
+    # __mean_squared_error
+    # __mean_accuracy
+    def __init__(self, labels_predicted, labels_actual):
+        self.__error_predicted = EvaluationTest.compute_error_predicted(labels_predicted, labels_actual)
+
+    @staticmethod
+    def compute_error_predicted(labels_predicted, labels_actual):
+        # for now, the error is badly computed
+        error_predicted = np.empty_like(labels_actual)
+        for i in range(len(labels_actual)):
+            error = is_predicted_wrong(labels_predicted[i], labels_actual[i])
+            error_predicted[i] = error
+        return error_predicted
+
+    def get_mean_squared_error(self):
+        return np.mean(np.square(self.__error_predicted))
+
+    # Yep, you should probably change that.
+    def get_mean_accuracy(self):
+        return 1 - self.get_mean_squared_error()
+
+    def print(self):
+        print('Mean squared error:   {0}'.format(self.get_mean_squared_error()))
+        print('Mean accuracy:        {0}'.format(self.get_mean_accuracy()))

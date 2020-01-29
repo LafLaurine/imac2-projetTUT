@@ -4,15 +4,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from tqdm import tqdm
+
+from scipy.ndimage.filters import gaussian_filter
+import warnings
+warnings.filterwarnings('ignore', '.*Clipping input data to the valid range for imshow*')
+
 #from forgery_detection.classifiers import Georges, Hector, Jean
 
 
 from .common_classifier import ImageDataGeneratorMeso
-from scipy.ndimage.filters import gaussian_filter
+from ...common_prediction import EvaluationLearning
 
-
-import warnings
-warnings.filterwarnings('ignore', '.*Clipping input data to the valid range for imshow*')
 
 
 ## Preprocessing
@@ -136,30 +139,20 @@ def learn_from_generator(
     ## Train
     print('\nstart training ...')
 
-    #number_epochs = 101 # 51
-    # batch_size = 5
-    # residual = False # Not used ? Input images are pre-processed
-
-    # accuracy_plot = []
-    # accuracy_validation_plot = []
-
+    evals_learning = EvaluationLearning()
     try:
-        for e in range(number_epochs):
-            print('\nepoch', e+1, '/', number_epochs)
-        
+        for e in tqdm(range(number_epochs)):
             batches = 0
             mean_loss = 0
             mean_accuracy = 0
         
             for image, label in generator_training:
-                #if residual:
-                #    x_batch = suppressContext(x_batch)
                 loss = classifier.fit(image, label)
                 mean_loss += loss[0]
                 mean_accuracy += loss[1]
                 batches += 1
                 if batches >= batch_size:
-                    print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
+                    # print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
                     break
 
             if e % step_save_weights_temp == 0:
@@ -169,31 +162,16 @@ def learn_from_generator(
             loss_training = np.round(mean_loss / batch_size, decimals=number_decimals)
             accuracy_training = np.round(mean_accuracy / batch_size, decimals=number_decimals)
             validation_a, validation_b = generator_validation.next()
-            #if residual:
-            #    validation_a = suppressContext(validation_a)
             loss_validation, accuracy_validation = np.round(classifier.get_accuracy(validation_a, validation_b), decimals=number_decimals)
-            print("LossTr", loss_training, "%Tr", accuracy_training, "LossVal", loss_validation, "%Val", accuracy_validation)
-        
-       # accuracy_training_plot.append(accuracy_training)
-       # accuracy_validation_plot.append(accuracy_validation)
-
+            evals_learning.add_eval(epoch=e,
+                                    loss_training=loss_training,
+                                    acc_training=accuracy_training,
+                                    loss_validation=loss_validation,
+                                    acc_validation=accuracy_validation)
     except KeyboardInterrupt:
         pass
-    ## Test accuracy
-    print('\ntest accuracy ...')
+    return evals_learning
 
-    validation_a, validation_b = generator_validation.next()
-    # validation_a = suppressContext(validation_a)
-    print(validation_a.shape)
-    print('Complete (?)', classifier.get_accuracy(validation_a, validation_b))
-
-    # validation_c = isolateFace(np.copy(validation_a))
-    # print('Visage uniquement', model.get_accuracy(validation_c, validation_b))
-    #
-    # validation_d = hideFace(np.copy(validation_a))
-    # print('Fond', model.get_accuracy(validation_d, validation_b))
-
-    ## Smoothe curve ?
 
 def smoothe_curve(y, window = 5):
     n = len(y)

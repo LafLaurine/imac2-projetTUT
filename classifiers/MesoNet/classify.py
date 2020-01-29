@@ -54,19 +54,19 @@ def learn_from_dir(name_classifier,
                                                      path_dir_classifier=PATH_DIR_CLASSIFIER,
                                                      learning_rate=learning_rate,
                                                      name_weights=None)
-    print(classifier._dict_labels)
     generator_training,  generator_validation = lrn.load_dataset_learning(classifier,
                                                                           dir_dataset,
                                                                           data_generator_training,
                                                                           data_generator_validation,
                                                                           batch_size,
                                                                           target_size)
-    lrn.learn_from_generator(classifier,
+    evals_learning = lrn.learn_from_generator(classifier,
                              generator_training,
                              generator_validation,
                              batch_size,
                              number_epochs,
                              step_save_weights_temp)
+    evals_learning.print()
     return
 
 
@@ -87,12 +87,11 @@ def test_from_dir(name_classifier,
                                            data_generator_test,
                                            batch_size,
                                            target_size)
-    mean_squared_error, accuracy = tst.test_from_generator(classifier,
+    evals_test = tst.test_from_generator(classifier,
                             generator_test,
                             batch_size)
 
-    print("Mean squared error: ", mean_squared_error)
-    print("Accuracy: ", accuracy)
+    evals_test.print()
     return
 
 def analyse_from_dir(name_classifier,
