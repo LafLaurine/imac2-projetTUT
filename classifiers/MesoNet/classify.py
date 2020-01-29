@@ -28,12 +28,6 @@ target_size_default = (256, 256)
 
 rescale_default = 1 / 255
 
-# dataset
-dir_dataset_default = 'dataset'
-dir_deepfake_default = 'df'
-dir_real_default = 'real'
-dir_f2f_default = 'f2f'
-
 def print_info():
     print('\n---------- MesoNet -----------')
     print('Darius Afchar     (ENPC)')
@@ -119,7 +113,5 @@ def analyse_from_dir(name_classifier,
                                                generator_analysis,
                                                batch_size)
 
-    label, confidence = prediction.get_prediction()
-    print("Predicted: ", label)
-    print("Confidence: ", confidence)
+    prediction.print()
 
