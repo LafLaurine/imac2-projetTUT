@@ -8,17 +8,11 @@ from keras.preprocessing.image import ImageDataGenerator
 import warnings
 warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
+PATH_DIR_CLASSIFIER = os.path.dirname(os.path.realpath(__file__))
 # DEFAULT CONFIG
-
 # Weights
-dir_weights_default = 'weights'
-weights_meso4_df_default = 'Meso4_DF'
-weights_meso4_f2f_default = 'Meso4_F2F'
-weights_mesoception_df_default = 'MesoInception_DF'
-weights_mesoception_f2f_default = 'MesoInception_F2F'
 
 step_save_weights_temp_default = 5
-dir_weights_temp_default = 'weights_temp'
 
 # Training
 learning_rate_default = 0.00001
@@ -50,36 +44,6 @@ def print_info():
 
 print_info()
 
-class ClassifierLoader:
-    meso4_df          = 'MESO4_DF'
-    meso4_f2f          = 'MESO4_F2F'
-    mesoception_df = 'MESOCEPTION_DF'
-    mesoception_f2f = 'MESOCEPTION_F2F'
-
-    @staticmethod
-    def get_classifier(method_classifier,
-                       dir_weights          =dir_weights_default,
-                       dir_weights_temp     =dir_weights_temp_default,
-                       learning_rate        =learning_rate_default,
-                       name_weights         = None
-                       ):
-        switch = {
-            ClassifierLoader.meso4_df        : (clf.Meso4, weights_meso4_df_default),
-            ClassifierLoader.meso4_f2f       : (clf.Meso4, weights_meso4_f2f_default),
-            ClassifierLoader.mesoception_df  : (clf.MesoInception4, weights_mesoception_df_default),
-            ClassifierLoader.mesoception_f2f : (clf.MesoInception4, weights_mesoception_df_default)
-        }
-        pair_classifier = switch.get(method_classifier, None)
-        if pair_classifier is None:
-            raise ValueError('No classifier called ' + method_classifier)
-        functor_classifier, name_weights_default = pair_classifier
-        path_dir = os.path.dirname(os.path.realpath(__file__))
-        if name_weights is None:
-            name_weights = name_weights_default
-        path_dir_weights = os.path.join(path_dir, dir_weights)
-        path_dir_weights_temp = os.path.join(path_dir, dir_weights_temp)
-        classifier = functor_classifier(learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
-        return classifier
 
 
 def learn_from_dir(name_classifier,
@@ -92,14 +56,17 @@ def learn_from_dir(name_classifier,
                    rescale=rescale_default
                    ):
     data_generator_training, data_generator_validation = lrn.load_data_generators_learning(rescale)
-    generator_training,  generator_validation = lrn.load_dataset_learning(dir_dataset,
+    classifier = clf.ClassifierLoader.get_classifier(name_classifier,
+                                                     path_dir_classifier=PATH_DIR_CLASSIFIER,
+                                                     learning_rate=learning_rate,
+                                                     name_weights=None)
+    print(classifier._dict_labels)
+    generator_training,  generator_validation = lrn.load_dataset_learning(classifier,
+                                                                          dir_dataset,
                                                                           data_generator_training,
                                                                           data_generator_validation,
                                                                           batch_size,
                                                                           target_size)
-    classifier = ClassifierLoader.get_classifier(name_classifier,
-                                                 learning_rate=learning_rate,
-                                                 name_weights=None)
     lrn.learn_from_generator(classifier,
                              generator_training,
                              generator_validation,
@@ -117,12 +84,15 @@ def test_from_dir(name_classifier,
                   ):
     # Flow images from directory and predict
     data_generator_test = tst.load_data_generator_test(rescale=rescale)
-    generator_test = tst.load_dataset_test(dir_dataset_test,
+    classifier = clf.ClassifierLoader.get_classifier(name_classifier,
+                                                     path_dir_classifier=PATH_DIR_CLASSIFIER,
+                                                     learning_rate=0, # test does not allow learning from input
+                                                     name_weights=None)
+    generator_test = tst.load_dataset_test(classifier,
+                                           dir_dataset_test,
                                            data_generator_test,
                                            batch_size,
                                            target_size)
-    classifier = ClassifierLoader.get_classifier(name_classifier,
-                                                 name_weights=None)
     mean_squared_error, accuracy = tst.test_from_generator(classifier,
                             generator_test,
                             batch_size)
@@ -137,11 +107,19 @@ def analyse_from_dir(name_classifier,
                      target_size=target_size_default,
                      rescale=rescale_default):
     data_generator_analysis = tst.load_data_generator_analysis(rescale)
-    generator_analysis = tst.load_dataset_test(dir_input,
-                                               data_generator_analysis,
-                                               batch_size,
-                                               target_size
-                                               )
-    classifier = ClassifierLoader.get_classifier(name_classifier, name_weights=None)
+    classifier = clf.ClassifierLoader.get_classifier(name_classifier,
+                                                     path_dir_classifier=PATH_DIR_CLASSIFIER,
+                                                     learning_rate=0,
+                                                     name_weights=None)
+    generator_analysis = tst.load_input_analysis(dir_input,
+                                                 data_generator_analysis,
+                                                 batch_size,
+                                                 target_size)
+    prediction = tst.analyse_from_generator(classifier,
+                                               generator_analysis,
+                                               batch_size)
 
+    label, confidence = prediction.get_prediction()
+    print("Predicted: ", label)
+    print("Confidence: ", confidence)
 

@@ -8,8 +8,8 @@ parser = argparse.ArgumentParser()
 root_checkpoint = 'checkpoints'
 
 parser.add_argument('--classifier', '-c', required=True, help="""Can only be BINARY_FFPP (for now)""")
-parser.add_argument('--dataset', '-d', required=True, help='path to root dataset')
-parser.add_argument("--batch_size",'-b', required=True, type=int, help="Number of images in each batch")
+parser.add_argument('--dataset',    '-d', required=True, help='path to root dataset')
+parser.add_argument("--batch_size", '-b', required=True, type=int, help="Number of images in each batch")
 parser.add_argument("--epochs",     '-e', required=True, type=int, help="Number of epochs")
 
 if __name__ == "__main__":

@@ -2,11 +2,10 @@ import argparse
 
 from classifiers.MesoNet import classify
 
-classifier_name_default = 'MESO4_DF'
 
 parser = argparse.ArgumentParser(description="Extract faces and warp according to facial landmarks.")
-parser.add_argument("--classifier", '-c', required=True, type=str, help="""Can be 'MESO4_DF', 'MESO4_F2F', 'MESOCEPTION_DF', 'MESOCEPTION_F2F'""")
-parser.add_argument("--dataset",    '-d', required=True, type=str, help="Directory in which to look for images to test.")
+parser.add_argument("--classifier", '-c',  required=True, type=str, help="""Can be 'MESO4_DF', 'MESO4_F2F', 'MESOCEPTION_DF', 'MESOCEPTION_F2F'""")
+parser.add_argument("--dataset",    '-d',  required=True, type=str, help="Directory in which to look for images to test.")
 parser.add_argument("--batch_size",  '-b', required=True, type=int, help="Size of each batch use for testing.")
 
 
