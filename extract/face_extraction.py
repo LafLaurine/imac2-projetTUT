@@ -44,6 +44,7 @@ pair_resize_default              = (256, 256)
 # options
 are_saved_default                 = False
 are_saved_landmarks_default       = False
+is_saved_rectangle_default        = False
 are_warped_default                = True
 are_culled_default                = True
 log_enabled_default               = True
@@ -125,6 +126,7 @@ class FaceExtractor:
             type_tracker=type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
             are_saved=are_saved_default,  # save image in output directory
             are_saved_landmarks=are_saved_landmarks_default,  # write landmarks to output
+            is_saved_rectangle=is_saved_rectangle_default,
             dir_out=None,  # output directory for faces
             log_enabled=log_enabled_default  # output log info
                                 ):
@@ -196,7 +198,8 @@ class FaceExtractor:
                 are_culled              = are_culled_default,
                 type_tracker            = type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
                 are_saved               = are_saved_default,  # save image in output directory
-                are_saved_landmarks     = are_saved_landmarks_default,  # write landmarks to output
+                are_saved_landmarks     = are_saved_landmarks_default,  # write landmarks to output IF NOT WARPED
+                is_saved_rectangle      = is_saved_rectangle_default, # write face detection rectangle to output IF NOT WARPED
                 dir_out                 = None,  # output directory for faces
                 log_enabled             = log_enabled_default  # output log info
                 ):
@@ -233,7 +236,7 @@ class FaceExtractor:
                                           )
         if are_saved:
             ut.log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
-            FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks)
+            FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks, is_saved_rectangle)
         ut.log(log_enabled, "[INFO] success.")
         return list_people
 
@@ -318,7 +321,7 @@ class FaceExtractor:
                 warper.warp_person(person)
 
     @staticmethod
-    def save_people(list_people, dir_out, are_saved_landmarks):
+    def save_people(list_people, dir_out, are_saved_landmarks, is_saved_rectangle):
         for person in list_people:
-            person.save_faces(dir_out, are_saved_landmarks)
+            person.save_faces(dir_out, are_saved_landmarks, is_saved_rectangle)
 

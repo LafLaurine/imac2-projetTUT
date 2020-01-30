@@ -21,7 +21,8 @@ parser.add_argument("--dest",      '-d', required=True, type=str, help="director
 parser.add_argument("--method",    '-m', required=True, type=str, help="""Can be either DNN or DNN_TRACKING""")
 parser.add_argument("--nowarp",    '-w', action='store_true', help="Faces will not be aligned on the basis of eyes and mouth." )
 parser.add_argument("--nocull",    '-c', action='store_true', help="Faces will not be culled according to out-of-bounds landmarks." )
-parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landmarks will be saved along with the corresponding face.")
+parser.add_argument("--landmarks", '-l', action='store_true', help="IF NOT WARPED: Facial landmarks will be saved along with the corresponding face.")
+parser.add_argument("--rectangle", '-r', action='store_true', help="IF NOT WARPED: Rectangle from face detection will be drawn in output image.")
 
 
 parser.add_argument("--begin",     '-b', required=False, type=int, default=start_frame_default, help="Frame at which to start extracton.")
@@ -41,6 +42,7 @@ if __name__ == "__main__":
     are_warped = not args["nowarp"]
     are_culled = not args["nocull"]
     are_saved_landmarks = args["landmarks"]
+    is_saved_rectangle = args["rectangle"]
     FaceExtractor.extract_faces_from_video(
         src=src,
         method_detection=method_detection,
@@ -54,6 +56,7 @@ if __name__ == "__main__":
         are_culled=are_culled,
         are_saved=are_saved,
         are_saved_landmarks=are_saved_landmarks,
+        is_saved_rectangle=is_saved_rectangle,
         dir_out=dir_out,
         log_enabled=log_enabled
         )

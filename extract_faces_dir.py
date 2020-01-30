@@ -24,6 +24,7 @@ parser.add_argument("--method",    '-m', required=True, type=str, help="""Can be
 parser.add_argument("--nowarp",    '-w', action='store_true', help="Faces will not be aligned on the basis of eyes and mouth." )
 parser.add_argument("--nocull",    '-c', action='store_true', help="Faces will not be culled according to out-of-bounds landmarks." )
 parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landmarks will be saved along with the corresponding face.")
+parser.add_argument("--rectangle", '-r', action='store_true', help="IF NOT WARPED: Rectangle from face detection will be drawn in output image.")
 
 
 parser.add_argument("--step",            required=False, type=int, default=step_frame_default, help="Extract faces every ... frames.")
@@ -39,6 +40,7 @@ if __name__ == "__main__":
     are_warped = not args["nowarp"]
     are_culled = not args["nocull"]
     are_saved_landmarks = args["landmarks"]
+    is_saved_rectangle = args["rectangle"]
     FaceExtractor.extract_faces_from_dir(
         dir_in=dir_in,
         ext_codec=ext_codec,
@@ -51,6 +53,7 @@ if __name__ == "__main__":
         are_culled=are_culled,
         are_saved=are_saved,
         are_saved_landmarks=are_saved_landmarks,
+        is_saved_rectangle=is_saved_rectangle,
         dir_out=dir_out,
         log_enabled=log_enabled
         )
