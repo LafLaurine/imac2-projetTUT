@@ -26,7 +26,7 @@ parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landm
 
 parser.add_argument("--begin",     '-b', required=False, type=int, default=start_frame_default, help="Frame at which to start extracton.")
 parser.add_argument("--step",            required=False, type=int, default=step_frame_default, help="Extract faces every ... frames.")
-parser.add_argument("--max",       '-m', required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
+parser.add_argument("--max",             required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
 parser.add_argument("--end",       '-e', required=False, type=int, default=end_frame_default, help="Frame at which to end extraction.")
 
 if __name__ == "__main__":
