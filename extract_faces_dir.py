@@ -11,9 +11,9 @@ min_confidence = 0.85
 
 start_frame_default = 0
 end_frame_default = None
-step_frame = 25
-max_frame = 50
 
+step_frame_default = 25
+max_frame_default = 50
 
 ext_codec = '.mp4'
 
@@ -26,11 +26,16 @@ parser.add_argument("--nocull",    '-c', action='store_true', help="Faces will n
 parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landmarks will be saved along with the corresponding face.")
 
 
+parser.add_argument("--step",            required=False, type=int, default=step_frame_default, help="Extract faces every ... frames.")
+parser.add_argument("--max",       '-m', required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
+
 if __name__ == "__main__":
     args = vars(parser.parse_args())
     dir_in =  args["source"]
     dir_out = args["dest"]
     method_detection = args["method"]
+    step_frame = args["step"]
+    max_frame = args["max"]
     are_warped = not args["nowarp"]
     are_culled = not args["nocull"]
     are_saved_landmarks = args["landmarks"]
