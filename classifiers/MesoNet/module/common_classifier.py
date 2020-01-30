@@ -96,7 +96,7 @@ class Classifier:
         return self._model.test_on_batch(x, y)
 
     def load_weights(self):
-        self._model.load_weights(self._path_dir_weights + os.sep + self._name_weights)
+        self._model.load_weights(os.path.join(self._path_dir_weights, self._name_weights))
 
     def compile(self):
         optimiser = Adam(lr=self._learning_rate)

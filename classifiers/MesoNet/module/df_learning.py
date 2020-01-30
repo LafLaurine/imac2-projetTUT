@@ -99,8 +99,6 @@ def load_dataset_learning(
         class_mode='binary',
         subset='validation')
 
-    # ??
-    # a, b = generator_training.next()
     return generator_training, generator_validation
 
 def split_classifier(
@@ -145,7 +143,6 @@ def learn_from_generator(
             batches = 0
             mean_loss = 0
             mean_accuracy = 0
-        
             for image, label in generator_training:
                 loss = classifier.fit(image, label)
                 mean_loss += loss[0]
@@ -161,8 +158,11 @@ def learn_from_generator(
         
             loss_training = np.round(mean_loss / batch_size, decimals=number_decimals)
             accuracy_training = np.round(mean_accuracy / batch_size, decimals=number_decimals)
-            validation_a, validation_b = generator_validation.next()
-            loss_validation, accuracy_validation = np.round(classifier.get_accuracy(validation_a, validation_b), decimals=number_decimals)
+
+            #####
+
+            image_validation, label_validation = generator_validation.next()
+            loss_validation, accuracy_validation = np.round(classifier.get_accuracy(image_validation, label_validation), decimals=number_decimals)
             evals_learning.add_eval(epoch=e,
                                     loss_training=loss_training,
                                     acc_training=accuracy_training,
