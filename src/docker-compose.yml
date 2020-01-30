@@ -1,7 +1,6 @@
 version: '3'
 services:
   extraction_video:
-    build: ./extraction
     image: laflaurine/afp-df_api:extraction_video
     env_file: .env
     command:
@@ -23,7 +22,6 @@ services:
       are_saved_landmarks: ${are_saved_landmarks}
       
   extraction_dir:
-    build: ./extraction
     image: laflaurine/afp-df_api:extraction_dir
     env_file: .env
     command:
@@ -39,7 +37,7 @@ services:
       are_saved_landmarks: ${are_saved_landmarks}     
   
   mesonet_test:
-    build: ./MesoNet
+    image: laflaurine/afp-df_api:mesonet_test
     env_file: .env
     command:
       python mesonet_test.py
@@ -52,7 +50,7 @@ services:
       number_epochs: ${number_epochs}  
 
   mesonet_analyse:
-    build: ./MesoNet 
+    image: laflaurine/afp-df_api:mesonet_analyse
     env_file: .env
     command:
       python mesonet_analyse.py
@@ -64,7 +62,7 @@ services:
       mesonet_classifier: ${mesonet_classifier}
 
   mesonet_training:
-    build: ./MesoNet
+    image: laflaurine/afp-df_api:mesonet_training
     env_file: .env
     command:
       python mesonet_train.py
@@ -78,7 +76,7 @@ services:
       step_save_weights_temp: ${step_save_weights_temp}
 
   capsule_forensics_test:
-    build: ./CapsuleForensics
+    image: laflaurine/afp-df_api:capsule_forensics_test
     env_file: .env
     command:
       python test.py
@@ -90,7 +88,7 @@ services:
       version_weights: ${version_weights}
 
   capsule_forensics_analyse:
-    build: ./CapsuleForensics
+    image: laflaurine/afp-df_api:capsule_forensics_analyse
     env_file: .env
     command:
       python analyse.py
@@ -104,7 +102,7 @@ services:
       number_epochs: ${number_epochs}
 
   capsule_forensics_training:
-    build: ./CapsuleForensics
+    image: laflaurine/afp-df_api:capsule_forensics_training
     env_file: .env
     command:
       python train.py
