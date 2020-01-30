@@ -84,7 +84,6 @@ def detect_faces_dnn_tracking(
             #So that we can find faces closest to trackers
             detections = fdet.compute_detection(frame, net, size_net, mean)
             list_faces = fdet.faces_from_detection(detections,
-                                                     rate_enlarge,
                                                      frame,
                                                      min_confidence)
             ###UPDATING PEOPLE IF FRAME IS TO BE SEARCHED

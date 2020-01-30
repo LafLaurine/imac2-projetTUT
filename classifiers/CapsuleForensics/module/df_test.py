@@ -23,9 +23,9 @@ def test_from_dataloader(classifier,
     list_errors = []
     for epoch in tqdm(range(number_epochs)):
         eer = test_from_dataloader_epoch(classifier=classifier,
-                                                         extractor_vgg=extractor_vgg,
-                                                         dataloader_test=dataloader_test,
-                                                         is_random=is_random)
+                                         extractor_vgg=extractor_vgg,
+                                         dataloader_test=dataloader_test,
+                                         is_random=is_random)
         list_errors.append(eer)
     # adding evaluation
     evals_test = EvaluationTest()

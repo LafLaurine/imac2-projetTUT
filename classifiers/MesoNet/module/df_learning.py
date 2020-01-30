@@ -143,19 +143,24 @@ def learn_from_generator(
             batches = 0
             mean_loss = 0
             mean_accuracy = 0
-            for image, label in generator_training:
-                loss = classifier.fit(image, label)
-                mean_loss += loss[0]
-                mean_accuracy += loss[1]
-                batches += 1
-                if batches >= batch_size:
-                    # print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
-                    break
+            # for image, label in generator_training:
+            try:
+                image, label = generator_training.next()
+            except TypeError:
+                # To handle an odd case of supposedly corrupted PNG file
+                continue
+            loss = classifier.fit(image, label)
+            mean_loss += loss[0]
+            mean_accuracy += loss[1]
+            batches += 1
+            if batches >= batch_size:
+                # print('eq', np.round(np.mean(classifier.predict(image)), decimals=number_decimals))
+                break
 
             if e % step_save_weights_temp == 0:
                 # saving weights as a fallback
                 classifier.save_weights_temp(e)
-        
+
             loss_training = np.round(mean_loss / batch_size, decimals=number_decimals)
             accuracy_training = np.round(mean_accuracy / batch_size, decimals=number_decimals)
 

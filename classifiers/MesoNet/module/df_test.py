@@ -59,7 +59,11 @@ def test_from_generator(classifier,
     # every epoch
     for e in tqdm(range(number_epochs + 1)):
         # get image and expected label (real, false...)
-        batch_images, batch_labels_actual = generator_test.next()
+        try:
+            batch_images, batch_labels_actual = generator_test.next()
+        except TypeError:
+            # Corrupted PNG file
+            continue
         # get what MesoNet thinks the label is
         batch_labels_predicted = classifier.predict(batch_images)
         ##

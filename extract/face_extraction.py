@@ -175,7 +175,6 @@ class FaceExtractor:
                 method_detection        = method_detection_default,  # name of extraction method to be used
                 pair_resize             = pair_resize_default,  # width of extracted face
                 pairs_interest_prop     = pairs_interest_prop_default,
-                rate_enlarge            = rate_enlarge_default, # Rate to original bounding box to also be included (bigger boxes)
                 start_frame             = 0,  # Frame at which to begin extraction
                 end_frame               = None,  # Frame at which to end
                 step_frame              = step_frame_default,  # read video every ... frames
@@ -215,7 +214,6 @@ class FaceExtractor:
         ut.log(log_enabled, "[INFO] detecting faces...")
         list_people = FaceExtractor.detect_faces(list_frames,
                                                 method_detection,
-                                                rate_enlarge,
                                                 min_confidence,
                                                 net_face,
                                                 size_net,
@@ -270,7 +268,6 @@ class FaceExtractor:
     @staticmethod
     def detect_faces(list_frames,
                     method_detection,
-                    rate_enlarge,
                     min_confidence,
                     net,
                     size_net,
@@ -282,7 +279,6 @@ class FaceExtractor:
         if method_detection == fdet.DetectionMethod.dnn_tracking:
             return functor_detection(
                 list_frames      = list_frames,
-                rate_enlarge     = rate_enlarge,
                 min_confidence   = min_confidence,
                 net              = net,
                 size_net         = size_net,
