@@ -1,0 +1,120 @@
+version: '3'
+services:
+  extraction_video:
+    build: ./extraction
+    image: laflaurine/afp-df_api:extraction_video
+    env_file: .env
+    command:
+      python extract_faces_video.py
+    volumes:
+      - ./extraction:/code
+    environment:
+      input_path: ${input_path}
+      video_download: ${video_download}
+      video_url: ${video_url}
+      name_video_downloaded: ${name_video_downloaded}
+      outputs_path: ${outputs_path}
+      method_detection: ${method_detection}
+      start_frame: ${start_frame}
+      step_frame: ${step_frame}
+      end_frame: ${end_frame}
+      are_warped: ${are_warped}
+      are_culled: ${are_culled}
+      are_saved_landmarks: ${are_saved_landmarks}
+      
+  extraction_dir:
+    build: ./extraction
+    image: laflaurine/afp-df_api:extraction_dir
+    env_file: .env
+    command:
+      python extract_faces_dir.py
+    volumes:
+      - ./extraction:/code
+    environment:
+      input_path_dir: ${input_path_dir}
+      outputs_path: ${outputs_path}
+      method_detection: ${method_detection}
+      are_warped: ${are_warped}
+      are_culled: ${are_culled}
+      are_saved_landmarks: ${are_saved_landmarks}     
+  
+  mesonet_test:
+    build: ./MesoNet
+    env_file: .env
+    command:
+      python mesonet_test.py
+    volumes:
+      - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+      number_epochs: ${number_epochs}  
+
+  mesonet_analyse:
+    build: ./MesoNet 
+    env_file: .env
+    command:
+      python mesonet_analyse.py
+    volumes:
+      - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+
+  mesonet_training:
+    build: ./MesoNet
+    env_file: .env
+    command:
+      python mesonet_train.py
+    volumes:
+      - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+      batch_size: ${batch_size}
+      step_save_weights_temp: ${step_save_weights_temp}
+
+  capsule_forensics_test:
+    build: ./CapsuleForensics
+    env_file: .env
+    command:
+      python test.py
+    volumes:
+      - ./CapsuleForensics:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      path_to_dataset: ${path_to_dataset}
+      version_weights: ${version_weights}
+
+  capsule_forensics_analyse:
+    build: ./CapsuleForensics
+    env_file: .env
+    command:
+      python analyse.py
+    volumes:
+      - ./CapsuleForensics:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      path_to_dataset: ${path_to_dataset}
+      version_weights: ${version_weights}
+      batch_size: ${batch_size}
+      number_epochs: ${number_epochs}
+
+  capsule_forensics_training:
+    build: ./CapsuleForensics
+    env_file: .env
+    command:
+      python train.py
+    volumes:
+      - ./CapsuleForensics:/code
+      - ./${capsule_forensics_train_dataset}:/code/${capsule_forensics_train_dataset}
+    environment:
+      capsule_forensics_classifier: ${capsule_forensics_classifier}
+      capsule_forensics_train_dataset: ${capsule_forensics_train_dataset}
+      batch_size: ${batch_size}
+      capsule_forensics_epoch_resume: ${capsule_forensics_epoch_resume}
+      number_epochs: ${number_epochs}
+      step_save_checkpoint: ${step_save_checkpoint}

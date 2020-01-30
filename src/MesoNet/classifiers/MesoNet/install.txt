@@ -1,0 +1,27 @@
+Linux :
+
+sudo apt-get install python3-pip
+sudo apt-get install ffmpeg
+sudo apt-get install python3-matplotlib ??
+
+pip3 install tensorflow
+pip3 install keras
+pip3 install imageio
+pip3 install face_recognition
+pip3 install ffmpeg
+
+pip3 install matplotlib
+pip3 install imageio_ffmpeg
+
+mkdir test_video
+put yout video in "test_video"
+run example.py
+
+dans pipeline.py, on peut changer 
+frame_subsample_count = 30
+par
+frame_subsample_count = 100
+
+=> ça correspond au nb d'images extraites par video.
+
+
