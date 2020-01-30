@@ -9,10 +9,9 @@ log_enabled = True
 
 min_confidence = 0.85
 
-rate_enlarge = 0.20  # proportional the detected face, so that it does not crop the chin, and such
-start_frame = 400
-end_frame = None
-step_frame = 1
+start_frame_default = 0
+end_frame_default = None
+step_frame = 25
 max_frame = 50
 
 
@@ -24,17 +23,22 @@ parser.add_argument("--nowarp",    '-w', action='store_true', help="Faces will n
 parser.add_argument("--nocull",    '-c', action='store_true', help="Faces will not be culled according to out-of-bounds landmarks." )
 parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landmarks will be saved along with the corresponding face.")
 
+
+parser.add_argument("--begin",     '-b', required=False, type=int, default=start_frame_default, help="Frame at which to start extracton.")
+parser.add_argument("--end",       '-e', required=False, type=int, default=end_frame_default, help="Frame at which to end extraction.")
+
 if __name__ == "__main__":
     args = vars(parser.parse_args())
     src = args["source"]
     dir_out = args["dest"]
     method_detection = args["method"]
+    start_frame = args["begin"]
+    end_frame = args["end"]
     are_warped = not args["nowarp"]
     are_culled = not args["nocull"]
     are_saved_landmarks = args["landmarks"]
     FaceExtractor.extract_faces_from_video(
         src=src,
-        rate_enlarge=rate_enlarge,
         method_detection=method_detection,
         start_frame=start_frame,
         end_frame=end_frame,
