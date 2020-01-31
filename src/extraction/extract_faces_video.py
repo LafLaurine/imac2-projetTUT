@@ -10,9 +10,7 @@ log_enabled = True
 
 min_confidence = 0.85
 
-start_frame = 0
 end_frame = None
-step_frame = 1
 max_frame = 50
 
 def download_video(url,output,name,quiet=True):
@@ -38,9 +36,11 @@ if __name__ == "__main__":
     start_frame = os.getenv("start_frame")
     step_frame = os.getenv("step_frame")
     end_frame = os.getenv("end_frame")
+    max_frame = os.getenv("max_frame")
     are_warped = distutils.util.strtobool(os.getenv("are_warped"))
     are_culled = distutils.util.strtobool(os.getenv("are_culled"))
     are_saved_landmarks = distutils.util.strtobool(os.getenv("are_saved_landmarks"))
+    is_saved_rectangle = distutils.util.strtobool(os.getenv("is_saved_rectangle"))
     FaceExtractor.extract_faces_from_video(
         src=src,
         method_detection=method_detection,

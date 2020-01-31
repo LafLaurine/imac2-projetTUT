@@ -74,9 +74,11 @@ class Face:
         # TODO : FIND A BETTER CRITERIA
         return True
 
-    def save(self, dir_out, are_landmarks_saved):
+    def save(self, dir_out, are_landmarks_saved, is_rectangle_saved):
         if (not self.landmarks() is None) and are_landmarks_saved:
             self.__write_landmarks()
+        if is_rectangle_saved:
+            self.__write_box()
         self.__save_image(dir_out)
 
     def __save_image(self, dir_out):
@@ -85,12 +87,17 @@ class Face:
         else:
             self.frame().save(dir_out, self.box())
 
-    def __write_landmarks(self, radius=2, colour=(0, 255, 0)):
+    def __write_landmarks(self, radius=2, thickness=3, colour=(0, 255, 0)):
         for i in range(len(self.landmarks())):
             pos = self.get_landmark_position(i)
             x, y = pos.tuple()
-            cv2.circle(self.image(), (int(x), int(y)), radius, color=colour)
+            cv2.circle(self.image(), (int(x), int(y)), radius=radius, thickness=thickness, color=colour)
             i += 1
+
+    def __write_box(self, thickness=6, colour=(127, 0, 255)):
+        pt1 = (self.x1(), self.y1())
+        pt2 = (self.x2(), self.y2())
+        cv2.rectangle(self.image(), pt1, pt2, thickness=thickness, color=colour)
 
 class Person:
     #__faces                 : list of Faces belonging to Person in video
@@ -187,6 +194,6 @@ class Person:
             else:
                 i += 1
 
-    def save_faces(self, dir_out, are_saved_landmarks):
+    def save_faces(self, dir_out, are_saved_landmarks, is_saved_rectangle):
         for face in self.faces():
-            face.save(dir_out, are_saved_landmarks)
+            face.save(dir_out, are_saved_landmarks, is_saved_rectangle)

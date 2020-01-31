@@ -21,6 +21,7 @@ method_detection = os.getenv("method_detection")
 are_warped = distutils.util.strtobool(os.getenv("are_warped"))
 are_culled = distutils.util.strtobool(os.getenv("are_culled"))
 are_saved_landmarks = distutils.util.strtobool(os.getenv("are_saved_landmarks"))
+is_saved_rectangle = distutils.util.strtobool(os.getenv("is_saved_rectangle"))
 FaceExtractor.extract_faces_from_dir(
     dir_in=dir_in,
     ext_codec=ext_codec,
@@ -33,6 +34,7 @@ FaceExtractor.extract_faces_from_dir(
     are_culled=are_culled,
     are_saved=are_saved,
     are_saved_landmarks=are_saved_landmarks,
+    is_saved_rectangle=is_saved_rectangle,
     dir_out=dir_out,
     log_enabled=log_enabled
     )

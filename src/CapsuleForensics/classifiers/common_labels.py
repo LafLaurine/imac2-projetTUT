@@ -17,7 +17,7 @@ DIR_LABEL_FACESWAP = 'faceswap'
 LABEL_DEEPFAKE = (DIR_LABEL_DEEPFAKE, 0)
 LABEL_REAL = (DIR_LABEL_REAL, 1)
 LABEL_F2F = (DIR_LABEL_F2F, 2)
-LABEL_FACESWAP = (DIR_LABEL_FACESWAP, 3   )
+LABEL_FACESWAP = (DIR_LABEL_FACESWAP, 3)
 
 DICT_LABELS_DF = {
     LABEL_DEEPFAKE[0]: LABEL_DEEPFAKE[1],
@@ -47,4 +47,4 @@ def match_labels_dict(dict_labels_found, dict_labels_expected):
     for (key, value) in dict_labels_expected.items():
         if key not in dict_labels_found.keys():
             raise IOError("Label not found: ", (key, value))
-        dict_labels_found[key] = value
+    dict_labels_found = dict_labels_expected
