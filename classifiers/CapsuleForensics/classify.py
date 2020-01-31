@@ -35,7 +35,7 @@ batch_size_default = 20
 size_image_default = 256
 is_random_default = True,  # what exactly IS random?
 perc_dropout_default = 0.05
-prop_training_default = 0.9  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
+prop_training_default = 0.90  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
 # Share dataset between training and test subsets
 
 log_enabled_default = True
@@ -91,9 +91,13 @@ def load_model_checkpoint(path_model_state,
                           gpu_id
                           ):
     capnet = model_big.CapsuleNet(4, path_model_state, path_optimizer_state, dict_labels, learning_rate, betas, gpu_id)
-    if version_weights > 0:
-        # then we load from a previously trained model
-        capnet.load_states(version_weights)
+    if version_weights < 0:
+        # WE'VE GOT TO HAVE WEIGHTS TO START WITH
+        # OTHERWISE IT DOES FUNKY THINGS COME TEST AND ANALYSIS
+        # We can't just not load weights and expect
+        raise ValueError("Weights version incorrect.")
+    # we load from a previously trained model
+    capnet.load_states(version_weights)
     return capnet
 
 
@@ -129,7 +133,6 @@ def learn_from_dir(method_classifier,
                                                                                prop_training=prop_training,
                                                                                size_image=size_image,
                                                                                batch_size=batch_size,
-                                                                               number_epochs=number_epochs,
                                                                                number_workers=number_workers)
     evals_learning = lrn.learn_from_dataloaders(classifier=capnet,
                                                 loss_classifier=loss_capnet,
@@ -148,7 +151,6 @@ def test_from_dir(method_classifier,
                    dir_dataset,
                    root_checkpoint,
                    version_weights, # cannot be 0 this time
-                   number_epochs=number_epochs_default,
                    batch_size=batch_size_default,
                    size_image=size_image_default,
                    is_random=is_random_default,  # what exactly IS random?
@@ -170,14 +172,12 @@ def test_from_dir(method_classifier,
                                                 path_dataset_test=dir_dataset,
                                                 size_image=size_image,
                                                 batch_size=batch_size,
-                                                number_epochs=number_epochs,
                                                 number_workers=number_workers)
 
     evals_test = tst.test_from_dataloader(classifier=capnet,
-                                               extractor_vgg=extractor_vgg,
-                                               dataloader_test=dataloader_test,
-                                               number_epochs=number_epochs,
-                                               is_random=is_random)
+                                          extractor_vgg=extractor_vgg,
+                                          dataloader_test=dataloader_test,
+                                          is_random=is_random)
     return evals_test
 
 def analyse_from_dir(method_classifier,
@@ -200,9 +200,7 @@ def analyse_from_dir(method_classifier,
 
     extractor_vgg = model_big.VggExtractor()
 
-    # In this specific case, we also return the number of epochs
-    # Because we do not know it in advance.
-    dataloader_analysis, number_epochs = tst.load_dataloader_analysis(path_dir_input=dir_input,
+    dataloader_analysis = tst.load_dataloader_analysis(path_dir_input=dir_input,
                                                        size_image=size_image,
                                                        batch_size=batch_size,
                                                        number_workers=number_workers)
@@ -210,7 +208,6 @@ def analyse_from_dir(method_classifier,
     prediction = tst.analyse_from_dataloader(classifier=capnet,
                                              extractor_vgg=extractor_vgg,
                                              dataloader_analysis=dataloader_analysis,
-                                             number_epochs=number_epochs,
                                              is_random=is_random)
     return prediction
 

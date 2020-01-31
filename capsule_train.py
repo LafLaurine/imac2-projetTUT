@@ -11,7 +11,7 @@ parser.add_argument('--classifier', '-c', required=True, type=str, help="""Can o
 parser.add_argument('--dataset',    '-d', required=True, type=str, help='path to root dataset')
 parser.add_argument("--batch_size", '-b', required=True, type=int, help="Number of images in each batch")
 parser.add_argument("--epochs",     '-e', required=True, type=int, help="Number of epochs")
-parser.add_argument("--resume",     '-r', required=True, type=int, help="Which epoch to resume (starting over if 0).")
+parser.add_argument("--resume",     '-r', required=True, type=int, help="Which epoch to resume (starting over if 0)")
 
 parser.add_argument("--step",       '-s', required=False, default = step_save_checkpoint_default, type=int, help="Step at which to save temporary weights.")
 

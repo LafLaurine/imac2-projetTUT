@@ -96,11 +96,5 @@ class EvaluationTest:
     def get_mean_squared_error(self):
         return np.mean(np.square(self.__array_errors))
 
-    # Yep, you should probably change that.
-    def get_mean_accuracy(self):
-        return 1 - self.get_mean_squared_error()
-
     def print(self):
-        print(self.__array_errors)
         print('Mean squared error:   %.5f' % self.get_mean_squared_error())
-        print('Mean accuracy:        %.5f' % self.get_mean_accuracy())

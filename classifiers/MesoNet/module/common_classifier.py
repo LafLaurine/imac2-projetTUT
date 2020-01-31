@@ -60,6 +60,20 @@ class ImageDataGeneratorMeso(ImageDataGenerator):
                                                                    **kwargs,
                                                                    classes=classifier.get_classes())
 
+class GeneratorIterationHandler(object):
+    # https://stackoverflow.com/a/13654160
+    def __init__(self, iterable):
+        self._iter = iter(iterable)
+    def __iter__(self):
+        return self
+    def __next__(self):
+        try:
+            return self._iter.next()
+        except StopIteration as e:
+            raise e
+        except TypeError: # Supposedly a PNG corruption error
+            pass
+
 class Classifier:
     # _learning_rate
     # _model : KerasModel

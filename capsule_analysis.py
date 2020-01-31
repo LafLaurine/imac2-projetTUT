@@ -11,7 +11,7 @@ root_checkpoint = 'checkpoints'
 parser.add_argument('--classifier', '-c', required=True, help="""Can only be BINARY_FFPP (for now)""")
 parser.add_argument('--input_dir',    '-i', required=True, help='path to root dataset')
 
-parser.add_argument("--version",    '-v', required=True, type=int, help="Version of the weights to load (has to be > 0")
+parser.add_argument("--version",    '-v', required=True, type=int, help="Version of the weights to load (has to be > 0)")
 
 parser.add_argument("--batch_size", '-b', required=False, default=batch_size_default, type=int, help="Number of images in each batch")
 

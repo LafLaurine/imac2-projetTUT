@@ -3,8 +3,9 @@ import pathlib
 
 from keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
-from .common_classifier import ImageDataGeneratorMeso
+from .common_classifier import ImageDataGeneratorMeso, GeneratorIterationHandler
 from ...common_prediction import Prediction, EvaluationTest
+
 
 def load_data_generator_test(rescale):
     generator_test = ImageDataGeneratorMeso(rescale=rescale)
@@ -52,28 +53,24 @@ def test_from_generator(classifier,
                         ):
     # 3 - Predict images by batch
     number_images = generator_test.classes.shape[0]
-    number_epochs = number_images // batch_size_test
     labels_predicted = np.ones((number_images, 1)) / 2.
     labels_actual = np.ones(number_images) / 2.
 
-    # every epoch
-    for e in tqdm(range(number_epochs + 1)):
-        # get image and expected label (real, false...)
-        try:
-            batch_images, batch_labels_actual = generator_test.next()
-        except TypeError:
-            # Corrupted PNG file
-            continue
+    it_generator = GeneratorIterationHandler(generator_test)
+    count = 0
+    # get image and expected label (real, false...)
+    for batch_images, batch_labels_actual in tqdm(generator_test):
+        if count * batch_size_test >= number_images:
+            break
         # get what MesoNet thinks the label is
         batch_labels_predicted = classifier.predict(batch_images)
         ##
-        index_start_pred = e * batch_size_test
-        index_end_pred = e * batch_size_test + len(batch_labels_predicted)
+        index_start_pred = count * batch_size_test
+        index_end_pred = min(count * batch_size_test + len(batch_labels_predicted), number_images)
         #  fill the predicted and actual labels
-        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted
-        labels_actual[index_start_pred:index_end_pred] = batch_labels_actual
-        # and compute the error
-        ### ### ### ### ##
+        labels_actual[index_start_pred:index_end_pred] = batch_labels_actual[0:index_end_pred - index_start_pred]
+        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
+        count += 1
     # The following is important (mean squared)
     # We want to TEST MesoNet, we want to know how much it fails
     # Basically, we want to know the average error for real and deepfake images
@@ -89,16 +86,18 @@ def analyse_from_generator(classifier,
                            batch_size_analysis):
 
     number_images = generator_analysis.classes.shape[0]
-    number_epochs = number_images // batch_size_analysis
     labels_predicted = np.ones((number_images, 1)) / 2.
     #
-    for e in tqdm(range(number_epochs + 1)):
-        batch_images = generator_analysis.next()
+    count = 0
+    for batch_images in tqdm(generator_analysis):
+        if count * batch_size_analysis >= number_images:
+            break
         batch_labels_predicted = classifier.predict(batch_images)
         ##
-        index_start_pred = e * batch_size_analysis
-        index_end_pred = e * batch_size_analysis + len(batch_labels_predicted)
+        index_start_pred = count * batch_size_analysis
+        index_end_pred = min(count * batch_size_analysis + len(batch_labels_predicted), number_images)
         #
-        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted
+        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
+        count += 1
     prediction = Prediction(labels_predicted, classifier.get_classes())
     return prediction

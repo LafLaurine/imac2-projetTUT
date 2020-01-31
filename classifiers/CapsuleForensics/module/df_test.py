@@ -18,15 +18,13 @@ from ...common_prediction import Prediction, EvaluationTest
 def test_from_dataloader(classifier,
                          extractor_vgg,
                          dataloader_test,
-                         number_epochs,
                          is_random):
     list_errors = []
-    for epoch in tqdm(range(number_epochs)):
-        eer = test_from_dataloader_epoch(classifier=classifier,
+    eer = test_from_dataloader_epoch(classifier=classifier,
                                          extractor_vgg=extractor_vgg,
                                          dataloader_test=dataloader_test,
                                          is_random=is_random)
-        list_errors.append(eer)
+    list_errors.append(eer)
     # adding evaluation
     evals_test = EvaluationTest()
     evals_test.set_error(list_errors)
@@ -36,7 +34,6 @@ def load_dataloader_test(classifier,
                          path_dataset_test,
                          size_image,
                          batch_size,
-                         number_epochs,
                          number_workers
                          ):
     #  =================================================
@@ -51,12 +48,8 @@ def load_dataloader_test(classifier,
     rng = np.random.default_rng()
     # Computing training and validation datasets from whole directory
     dataset_test = ImageFolderCapsule(classifier=classifier, root=path_dataset_test, transform=transform_fwd)
-    number_images = len(dataset_test)
-    number_images_test = batch_size * number_epochs
-    list_test = rng.choice(number_images, size=number_images_test, replace=False)
-    subset_test = data.Subset(dataset_test, list_test)
 
-    dataloader_test = data.DataLoader(subset_test,
+    dataloader_test = data.DataLoader(dataset_test,
                                       batch_size=batch_size,
                                       shuffle=False,
                                       num_workers=number_workers)
@@ -71,17 +64,16 @@ def test_from_dataloader_epoch(classifier,
     tol_label = np.array([], dtype=np.float)
     tol_pred = np.array([], dtype=np.float)
     tol_pred_prob = np.array([], dtype=np.float)
-    count = 0
     # evaluation mode
     classifier.eval()
-    for data_images, data_labels in dataloader_test:
+    for data_images, data_labels in tqdm(dataloader_test):
         data_labels[data_labels > 1] = 1
         labels_images = data_labels.numpy().astype(np.float)
 
         input_v = Variable(data_images)
-
         x = extractor_vgg(input_v)
         classes, class_ = classifier(x, random=is_random)
+
 
         output_dis = class_.data.cpu()
         output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
@@ -97,11 +89,7 @@ def test_from_dataloader_epoch(classifier,
 
         pred_prob = torch.softmax(output_dis, dim=1)
         tol_pred_prob = np.concatenate((tol_pred_prob, pred_prob[:, 1].data.numpy()))
-
-        count += 1
-
-    # acc_test = metrics.accuracy_score(tol_label, tol_pred)
-
+    acc_test = metrics.accuracy_score(tol_label, tol_pred)
     #todo: CHANGE ERROR RETURN? USE SAME AS MESONET
     #todo: mean squared -> EER?
     fpr, tpr, thresholds = roc_curve(tol_label, tol_pred_prob, pos_label=1)
@@ -127,27 +115,23 @@ def load_dataloader_analysis(path_dir_input,
     # This time, we infer the required number of epochs
     # To go through in order to analysis every image
     number_images = len(dataset_analysis)
-    number_epochs = number_images // batch_size + 1
     dataloader_analysis = data.DataLoader(dataset_analysis,
                                           batch_size=batch_size,
                                           shuffle=False,
                                           num_workers=number_workers)
-    return dataloader_analysis, number_epochs
+    return dataloader_analysis
 
 def analyse_from_dataloader(classifier,
                          extractor_vgg,
                          dataloader_analysis,
-                         number_epochs,
                          is_random):
     labels_predicted = np.empty_like([], dtype=np.float)
-    for epoch in tqdm(range(number_epochs)):
-        batch_labels_predicted = analyse_from_dataloader_epoch(classifier=classifier,
+    epoch_labels_predicted = analyse_from_dataloader_epoch(classifier=classifier,
                                                                extractor_vgg=extractor_vgg,
                                                                dataloader_analysis=dataloader_analysis,
                                                                is_random=is_random)
-        labels_predicted = np.concatenate((labels_predicted, batch_labels_predicted))
+    labels_predicted = np.concatenate((labels_predicted, epoch_labels_predicted))
     # adding evaluation
-    print("Total: ", labels_predicted)
     prediction = Prediction(labels_predicted, classifier.get_classes())
     return prediction
 
@@ -156,14 +140,13 @@ def analyse_from_dataloader_epoch(classifier,
                                   dataloader_analysis,
                                   is_random,
                                   ):
-
-    batch_labels_predicted = np.array([], dtype=np.float)
-    count = 0
+    tol_pred = np.array([], dtype=np.float)
+    tol_pred_prob = np.array([], dtype=np.float)
     # evaluation mode
     classifier.eval()
     # The labels inferred by the Dataloader are irrelevant,
     # We can safely ignore them
-    for data_images, _ in dataloader_analysis:
+    for data_images, _ in tqdm(dataloader_analysis):
 
         input_v = Variable(data_images)
 
@@ -172,14 +155,14 @@ def analyse_from_dataloader_epoch(classifier,
 
         output_dis = class_.data.cpu()
 
-        batch_labels_predicted = np.zeros((output_dis.shape[0]), dtype=np.float)
+        output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
         # todo: Clean this up
-        # TODO: FIND OUT WHY PREDICTED LABELS ARE NOT OF THE SAME SIZE AS THE IMAGE DATA
         for i in range(output_dis.shape[0]):
             if output_dis[i, 1] >= output_dis[i, 0]:
-                batch_labels_predicted[i] = 1.0
+                output_pred[i] = 1.0
             else:
-                batch_labels_predicted[i] = 0.0
-    return batch_labels_predicted
+                output_pred[i] = 0.0
+        tol_pred = np.concatenate((tol_pred, output_pred))
+    return tol_pred
 
