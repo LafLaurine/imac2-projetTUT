@@ -62,12 +62,6 @@ docker-compose --version
 ```
 You can get the latest version of docker-compose in the documentation : [docs.docker.com - Install Compose](https://docs.docker.com/v17.09/compose/install/#master-builds)
 
-- Torch and Tensorflow wheels
-
-As these librairies are heavy, you can download their .whl file and include them in the following folders :
-- [Tensorflow - tensorflow-1.14.0-cp37-cp37m-manylinux1_x86_64.whl](https://pypi.tuna.tsinghua.edu.cn/simple/tensorflow/) : required in `src/MesoNet` and `src/CapsuleForensics` folders
-- [Torch - torch-1.4.0-cp37-cp37m-manylinux1_x86_64.whl](https://download.pytorch.org/whl/cu100/torch_stable.html) : required in `src/CapsuleForensics` folder
-
 
 ### Installation
  
