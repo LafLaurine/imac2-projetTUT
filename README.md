@@ -93,14 +93,22 @@ _For detailed information on how to run each service, please refer to the exampl
 ```
 sudo docker-compose up extraction_video
 ```
-The service should extract faces from the video example you can find in `src/extraction/input`. When the service end with success, you should see appear some new images in the directory `src/extraction/output` as below.
+The service should extract faces from the example video you can find in `src/extraction/input`. When the service end with success, you should see appear some new images in the directory `src/extraction/output` as below :
 ![Output of the extraction](https://github.com/LafLaurine/imac2-projetTUT/img/output.png)
 
 ### Run mesonet_analyse service
-```sh
+```
 sudo docker-compose up mesonet_analyse
 ```
-The service should extract faces from the video example you can find in `src/extraction/input`. When the service end with success, you should see appear some new images in the directory `src/extraction/output` as below.
+The service should analyse the sample images you can find in `src/extraction/test`. When the service end with success, you should see a prediction printed in your console as below :
+![Output of the extraction](https://github.com/LafLaurine/imac2-projetTUT/img/mesonet_analyse.png)
+
+### Run capsule_forensics_analyse service
+```
+sudo docker-compose up capsule_forensics_analyse
+```
+The service should analyse the sample images you can find in `src/extraction/test`. When the service end with success, you should see a prediction printed in your console as below :
+![Output of the extraction](https://github.com/LafLaurine/imac2-projetTUT/img/mesonet_analyse.png)
 
 
 <!-- USAGE EXAMPLES -->
