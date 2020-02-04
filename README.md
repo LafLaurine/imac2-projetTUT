@@ -18,6 +18,7 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
+* [Quick Start](#quick-start)
 * [Usage](#usage)
 * [Authors](#authors)
 * [Acknowledgements](#acknowledgements)
@@ -68,7 +69,7 @@ As these librairies are heavy, you can download their .whl file and include them
 - [Torch - torch-1.4.0-cp37-cp37m-manylinux1_x86_64.whl](https://download.pytorch.org/whl/cu100/torch_stable.html) : required in `src/CapsuleForensics` folder
 
 
-### Installation (Linux)
+### Installation
  
 1. Clone the repository
 ```sh
@@ -86,9 +87,24 @@ sudo docker-compose service_name
 4. The service should be running and printing results in your console. Make sure you have set-up inputs/outputs folders correctly before running. Make sure you have entered the needed arguments too for the service you want to run.
 _For detailed information on how to run each service, please refer to the example usages below._
 
+<!-- QUICK START -->
+## Quick start
+### Run extraction service
+```
+sudo docker-compose up extraction_video
+```
+The service should extract faces from the video example you can find in `src/extraction/input`. When the service end with success, you should see appear some new images in the directory `src/extraction/output` as below.
+![Output of the extraction](https://github.com/LafLaurine/imac2-projetTUT/img/output.png)
+
+### Run mesonet_analyse service
+```sh
+sudo docker-compose up mesonet_analyse
+```
+The service should extract faces from the video example you can find in `src/extraction/input`. When the service end with success, you should see appear some new images in the directory `src/extraction/output` as below.
+
 
 <!-- USAGE EXAMPLES -->
-## Usage of the services
+## Usage
 
 - Arguments
 
