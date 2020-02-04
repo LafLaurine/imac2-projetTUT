@@ -8,10 +8,10 @@ services:
     volumes:
       - ./extraction:/code
     environment:
-      input_path: ${input_path}
       video_download: ${video_download}
       video_url: ${video_url}
       name_video_downloaded: ${name_video_downloaded}
+      input_path: ${input_path}
       outputs_path: ${outputs_path}
       method_detection: ${method_detection}
       start_frame: ${start_frame}
@@ -20,6 +20,7 @@ services:
       are_warped: ${are_warped}
       are_culled: ${are_culled}
       are_saved_landmarks: ${are_saved_landmarks}
+      is_saved_rectangle: ${is_saved_rectangle}
       
   extraction_dir:
     image: laflaurine/afp-df_api:extraction_dir
@@ -34,7 +35,8 @@ services:
       method_detection: ${method_detection}
       are_warped: ${are_warped}
       are_culled: ${are_culled}
-      are_saved_landmarks: ${are_saved_landmarks}     
+      are_saved_landmarks: ${are_saved_landmarks}
+      is_saved_rectangle: ${is_saved_rectangle}     
   
   mesonet_test:
     image: laflaurine/afp-df_api:mesonet_test
