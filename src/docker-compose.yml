@@ -12,7 +12,7 @@ services:
       video_url: ${video_url}
       name_video_downloaded: ${name_video_downloaded}
       input_path: ${input_path}
-      outputs_path: ${outputs_path}
+      output_path: ${output_path}
       method_detection: ${method_detection}
       start_frame: ${start_frame}
       step_frame: ${step_frame}
@@ -31,7 +31,7 @@ services:
       - ./extraction:/code
     environment:
       input_path_dir: ${input_path_dir}
-      outputs_path: ${outputs_path}
+      output_path: ${output_path}
       method_detection: ${method_detection}
       are_warped: ${are_warped}
       are_culled: ${are_culled}

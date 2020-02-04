@@ -31,7 +31,7 @@ if __name__ == "__main__":
         src = download_video(os.getenv("video_url"),'./inputs/',os.getenv("name_video_downloaded"))
     else:
         src = os.getenv("input_path")
-    dir_out = os.getenv("outputs_path")
+    dir_out = os.getenv("output_path")
     method_detection = os.getenv("method_detection")
     start_frame = os.getenv("start_frame")
     step_frame = os.getenv("step_frame")

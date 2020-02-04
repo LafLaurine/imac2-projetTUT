@@ -16,7 +16,7 @@ max_frame = 50
 ext_codec = '.mp4'
 
 dir_in = os.getenv("input_path_dir")
-dir_out = os.getenv("outputs_path")
+dir_out = os.getenv("output_path")
 method_detection = os.getenv("method_detection")
 are_warped = distutils.util.strtobool(os.getenv("are_warped"))
 are_culled = distutils.util.strtobool(os.getenv("are_culled"))
