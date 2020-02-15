@@ -1,5 +1,5 @@
-import os
 import cv2
+import os
 
 from .module import common_utils as ut
 from .module import common_face_detection as fdet
@@ -7,16 +7,21 @@ from .module import common_landmark_detection_alt as ldet
 from .module import landmark_warping as lndm
 
 ### DEFAULT CONFIGURATION ###
+
+## MOST IMPORTANT; dimensions of the ouput
+## Needs to correspond to input for classifiers
+DIM_RESIZE                       = (512, 512)
+
 ## Face detection model (can't touch this)
 dir_model_face_default = "face_model"
-name_config_model_face_default         = "deploy.prototxt.txt"
+name_config_model_face_default   = "deploy.prototxt.txt"
 name_model_face_default          = "res10_300x300_ssd_iter_140000.caffemodel"
 size_net_default                 = 300
-mean_default                     = (104.0, 177.0, 123.0)
+mean_net_default                 = (104.0, 177.0, 123.0)
 ## Feature warping model
 dir_model_landmark_default       = "landmark_model"
 name_model_landmark_default      = "lbfmodel.yaml"
-name_model_landmark_alt_default      = "shape_predictor_68_face_landmarks.dat"
+name_model_landmark_alt_default  = "shape_predictor_68_face_landmarks.dat"
 
 
 ## Detection parameters
@@ -39,7 +44,6 @@ Border mode
 """
 mode_border_default              = cv2.BORDER_REFLECT
 method_resize_default            = cv2.INTER_LINEAR
-pair_resize_default              = (256, 256)
 
 # options
 are_saved_default                 = False
@@ -101,7 +105,7 @@ class FaceExtractor:
             dir_in,  #
             ext_codec, # file extension of a valid video file
             method_detection=method_detection_default,  # name of extraction method to be used
-            pair_resize=pair_resize_default,  # width of extracted face
+            pair_resize=DIM_RESIZE,  # DIM of extracted face
             pairs_interest_prop=pairs_interest_prop_default,
             rate_enlarge=rate_enlarge_default,  # Rate to original bounding box to also be included (bigger boxes)
 
@@ -119,7 +123,7 @@ class FaceExtractor:
             name_model_landmark=name_model_landmark_alt_default,
             name_config_model_face=name_config_model_face_default,  # path to prototxt configuration file
             size_net=size_net_default,  # size of the processing dnn
-            mean=mean_default,  # mean colour to be substracted
+            mean_net=mean_net_default,  # mean colour to be substracted
 
             are_warped=are_warped_default,
             are_culled=are_culled_default,
@@ -130,52 +134,199 @@ class FaceExtractor:
             dir_out=None,  # output directory for faces
             log_enabled=log_enabled_default  # output log info
                                 ):
-        # TODO: LOAD MODELS HERE, NOT AT EVERY STEP OF THE LOOP
-        #
-        for path_dir, names_dirs, names_files in os.walk(dir_in):
-            for name_file in names_files:
-                # checking for video input
-                if not name_file.endswith(ext_codec):
-                    continue
-                path_file = os.path.join(path_dir, name_file)
-                path_file_noext = os.path.splitext(path_file)[0]
-                dir_out_frames = os.path.join(dir_out, ut.get_path_without_basedir(path_file_noext))
-                # now we extract faces from this video file
-                # and save it in a specific directory
-                FaceExtractor.extract_faces_from_video(path_file,
-                                                       method_detection,
-                                                       pair_resize,
-                                                       pairs_interest_prop,
-                                                       rate_enlarge,
+        # first, load detection and warping models
+        ut.log(log_enabled, "[INFO] loading models...")
+        net_face, net_landmark = FaceExtractor.load_models(dir_model_face,
+                                                           dir_model_landmark,
+                                                           name_model_face,
+                                                           name_model_landmark,
+                                                           name_config_model_face)
+        # then warper
+        warper = lndm.LandmarkWarper(pair_resize,
+                                     pairs_interest_prop,
+                                     mode_border,
+                                     method_resize)
 
-                                                       step_frame=step_frame,
-                                                       max_frame=max_frame,
-                                                       min_confidence=min_confidence,
-                                                       mode_border=mode_border,
-                                                       method_resize=method_resize,
-                                                       dir_model_face=dir_model_face,
-                                                       dir_model_landmark=dir_model_landmark,
-                                                       name_model_face=name_model_face,
-                                                       name_model_landmark=name_model_landmark,
-                                                       name_config_model_face=name_config_model_face,
-                                                       size_net=size_net,
-                                                       mean=mean,
-                                                       are_warped=are_warped,
-                                                       are_culled=are_culled,
-                                                       type_tracker=type_tracker,
-                                                       are_saved=are_saved,
-                                                       are_saved_landmarks=are_saved_landmarks,
-                                                       dir_out=dir_out_frames
-                                                       )
+        try:
+            for path_dir, names_dirs, names_files in os.walk(dir_in):
+                for name_file in names_files:
+                    # checking for video input
+                    if not name_file.endswith(ext_codec):
+                        continue
+                    path_file = os.path.join(path_dir, name_file)
+                    path_file_noext = os.path.splitext(path_file)[0]
+                    dir_out_frames = os.path.join(dir_out, ut.get_path_without_basedir(path_file_noext))
+                    # now we extract faces from this video file
+                     #####
+                    # then, read frames from input video source
+                    ut.log(log_enabled, "[INFO] reading video file...")
+                    list_frames = FaceExtractor.read_frames(path_file,
+                                                            step_frame=step_frame,
+                                                            max_frames=max_frame,
+                                                            method_detection=method_detection)
+                    # then face detector
+                    FaceExtractor.extract_faces_from_frames(list_frames,
+                                                net_face=net_face,
+                                                net_landmark=net_landmark,
+                                                warper=warper,
+                                                method_detection=method_detection,
+
+                                                min_confidence=min_confidence,
+
+                                                size_net=size_net,
+                                                mean_net=mean_net,
+
+                                                are_warped=are_warped,
+                                                are_culled=are_culled,
+                                                type_tracker=type_tracker,
+                                                are_saved=are_saved,
+                                                are_saved_landmarks=are_saved_landmarks,
+                                                is_saved_rectangle=is_saved_rectangle,
+                                                dir_out=dir_out_frames)
+        except KeyboardInterrupt:
+            pass
+
+    @staticmethod
+    def display_faces_from_capture(
+                        cap,        #real-time capture input stream
+                        method_detection=method_detection_default,  # name of extraction method to be used
+                        pair_resize=DIM_RESIZE,  # DIM of extracted face
+                        pairs_interest_prop=pairs_interest_prop_default,
+                        rate_enlarge=rate_enlarge_default,  # Rate to original bounding box to also be included (bigger boxes)
+
+                        # no start or end frame
+                        step_frame=step_frame_default,  # read video every ... frames
+                        min_confidence=min_confidence_default,  # confidence threshold
+
+                        mode_border=mode_border_default,
+                        method_resize=method_resize_default,
+
+                        dir_model_face=dir_model_face_default,
+                        dir_model_landmark=dir_model_landmark_default,
+                        name_model_face=name_model_face_default,
+                        name_model_landmark=name_model_landmark_alt_default,
+                        name_config_model_face=name_config_model_face_default,  # path to prototxt configuration file
+                        size_net=size_net_default,  # size of the processing dnn
+                        mean_net=mean_net_default,  # mean colour to be substracted
+
+                        type_tracker=type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
+                        log_enabled=log_enabled_default  # output log info
+                        ):
+        # first, load detection and warping models
+        ut.log(log_enabled, "[INFO] loading models...")
+        net_face, net_landmark = FaceExtractor.load_models(dir_model_face,
+                                                           dir_model_landmark,
+                                                           name_model_face,
+                                                           name_model_landmark,
+                                                           name_config_model_face)
+        # then warper
+        warper = lndm.LandmarkWarper(pair_resize,
+                                     pairs_interest_prop,
+                                     mode_border,
+                                     method_resize)
+        # STARTING VALUES, WILL CHANGE ACCORDING TO INPUT
+        are_saved_landmarks = False
+        is_saved_rectangle = False
+        count_frame = 0
+        framerate = cap.get(cv2.CAP_PROP_FPS)
+        # MAIN LOOP #
+        while cap.isOpened():
+            ## interface ##
+            key = chr(255 & cv2.waitKey(int(1000/framerate)))
+            if key == 'l':
+                are_saved_landmarks = not are_saved_landmarks
+            elif key == 'r':
+                is_saved_rectangle = not is_saved_rectangle
+            elif key == '+':
+                min_confidence = max(0.5 + min_confidence, 1.)
+            elif key == '-':
+                min_confidence = min(-0.5 + min_confidence, 0.)
+            elif key == 'q':
+                break
+            ##  ##
+            ok, frame = ut.Frame.read_next(cap, 0, True)
+            count_frame += 1
+            if not ok:
+                break
+            if count_frame % step_frame != 0:
+                continue
+            list_people = FaceExtractor.extract_faces_from_frames([frame],
+                                                net_face=net_face,
+                                                net_landmark=net_landmark,
+                                                warper=warper,
+                                                method_detection=method_detection,
+                                                min_confidence=min_confidence,
+                                                size_net=size_net,
+                                                mean_net=mean_net,
+
+                                                are_warped=False,
+                                                are_culled=False,
+                                                type_tracker=type_tracker,
+                                                are_saved=False,
+                                                are_saved_landmarks=False,
+                                                is_saved_rectangle=False,
+                                                log_enabled=False)
+            # We display the whole image, with landmarks and face rectangles
+            for person in list_people:
+                person.write_face_to_frame(index=0,
+                                           frame=frame,
+                                           are_saved_landmarks=are_saved_landmarks,
+                                           is_saved_rectangle=is_saved_rectangle)
+            frame.show("KEK")
+        cv2.destroyAllWindows()
+        return
 
 
 
+    @staticmethod
+    def extract_faces_from_frames(
+                        list_frames,
+                        net_face,
+                        net_landmark,
+                        warper,
+                        method_detection=method_detection_default,  # name of extraction method to be used
+                        min_confidence=min_confidence_default,  # confidence threshold
+
+                        size_net=size_net_default,
+                        mean_net=mean_net_default,
+
+                        are_warped=are_warped_default,
+                        are_culled=are_culled_default,
+                        type_tracker=type_tracker_default,  # WHEN TRACKING: tracker type such as MIL, Boosting...
+                        are_saved=are_saved_default,  # save image in output directory
+                        are_saved_landmarks=are_saved_landmarks_default,  # write landmarks to output IF NOT WARPED
+                        is_saved_rectangle=is_saved_rectangle_default,  # write face detection rectangle to output IF NOT WARPED
+                        dir_out=None,  # output directory for faces
+                        log_enabled=log_enabled_default  # output log info
+                        ):
+        # then face detections, to get the list of people
+        ut.log(log_enabled, "[INFO] detecting faces...")
+        list_people = FaceExtractor.detect_faces(list_frames,
+                                                 method_detection,
+                                                 min_confidence,
+                                                 net_face,
+                                                 size_net,
+                                                 mean_net,
+                                                 type_tracker,
+                                                 log_enabled
+                                                 )
+        ut.log(log_enabled, "[INFO] detecting landmarks...")
+        FaceExtractor.compute_landmarks_people(list_people, net_landmark)
+        ut.log(log_enabled, "[INFO] warping faces...")
+        FaceExtractor.warp_from_landmarks(list_people=list_people,
+                                          warper=warper,
+                                          are_warped=are_warped,
+                                          are_culled=are_culled)
+        if are_saved:
+            ut.log(log_enabled, "[INFO] saving output to " + dir_out)
+            FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks, is_saved_rectangle)
+        return list_people
 
     @staticmethod
     def extract_faces_from_video(
                 src,  # path to video source for extraction
                 method_detection        = method_detection_default,  # name of extraction method to be used
-                pair_resize             = pair_resize_default,  # width of extracted face
+                pair_resize             = DIM_RESIZE,  # width of extracted face
                 pairs_interest_prop     = pairs_interest_prop_default,
                 start_frame             = 0,  # Frame at which to begin extraction
                 end_frame               = None,  # Frame at which to end
@@ -192,7 +343,7 @@ class FaceExtractor:
                 name_model_landmark     = name_model_landmark_alt_default,
                 name_config_model_face  = name_config_model_face_default,  # path to prototxt configuration file
                 size_net                = size_net_default,  # size of the processing dnn
-                mean                    = mean_default,  # mean colour to be substracted
+                mean_net                = mean_net_default,  # mean colour to be substracted
 
                 are_warped              = are_warped_default,
                 are_culled              = are_culled_default,
@@ -210,34 +361,38 @@ class FaceExtractor:
                                                            name_model_face,
                                                            name_model_landmark,
                                                            name_config_model_face)
-        #then, read frames from input video source
+
+
+
+        warper = lndm.LandmarkWarper(pair_resize,
+                                     pairs_interest_prop,        #then, read frames from input video source
+                                     mode_border,
+                                     method_resize)
+
+        # then, read frames from input video source
         ut.log(log_enabled, "[INFO] reading video file...")
         list_frames = FaceExtractor.read_frames(src, start_frame, end_frame, step_frame, max_frame, method_detection)
-        #then face detections, to get the list of people
-        ut.log(log_enabled, "[INFO] detecting faces...")
-        list_people = FaceExtractor.detect_faces(list_frames,
-                                                method_detection,
-                                                min_confidence,
-                                                net_face,
-                                                size_net,
-                                                mean,
-                                                type_tracker,
-                                                log_enabled
-                                                )
-        ut.log(log_enabled, "[INFO] warping faces...")
-        FaceExtractor.warp_from_landmarks(list_people,
-                                          are_warped,
-                                          are_culled,
-                                          pair_resize,
-                                          pairs_interest_prop,
-                                          mode_border,
-                                          method_resize,
-                                          net_landmark
-                                          )
-        if are_saved:
-            ut.log(log_enabled, "[INFO] saving output to " + dir_out + os.sep)
-            FaceExtractor.save_people(list_people, dir_out, are_saved_landmarks, is_saved_rectangle)
-        ut.log(log_enabled, "[INFO] success.")
+
+        list_people = FaceExtractor.extract_faces_from_frames(list_frames,
+                                    net_face=net_face,
+                                    net_landmark=net_landmark,
+                                    warper=warper,
+                                    method_detection=method_detection,
+
+                                    min_confidence=min_confidence,
+
+                                    size_net=size_net,
+                                    mean_net=mean_net,
+
+                                    are_warped=are_warped,
+                                    are_culled=are_culled,
+                                    type_tracker=type_tracker,
+                                    are_saved=are_saved,
+                                    are_saved_landmarks=are_saved_landmarks,
+                                    is_saved_rectangle=is_saved_rectangle,
+                                    dir_out=dir_out
+                                    )
+
         return list_people
 
     @staticmethod
@@ -300,21 +455,19 @@ class FaceExtractor:
                 )
 
     @staticmethod
-    def warp_from_landmarks(list_people,
-                            are_warped,
-                            are_culled,
-                            pair_resize,
-                            pairs_interest_prop,
-                            mode_border,
-                            method_resize,
-                            net_landmark,
-                            ):
-        warper = lndm.LandmarkWarper(pair_resize,
-                                     pairs_interest_prop,
-                                     mode_border,
-                                     method_resize)
+    def compute_landmarks_people(list_people, net_landmark):
         for person in list_people:
             ldet.compute_landmarks_person(person, net_landmark)
+        return
+
+    @staticmethod
+    def warp_from_landmarks(list_people,
+                            warper,
+                            are_warped,
+                            are_culled,
+                            ):
+
+        for person in list_people:
             if are_culled:
                 person.cull_faces()
             if are_warped:

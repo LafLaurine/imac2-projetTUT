@@ -9,7 +9,7 @@ Script for training Capsule-Forensics-v2 on FaceForensics++ database (Real, Deep
 # sys.setrecursionlimit(15000)
 import os
 
-from ..common_labels import DICT_LABELS_DF
+from ..common_config import DICT_LABELS_DF
 
 from .module import df_learning as lrn, df_test as tst, model_big
 
@@ -152,6 +152,7 @@ def test_from_dir(method_classifier,
                    root_checkpoint,
                    version_weights, # cannot be 0 this time
                    batch_size=batch_size_default,
+                   number_epochs=number_epochs_default,
                    size_image=size_image_default,
                    is_random=is_random_default,  # what exactly IS random?
                    betas=betas_default,
@@ -168,7 +169,7 @@ def test_from_dir(method_classifier,
     extractor_vgg = model_big.VggExtractor()
     # no loss monitoring here
 
-    dataloader_test =  tst.load_dataloader_test(classifier=capnet,
+    dataloader_test = tst.load_dataloader_test(classifier=capnet,
                                                 path_dataset_test=dir_dataset,
                                                 size_image=size_image,
                                                 batch_size=batch_size,
@@ -177,6 +178,7 @@ def test_from_dir(method_classifier,
     evals_test = tst.test_from_dataloader(classifier=capnet,
                                           extractor_vgg=extractor_vgg,
                                           dataloader_test=dataloader_test,
+                                          number_epochs=number_epochs,
                                           is_random=is_random)
     return evals_test
 

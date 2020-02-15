@@ -1,7 +1,7 @@
 import torchvision.datasets as dset
 
 
-from ...common_labels import match_labels_dict
+from ...common_config import match_labels_dict
 
 class ImageFolderCapsule(dset.ImageFolder):
     def __init__(self, classifier, *args, **kwargs):

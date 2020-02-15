@@ -24,7 +24,7 @@ def load_dataset_test(classifier,
     generator_test = data_generator_test.flow_from_directory(
         classifier=classifier,
         directory=dir_dataset_test,
-        shuffle=False,
+        shuffle=True,
         target_size=target_size,
         batch_size=batch_size,
         class_mode='binary')
@@ -45,40 +45,26 @@ def load_input_analysis(dir_input,
         class_mode=None)
     return generator_analysis
 
-
-
 def test_from_generator(classifier,
                         generator_test,
                         batch_size_test,
+                        number_epochs
                         ):
-    # 3 - Predict images by batch
-    number_images = generator_test.classes.shape[0]
+    number_images = batch_size_test*number_epochs
     labels_predicted = np.ones((number_images, 1)) / 2.
     labels_actual = np.ones(number_images) / 2.
-
-    it_generator = GeneratorIterationHandler(generator_test)
-    count = 0
-    # get image and expected label (real, false...)
-    for batch_images, batch_labels_actual in tqdm(generator_test):
-        if count * batch_size_test >= number_images:
-            break
-        # get what MesoNet thinks the label is
+    # Predict images by batch
+    for epoch in tqdm(range(number_epochs)):
+        batch_images, batch_labels_actual = generator_test.next()
         batch_labels_predicted = classifier.predict(batch_images)
-        ##
-        index_start_pred = count * batch_size_test
-        index_end_pred = min(count * batch_size_test + len(batch_labels_predicted), number_images)
         #  fill the predicted and actual labels
-        labels_actual[index_start_pred:index_end_pred] = batch_labels_actual[0:index_end_pred - index_start_pred]
-        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
-        count += 1
-    # The following is important (mean squared)
-    # We want to TEST MesoNet, we want to know how much it fails
-    # Basically, we want to know the average error for real and deepfake images
+        index_start_pred = epoch * batch_size_test
+        index_end_pred = epoch * batch_size_test + len(batch_labels_predicted)
+        labels_actual[index_start_pred:index_end_pred] = batch_labels_actual
+        labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted
+        # updating count of already processed images
     evals_test = EvaluationTest()
     evals_test.set_error_from_predicted(labels_predicted, labels_actual)
-    # The following information is actually irrelevant here
-    # print('Mean prediction  :', np.mean(predicted, axis=0)[0])
-    # print('Deepfake percent :', np.mean(predicted < 0.5))
     return evals_test
 
 def analyse_from_generator(classifier,

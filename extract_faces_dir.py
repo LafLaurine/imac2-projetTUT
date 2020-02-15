@@ -9,9 +9,6 @@ log_enabled = True
 
 min_confidence = 0.85
 
-start_frame_default = 0
-end_frame_default = None
-
 step_frame_default = 25
 max_frame_default = 50
 
@@ -28,7 +25,7 @@ parser.add_argument("--rectangle", '-r', action='store_true', help="IF NOT WARPE
 
 
 parser.add_argument("--step",            required=False, type=int, default=step_frame_default, help="Extract faces every ... frames.")
-parser.add_argument("--max",       '-m', required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
+parser.add_argument("--max",             required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
 
 if __name__ == "__main__":
     args = vars(parser.parse_args())
@@ -57,4 +54,3 @@ if __name__ == "__main__":
         dir_out=dir_out,
         log_enabled=log_enabled
         )
-

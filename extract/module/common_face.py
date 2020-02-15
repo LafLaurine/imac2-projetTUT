@@ -8,17 +8,24 @@ from . import common_tracking as trck
 class Face:
     # __box_original                   : Bounding box object of the face in original image
     # __frame_original                 : Frame object (w/ frame_index), diff dimensions than original
-    # __landmarks             : array of features added before warping
+    # __landmarks_original             : array of features added before warping
     # __is_warped
     # __box_warped
     # __frame_warped
+    # __landmarks_warped           : array of features added before warping
+    __RADIUS_LANDMARK = 2
+    __THICKNESS_LANDMARK = 3
+    __COLOUR_LANDMARK = (0, 255, 0)
+    __THICKNESS_RECTANGLE = 6
+    __COLOUR_RECTANGLE = (127, 0, 255)
     def __init__(self, frame, box):
-        self.__frame = frame
-        self.__box = box
-        self.__landmarks = None
+        self.__frame_original = frame
+        self.__box_original = box
+        self.__landmarks_original = None
         self.__is_warped = False
         self.__box_warped = None
         self.__frame_warped = None
+        self.__landmarks_warped = None
 
     def x1(self):
         return self.box().x1()
@@ -34,39 +41,41 @@ class Face:
         return self.box().h()
 
     def box(self):
-        return self.__box
+        box = self.__box_original if not self.__is_warped else self.__box_warped
+        return box
     def rectangle(self):
         return ut.Rectangle.from_box(self.box())
     def frame(self):
-        return self.__frame
+        frame = self.__frame_original if not self.__is_warped else self.__frame_warped
+        return frame
     def index_frame(self):
-        return self.__frame.index()
+        return self.frame().index()
     def image(self):
-        return self.__frame.image()
+        return self.frame().image()
     def landmarks(self):
-        return self.__landmarks
+        landmarks = self.__landmarks_original if not self.__is_warped else self.__landmarks_warped
+        return landmarks
 
     def set_image(self, image):
         self.__frame = ut.Frame(image, self.index_frame(), to_search=True)
     def set_box(self, box):
         self.__box = box
 
-    def set_warped(self, box_warped, image_warped):
+    def set_warped(self, box_warped, image_warped, landmarks_warped):
         self.__set_box_warped(box_warped)
         self.__set_image_warped(image_warped)
+        self.__set_landmarks_warped(landmarks_warped)
         self.__is_warped = True
 
     def __set_image_warped(self, image_warped):
         self.__frame_warped = ut.Frame(image_warped, self.index_frame(), to_search=True)
     def __set_box_warped(self, box_warped):
         self.__box_warped = box_warped
-    def set_features(self, landmarks):
-        self.__landmarks = np.array(landmarks)
+    def set_landmarks_original(self, landmarks_original):
+        self.__landmarks_original = np.array(landmarks_original)
 
-    def get_landmark_position(self, index_landmark):
-        x, y = self.landmarks()[index_landmark][0], self.landmarks()[index_landmark][1]
-        return ut.Point2D(x, y)
-        #return self.features()[index_feature]
+    def __set_landmarks_warped(self, landmarks_warped):
+        self.__landmarks_warped = np.array(landmarks_warped)
 
     def is_valid(self):
         if self.landmarks() is None:
@@ -75,29 +84,42 @@ class Face:
         return True
 
     def save(self, dir_out, are_landmarks_saved, is_rectangle_saved):
-        if (not self.landmarks() is None) and are_landmarks_saved:
-            self.__write_landmarks()
+        self.__write_to_image(self.image(), are_landmarks_saved, is_rectangle_saved)
+        self.__save_frame(dir_out)
+
+    def write_to_frame(self, frame, are_landmarks_saved, is_rectangle_saved):
+        self.__write_to_image(frame.image(), are_landmarks_saved, is_rectangle_saved)
+
+
+    def __write_to_image(self, image, are_landmarks_saved, is_rectangle_saved):
+        if (self.landmarks() is not None) and are_landmarks_saved:
+            self.__write_landmarks_to_image(image)
         if is_rectangle_saved:
-            self.__write_box()
-        self.__save_image(dir_out)
+            self.__write_box_to_image(image)
 
-    def __save_image(self, dir_out):
-        if self.__is_warped:
-            self.__frame_warped.save(dir_out, self.box())
-        else:
-            self.frame().save(dir_out, self.box())
+    def __save_frame(self, dir_out):
+        coords = ut.Point2D(self.__box_original.x1(), self.__box_original.y1())
+        self.frame().save(dir_out, self.box(), coords)
 
-    def __write_landmarks(self, radius=2, thickness=3, colour=(0, 255, 0)):
-        for i in range(len(self.landmarks())):
-            pos = self.get_landmark_position(i)
-            x, y = pos.tuple()
-            cv2.circle(self.image(), (int(x), int(y)), radius=radius, thickness=thickness, color=colour)
-            i += 1
+    def __write_landmarks(self):
+       self.__write_landmarks_to_image(self.image())
 
-    def __write_box(self, thickness=6, colour=(127, 0, 255)):
+    def __write_box(self):
+        self.__write_box_to_image(self.image())
+
+    def __write_landmarks_to_image(self, image):
+        landmarks = self.landmarks()
+        for x, y in landmarks:
+            cv2.circle(image, (int(x), int(y)), radius=Face.__RADIUS_LANDMARK, thickness=Face.__THICKNESS_LANDMARK, color=Face.__COLOUR_LANDMARK)
+
+    def __write_box_to_image(self, image):
         pt1 = (self.x1(), self.y1())
         pt2 = (self.x2(), self.y2())
-        cv2.rectangle(self.image(), pt1, pt2, thickness=thickness, color=colour)
+        cv2.rectangle(image, pt1, pt2, thickness=Face.__THICKNESS_RECTANGLE, color=Face.__COLOUR_RECTANGLE)
+
+
+
+
 
 class Person:
     #__faces                 : list of Faces belonging to Person in video
@@ -197,3 +219,6 @@ class Person:
     def save_faces(self, dir_out, are_saved_landmarks, is_saved_rectangle):
         for face in self.faces():
             face.save(dir_out, are_saved_landmarks, is_saved_rectangle)
+
+    def write_face_to_frame(self, index, frame, are_saved_landmarks, is_saved_rectangle):
+        self.face(index).write_to_frame(frame, are_saved_landmarks, is_saved_rectangle)

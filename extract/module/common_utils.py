@@ -47,16 +47,15 @@ class Frame:
 
     def get_cropped(self, box):
         x1, y1, x2, y2 = box.tuple()
-        print(box.tuple())
         image_cropped = self.image()[y1:y2, x1:x2]
         return image_cropped
 
-    def save(self, dir_out, box, ext_codec=ext_codec_default, param_codec=param_codec_default):
-        #building filepath to output
-        #cropped = self.get_cropped(box)
-        filename = str(self.index())+"_x"+str(box.x1()) + \
-                   'y' + str(box.y1())
+    def save(self, dir_out, box, coords, ext_codec=ext_codec_default, param_codec=param_codec_default):
+        filename = str(self.index())+"_x"+str(coords.x()) + 'y' + str(coords.y())
         Frame.__save_image(self.image(), dir_out, filename, ext_codec, param_codec)
+
+    def show(self, name_window):
+        cv2.imshow(name_window, self.image())
 
 
     @staticmethod
@@ -216,7 +215,7 @@ class Point2D:
 
     def is_in(self, box: BoundingBox):
         return (box.x1() <= self.x() <= box.x2()
-                and box.y1() <= self.y()  <= box.y2())
+                and box.y1() <= self.y() <= box.y2())
 
     @staticmethod
     def average(list_points):

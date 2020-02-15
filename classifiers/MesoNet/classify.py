@@ -5,6 +5,8 @@ from .module import df_test as tst
 from .module import common_classifier as clf
 from keras.preprocessing.image import ImageDataGenerator
 
+from ..common_config import  DIM_INPUT
+
 import warnings
 warnings.filterwarnings('ignore', '.*output shape of zoom.*')
 
@@ -23,8 +25,6 @@ batch_size_test_default = 10
 batch_size_learning_default = 10
 #
 batch_size_analysis_default = 10
-
-target_size_default = (256, 256)
 
 rescale_default = 1 / 255
 
@@ -46,7 +46,7 @@ def learn_from_dir(name_classifier,
                    number_epochs=number_epochs_default,
                    learning_rate=learning_rate_default,
                    step_save_weights_temp=step_save_weights_temp_default,
-                   target_size=target_size_default,
+                   target_size=DIM_INPUT,
                    rescale=rescale_default
                    ):
     data_generator_training, data_generator_validation = lrn.load_data_generators_learning(rescale)
@@ -72,7 +72,8 @@ def learn_from_dir(name_classifier,
 def test_from_dir(name_classifier,
                   dir_dataset_test,
                   batch_size=batch_size_test_default,
-                  target_size=target_size_default,
+                  number_epochs=number_epochs_default,
+                  target_size=DIM_INPUT,
                   rescale=rescale_default
                   ):
     # Flow images from directory and predict
@@ -88,13 +89,14 @@ def test_from_dir(name_classifier,
                                            target_size)
     evals_test = tst.test_from_generator(classifier,
                                          generator_test,
-                                         batch_size)
+                                         batch_size,
+                                         number_epochs)
     return evals_test
 
 def analyse_from_dir(name_classifier,
                      dir_input,
                      batch_size=batch_size_analysis_default,
-                     target_size=target_size_default,
+                     target_size=DIM_INPUT,
                      rescale=rescale_default):
     data_generator_analysis = tst.load_data_generator_analysis(rescale)
     classifier = clf.ClassifierLoader.get_classifier(name_classifier,

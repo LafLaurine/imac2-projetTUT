@@ -8,9 +8,8 @@ from keras.optimizers import Adam
 
 from keras.preprocessing.image import ImageDataGenerator
 
-from ...common_labels import DICT_LABELS_DF, DICT_LABELS_F2F
+from ...common_config import DICT_LABELS_DF, DICT_LABELS_F2F, DIM_INPUT
 
-IMGWIDTH = 256
 
 dir_weights_default = 'weights'
 weights_meso4_df_default = 'Meso4_DF'
@@ -158,7 +157,7 @@ class Meso4(Classifier):
                          path_dir_weights_temp=path_dir_weights_temp)
 
     def __init_model(self):
-        x = Input(shape = (IMGWIDTH, IMGWIDTH, 3))
+        x = Input(shape = (*DIM_INPUT, 3))
         
         x1 = Conv2D(8, (3, 3), padding='same', activation = 'relu')(x)
         x1 = BatchNormalization()(x1)
@@ -174,7 +173,7 @@ class Meso4(Classifier):
         
         x4 = Conv2D(16, (5, 5), padding='same', activation = 'relu')(x3)
         x4 = BatchNormalization()(x4)
-        x4 = MaxPooling2D(pool_size=(4, 4), padding='same')(x4)
+        x4 = MaxPooling2D(pool_size=(8, 8), padding='same')(x4)
         
         y = Flatten()(x4)
         y = Dropout(0.5)(y)
@@ -223,7 +222,7 @@ class MesoInception4(Classifier):
         return func
     
     def __init_model(self):
-        x = Input(shape=(IMGWIDTH, IMGWIDTH, 3))
+        x = Input(shape=(*DIM_INPUT, 3))
         
         x1 = self.InceptionLayer(1, 4, 4, 2)(x)
         x1 = BatchNormalization()(x1)
@@ -239,7 +238,7 @@ class MesoInception4(Classifier):
         
         x4 = Conv2D(16, (5, 5), padding='same', activation = 'relu')(x3)
         x4 = BatchNormalization()(x4)
-        x4 = MaxPooling2D(pool_size=(4, 4), padding='same')(x4)
+        x4 = MaxPooling2D(pool_size=(8, 8), padding='same')(x4) # previously 4,4
         
         y = Flatten()(x4)
         y = Dropout(0.5)(y)

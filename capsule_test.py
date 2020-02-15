@@ -13,6 +13,7 @@ parser.add_argument('--dataset',    '-d', required=True, help='path to root data
 parser.add_argument("--version",    '-v', required=True, type=int, help="Version of the weights to load (has to be > 0)")
 
 parser.add_argument("--batch_size", '-b', required=False, default=batch_size_default, type=int, help="Number of images in each batch")
+parser.add_argument("--epochs",     '-e', required=True, type=int, help="Number of epochs")
 
 
 if __name__ == "__main__":
@@ -20,11 +21,13 @@ if __name__ == "__main__":
     name_classifier = args["classifier"]
     dir_database = args["dataset"]
     batch_size = args["batch_size"]
+    number_epochs = args["epochs"]
     version_weights = args["version"]
     evals_test = clf.test_from_dir(
         method_classifier=name_classifier,
         dir_dataset=dir_database,
         version_weights=version_weights,
         root_checkpoint=root_checkpoint,
-        batch_size=batch_size)
+        batch_size=batch_size,
+        number_epochs=number_epochs)
     evals_test.print()

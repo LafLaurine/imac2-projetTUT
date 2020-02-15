@@ -18,13 +18,15 @@ from ...common_prediction import Prediction, EvaluationTest
 def test_from_dataloader(classifier,
                          extractor_vgg,
                          dataloader_test,
+                         number_epochs,
                          is_random):
     list_errors = []
-    eer = test_from_dataloader_epoch(classifier=classifier,
+    for epoch in tqdm(range(number_epochs)):
+        eer = test_from_dataloader_epoch(classifier=classifier,
                                          extractor_vgg=extractor_vgg,
                                          dataloader_test=dataloader_test,
                                          is_random=is_random)
-    list_errors.append(eer)
+        list_errors.append(eer)
     # adding evaluation
     evals_test = EvaluationTest()
     evals_test.set_error(list_errors)
@@ -66,29 +68,29 @@ def test_from_dataloader_epoch(classifier,
     tol_pred_prob = np.array([], dtype=np.float)
     # evaluation mode
     classifier.eval()
-    for data_images, data_labels in tqdm(dataloader_test):
-        data_labels[data_labels > 1] = 1
-        labels_images = data_labels.numpy().astype(np.float)
+    data_images, data_labels = next(iter(dataloader_test))
+    data_labels[data_labels > 1] = 1
+    labels_images = data_labels.numpy().astype(np.float)
 
-        input_v = Variable(data_images)
-        x = extractor_vgg(input_v)
-        classes, class_ = classifier(x, random=is_random)
+    input_v = Variable(data_images)
+    x = extractor_vgg(input_v)
+    classes, class_ = classifier(x, random=is_random)
 
 
-        output_dis = class_.data.cpu()
-        output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
+    output_dis = class_.data.cpu()
+    output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
-        for i in range(output_dis.shape[0]):
-            if output_dis[i, 1] >= output_dis[i, 0]:
-                output_pred[i] = 1.0
-            else:
-                output_pred[i] = 0.0
+    for i in range(output_dis.shape[0]):
+        if output_dis[i, 1] >= output_dis[i, 0]:
+            output_pred[i] = 1.0
+        else:
+            output_pred[i] = 0.0
 
-        tol_label = np.concatenate((tol_label, labels_images))
-        tol_pred = np.concatenate((tol_pred, output_pred))
+    tol_label = np.concatenate((tol_label, labels_images))
+    tol_pred = np.concatenate((tol_pred, output_pred))
 
-        pred_prob = torch.softmax(output_dis, dim=1)
-        tol_pred_prob = np.concatenate((tol_pred_prob, pred_prob[:, 1].data.numpy()))
+    pred_prob = torch.softmax(output_dis, dim=1)
+    tol_pred_prob = np.concatenate((tol_pred_prob, pred_prob[:, 1].data.numpy()))
     acc_test = metrics.accuracy_score(tol_label, tol_pred)
     #todo: CHANGE ERROR RETURN? USE SAME AS MESONET
     #todo: mean squared -> EER?
@@ -146,23 +148,21 @@ def analyse_from_dataloader_epoch(classifier,
     classifier.eval()
     # The labels inferred by the Dataloader are irrelevant,
     # We can safely ignore them
-    for data_images, _ in tqdm(dataloader_analysis):
+    data_images, _ = next(iter(dataloader_analysis))
 
-        input_v = Variable(data_images)
+    input_v = Variable(data_images)
 
-        x = extractor_vgg(input_v)
-        classes, class_ = classifier(x, random=is_random)
+    x = extractor_vgg(input_v)
+    classes, class_ = classifier(x, random=is_random)
 
-        output_dis = class_.data.cpu()
+    output_dis = class_.data.cpu()
+    output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
-        output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
-
-        # todo: Clean this up
-        for i in range(output_dis.shape[0]):
-            if output_dis[i, 1] >= output_dis[i, 0]:
-                output_pred[i] = 1.0
-            else:
-                output_pred[i] = 0.0
-        tol_pred = np.concatenate((tol_pred, output_pred))
+    for i in range(output_dis.shape[0]):
+        if output_dis[i, 1] >= output_dis[i, 0]:
+            output_pred[i] = 1.0
+        else:
+            output_pred[i] = 0.0
+    tol_pred = np.concatenate((tol_pred, output_pred))
     return tol_pred
 

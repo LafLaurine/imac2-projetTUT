@@ -42,6 +42,7 @@ def load_dataset_learning(
     generator_training = data_generator_training.flow_from_directory(
         classifier=classifier,
         directory=dir_dataset,
+        shuffle=True,
         target_size=target_size,
         batch_size=batch_size,  # 75,
         class_mode='binary',
@@ -51,6 +52,7 @@ def load_dataset_learning(
         classifier=classifier,
         directory=dir_dataset,
         target_size=target_size,
+        shuffle=True,
         batch_size=batch_size, # 200
         class_mode='binary',
         subset='validation')
@@ -93,42 +95,37 @@ def learn_from_generator(
     ## Train
     # To handle an odd case of supposedly corrupted PNG file
     it_generator_training = GeneratorIterationHandler(generator_training)
-    number_batchs_training = len(generator_training)
     it_generator_validation = GeneratorIterationHandler(generator_validation)
-    number_batchs_validation = len(generator_validation)
     evals_learning = EvaluationLearning()
-    print(len(generator_training))
     try:
-        for e in range(number_epochs):
-            batches = 0
+        for epoch in tqdm(range(number_epochs)):
             mean_loss = 0
             mean_accuracy = 0
             # for image, label in generator_training:
-            for image, label in tqdm(it_generator_training):
-                loss = classifier.fit(image, label)
-                mean_loss += loss[0]
-                mean_accuracy += loss[1]
-                batches += 1
-                if batches >= number_batchs_training:
-                    break
+            batch_images_training, batch_labels_training = next(it_generator_training)
+            loss = classifier.fit(batch_images_training, batch_labels_training)
+            mean_loss += loss[0]
+            mean_accuracy += loss[1]
 
-            if e % step_save_weights_temp == 0:
+            batch_labels_predicted = classifier.predict(batch_images_training)
+
+            if epoch % step_save_weights_temp == 0:
                 # saving weights as a fallback
-                classifier.save_weights_temp(e)
+                classifier.save_weights_temp(epoch)
 
-            loss_training = np.round(mean_loss / batch_size, decimals=number_decimals)
-            accuracy_training = np.round(mean_accuracy / batch_size, decimals=number_decimals)
-
+            loss_training, accuracy_training = np.round(classifier.get_accuracy(batch_images_training, batch_labels_training), decimals=number_decimals)
             #####
 
-            for image_validation, label_validation in tqdm(it_generator_validation):
-                loss_validation, accuracy_validation = np.round(classifier.get_accuracy(image_validation, label_validation), decimals=number_decimals)
-                evals_learning.add_eval(epoch=e,
-                                        loss_training=loss_training,
-                                        acc_training=accuracy_training,
-                                        loss_validation=loss_validation,
-                                        acc_validation=accuracy_validation)
+            batch_images_validation, batch_labels_validation = next(it_generator_validation)
+            loss_validation, accuracy_validation = np.round(classifier.get_accuracy(batch_images_validation, batch_labels_validation), decimals=number_decimals)
+            evals_learning.add_eval(epoch=epoch,
+                                    loss_training=loss_training,
+                                    acc_training=accuracy_training,
+                                    loss_validation=loss_validation,
+                                    acc_validation=accuracy_validation)
     except KeyboardInterrupt:
         pass
+    # saving weights one last time
+    classifier.save_weights_temp(epoch)
     return evals_learning
 

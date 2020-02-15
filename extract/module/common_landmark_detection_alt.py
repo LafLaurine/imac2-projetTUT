@@ -13,7 +13,7 @@ def compute_landmarks_face(face, net):
     # run the network on the bounding box of the face
     dlib_box = dlib.rectangle(*face.box().tuple())
     shape = net(np.array(face.image()), dlib_box)
-    face.set_features(face_utils.shape_to_np(shape))
+    face.set_landmarks_original(face_utils.shape_to_np(shape))
 
 
 def load_network_landmark(model_extraction):

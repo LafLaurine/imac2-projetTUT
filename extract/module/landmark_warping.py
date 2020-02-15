@@ -69,10 +69,12 @@ class LandmarkWarper:
         mat_warp = self.__get_transform_matrix(points_interest_face)
         # Finally we can compute the warped image
         image_warped = self.__warp_image(face.image(), mat_warp)
+
         w, h = self.dim_resize().tuple()
-        box_warped = ut.BoundingBox(0, 0, w, h)
+        box_face = ut.BoundingBox(0, 0, w, h)
+        landmarks_warped = LandmarkWarper.__warp_landmarks(face.landmarks(), mat_warp)
         # Face is updated with warping
-        face.set_warped(box_warped, image_warped)
+        face.set_warped(box_face, image_warped, landmarks_warped)
 
     def __warp_image(self, image, matrix_warp):
         return cv2.warpAffine(image,
@@ -99,6 +101,15 @@ class LandmarkWarper:
         return box_warped
 
     @staticmethod
+    def __warp_landmarks(landmarks, mat_warp):
+        landmarks_warped = np.empty_like(landmarks)
+        for i in range(len(landmarks)):
+            x, y = landmarks[i]
+            x_warped, y_warped = LandmarkWarper.__warp_coords(x, y, mat_warp)
+            landmarks_warped[i] = x_warped, y_warped
+        return landmarks_warped
+
+    @staticmethod
     def __warp_coords(x, y, mat_warp):
         # res = M * (x, y, w)
         x_warped = mat_warp[0][0]*x + mat_warp[0][1]*y + mat_warp[0][2]
@@ -107,7 +118,8 @@ class LandmarkWarper:
 
 
     def __get_transform_matrix(self, points_interest_face):
-        mat_src, mat_dest = LandmarkWarper.__get_matrices_src_dest(points_interest_face, self.points_interest_baseline())
+        mat_src, mat_dest = LandmarkWarper.__get_matrices_src_dest(points_interest_face,
+                                                                   self.points_interest_baseline())
         return cv2.getAffineTransform(mat_src, mat_dest)
 
     @staticmethod

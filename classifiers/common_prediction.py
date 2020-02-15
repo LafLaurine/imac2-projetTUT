@@ -1,9 +1,9 @@
 import numpy as np
-from . import common_labels as lab
+from . import common_config as lab
 
 import operator as op
 
-from .common_labels import is_predicted_wrong
+from .common_config import is_predicted_wrong
 
 class Prediction:
     # __dict_prop_analysis
@@ -93,8 +93,8 @@ class EvaluationTest:
             array_errors[i] = error
         return array_errors
 
-    def get_mean_squared_error(self):
-        return np.mean(np.square(self.__array_errors))
+    def get_mean_error(self):
+        return np.mean(np.abs(self.__array_errors))
 
     def print(self):
-        print('Mean squared error:   %.5f' % self.get_mean_squared_error())
+        print('Mean error:   {}'.format(self.get_mean_error()))
