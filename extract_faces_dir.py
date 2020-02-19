@@ -9,6 +9,9 @@ log_enabled = True
 
 min_confidence = 0.85
 
+start_frame_default = 0
+end_frame_default = None
+
 step_frame_default = 25
 max_frame_default = 50
 
@@ -24,6 +27,8 @@ parser.add_argument("--landmarks", '-l', action='store_true', help="Facial landm
 parser.add_argument("--rectangle", '-r', action='store_true', help="IF NOT WARPED: Rectangle from face detection will be drawn in output image.")
 
 
+parser.add_argument("--begin",     '-b', required=False, type=int, default=start_frame_default, help="Frame at which to start extracton.")
+parser.add_argument("--end",       '-e', required=False, type=int, default=end_frame_default, help="Frame at which to end extraction.")
 parser.add_argument("--step",            required=False, type=int, default=step_frame_default, help="Extract faces every ... frames.")
 parser.add_argument("--max",             required=False, type=int, default=max_frame_default, help="Max of frames to extract.")
 
@@ -32,6 +37,8 @@ if __name__ == "__main__":
     dir_in =  args["source"]
     dir_out = args["dest"]
     method_detection = args["method"]
+    start_frame = args["begin"]
+    end_frame = args["end"]
     step_frame = args["step"]
     max_frame = args["max"]
     are_warped = not args["nowarp"]
@@ -42,6 +49,8 @@ if __name__ == "__main__":
         dir_in=dir_in,
         ext_codec=ext_codec,
         method_detection=method_detection,
+        start_frame=start_frame,
+        end_frame=end_frame,
         step_frame=step_frame,
         max_frame=max_frame,
         min_confidence=min_confidence,

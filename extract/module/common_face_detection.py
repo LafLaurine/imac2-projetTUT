@@ -38,13 +38,12 @@ def compute_detection(frame,
                       size_net,
                       mean
                       ):
-    #convert to a blob
     blob = cv2.dnn.blobFromImage(
         cv2.resize(frame.image(), (size_net, size_net)),
         1.0, #scalefactor
         (size_net, size_net),
         mean)
-    #forward pass of blob through network, get prediction
+    #fo, get prediction
     net.setInput(blob)
     list_detections = net.forward()
     return list_detections
@@ -87,7 +86,8 @@ def faces_from_detection(list_detections,
                          min_confidence
                          ):
     list_faces = []
-    for i in range(len(list_detections)):
+    nb_detections = len(list_detections[0, 0]) # implementation defined
+    for i in range(nb_detections):
         ok, face = face_from_detection(list_detections, i, frame,  min_confidence)
         if ok:
             list_faces.append(face)

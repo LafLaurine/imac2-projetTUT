@@ -110,6 +110,8 @@ class FaceExtractor:
             rate_enlarge=rate_enlarge_default,  # Rate to original bounding box to also be included (bigger boxes)
 
             # no start or end frame
+            start_frame=0,
+            end_frame=None,
             step_frame=step_frame_default,  # read video every ... frames
             max_frame=None,  # maximum number of frames to be read
             min_confidence=min_confidence_default,  # confidence threshold
@@ -161,8 +163,11 @@ class FaceExtractor:
                     # then, read frames from input video source
                     ut.log(log_enabled, "[INFO] reading video file...")
                     list_frames = FaceExtractor.read_frames(path_file,
+                                                            start_frame=start_frame,
+                                                            end_frame=end_frame,
                                                             step_frame=step_frame,
-                                                            max_frames=max_frame,
+
+                                                            max_frame=max_frame,
                                                             method_detection=method_detection)
                     # then face detector
                     FaceExtractor.extract_faces_from_frames(list_frames,
@@ -237,10 +242,10 @@ class FaceExtractor:
                 are_saved_landmarks = not are_saved_landmarks
             elif key == 'r':
                 is_saved_rectangle = not is_saved_rectangle
-            elif key == '+':
-                min_confidence = max(0.5 + min_confidence, 1.)
-            elif key == '-':
-                min_confidence = min(-0.5 + min_confidence, 0.)
+            elif key == 'a':
+                min_confidence = max(0.05 + min_confidence, 1.)
+            elif key == 'z':
+                min_confidence = min(-0.05 + min_confidence, 0.)
             elif key == 'q':
                 break
             ##  ##

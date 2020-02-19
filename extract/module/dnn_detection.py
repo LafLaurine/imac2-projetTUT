@@ -13,7 +13,7 @@ def detect_faces_dnn(
         mean,  # mean colour to be substracted
         log_enabled  # log info
 ):
-    person = None
+    list_people = []
     for frame in list_frames:
         # forward pass of blob through network, get prediction
         list_detections = fdet.compute_detection(frame, net, size_net, mean)
@@ -22,24 +22,39 @@ def detect_faces_dnn(
         list_faces = fdet.faces_from_detection(list_detections,
                                            frame,
                                            min_confidence)
-        if len(list_faces) == 0:
+        nb_faces = len(list_faces)
+        if nb_faces == 0:
             continue
+        # FACES are assigned to people in the order
+        # in which they appear:
+        # here, a Person is only a structure to hold a list of Faces
+        for i in range(nb_faces):
+            face = list_faces[i]
+            # If we haven't got people enough to hold as many faces in the same frame
+            if i >= len(list_people):
+                list_people.append(fc.Person(face, frame, None, is_tracked=False))
+            else:
+                list_people[i].append(face)
+        """
         # so we only get the first result VALID from detection
         # get first new face VALID from detection
         face = list_faces[0]
-        if person is None:
+        if person:
             # can't find the joke, but I know there's one somewhere
             # we don't track in this method
             person = fc.Person(face, frame, None, is_tracked=False)
         else:
             person.append(face)
-        ut.log(log_enabled, "[INFO] detected faces at frame #" + str(frame.index()))
-    # returning list of peole (only one)
+        """
+        ut.log(log_enabled, "[INFO] detected {} faces at frame #{}".format(nb_faces, frame.index()))
+    # returning list of people (only one)
+    """
     if person is None:
         list_people = []
         ut.log(log_enabled, "[INFO] none found.")
     else:
         list_people = [person]
+    """
     return list_people
 
 
