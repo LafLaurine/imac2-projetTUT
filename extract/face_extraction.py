@@ -277,7 +277,10 @@ class FaceExtractor:
                                            frame=frame,
                                            are_saved_landmarks=are_saved_landmarks,
                                            is_saved_rectangle=is_saved_rectangle)
-            frame.show("KEK")
+            # frame = cv2.resize(frame, (1920, 1080))
+            cv2.namedWindow("whatever", cv2.WINDOW_FREERATIO)
+            cv2.setWindowProperty("whatever", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            frame.show("whatever")
         cv2.destroyAllWindows()
         return
 
@@ -480,6 +483,7 @@ class FaceExtractor:
 
     @staticmethod
     def save_people(list_people, dir_out, are_saved_landmarks, is_saved_rectangle):
-        for person in list_people:
-            person.save_faces(dir_out, are_saved_landmarks, is_saved_rectangle)
-
+        for index, person in enumerate(list_people):
+            name = "p_{}".format(index)
+            dir_out_person = os.path.join(dir_out, name)
+            person.save_faces(dir_out_person, are_saved_landmarks, is_saved_rectangle)

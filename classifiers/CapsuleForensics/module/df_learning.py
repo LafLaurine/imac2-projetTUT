@@ -33,6 +33,8 @@ def learn_from_dataloaders(classifier,
     evals_learning = EvaluationLearning()
     epoch_end = epoch_start + number_epochs
     i = 1
+    # TRAINING MODE #
+    classifier.train()
     try:
         for epoch in tqdm(range(epoch_start + 1, epoch_end + 1)):
             loss_training, acc_training = train_from_dataloader_epoch(classifier=classifier,
@@ -93,7 +95,7 @@ def load_dataloaders_learning(classifier,
                                           num_workers=number_workers)
     dataloader_validation = data.DataLoader(subset_validation,
                                            batch_size=batch_size,
-                                           shuffle=False,
+                                           shuffle=True,
                                            num_workers=number_workers)
     return dataloader_training, dataloader_validation
 
@@ -109,7 +111,6 @@ def train_from_dataloader_epoch(classifier,
     tol_pred = np.array([], dtype=np.float)
 
     loss_training = 0
-    count = 0
     # Training mode
     classifier.train()
     data_images, data_labels = next(iter(dataloader_training))
@@ -131,16 +132,16 @@ def train_from_dataloader_epoch(classifier,
     output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
 
     for i in range(output_dis.shape[0]):
-        if output_dis[i, 1] >= output_dis[i,0]:
+        if output_dis[i, 1] >= output_dis[i, 0]:
             output_pred[i] = 1.0
         else:
             output_pred[i] = 0.0
     tol_label = np.concatenate((tol_label, labels_images))
     tol_pred = np.concatenate((tol_pred, output_pred))
     loss_training += loss_dis_data
-    count += 1
     acc_training = metrics.accuracy_score(tol_label, tol_pred)
-    loss_training /= count
+    print(tol_pred)
+    print(tol_label)
     return loss_training, acc_training
 
 def validate_from_dataloader_epoch(classifier,
@@ -150,11 +151,9 @@ def validate_from_dataloader_epoch(classifier,
     tol_label = np.array([], dtype=np.float)
     tol_pred = np.array([], dtype=np.float)
 
-    count = 0
     loss_validation = 0
 
     # Evaluation mode
-    classifier.eval()
     data_images, data_labels = next(iter(dataloader_validation))
     ## BATCH ##
     data_labels[data_labels > 1] = 1
@@ -183,7 +182,7 @@ def validate_from_dataloader_epoch(classifier,
     tol_pred = np.concatenate((tol_pred, output_pred))
 
     loss_validation += loss_dis_data
-    count += 1
     acc_validation = metrics.accuracy_score(tol_label, tol_pred)
-    loss_validation /= count
+    print(tol_pred)
+    print(tol_label)
     return loss_validation, acc_validation

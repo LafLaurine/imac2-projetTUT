@@ -202,7 +202,7 @@ def analyse_from_dir(method_classifier,
 
     extractor_vgg = model_big.VggExtractor()
 
-    dataloader_analysis = tst.load_dataloader_analysis(path_dir_input=dir_input,
+    dataloader_analysis, nb_images = tst.load_dataloader_analysis(path_dir_input=dir_input,
                                                        size_image=size_image,
                                                        batch_size=batch_size,
                                                        number_workers=number_workers)
@@ -210,6 +210,8 @@ def analyse_from_dir(method_classifier,
     prediction = tst.analyse_from_dataloader(classifier=capnet,
                                              extractor_vgg=extractor_vgg,
                                              dataloader_analysis=dataloader_analysis,
+                                             batch_size=batch_size,
+                                             nb_images=nb_images,
                                              is_random=is_random)
     return prediction
 

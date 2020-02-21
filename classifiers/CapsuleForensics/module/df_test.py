@@ -21,12 +21,17 @@ def test_from_dataloader(classifier,
                          number_epochs,
                          is_random):
     list_errors = []
-    for epoch in tqdm(range(number_epochs)):
-        eer = test_from_dataloader_epoch(classifier=classifier,
-                                         extractor_vgg=extractor_vgg,
-                                         dataloader_test=dataloader_test,
-                                         is_random=is_random)
-        list_errors.append(eer)
+    # evaluation mode
+    # classifier.train() # TODO: WHY DOES IT FAIL IN EVAL MODE?
+    try:
+        for epoch in tqdm(range(number_epochs)):
+            eer = test_from_dataloader_epoch(classifier=classifier,
+                                             extractor_vgg=extractor_vgg,
+                                             dataloader_test=dataloader_test,
+                                             is_random=is_random)
+            list_errors.append(eer)
+    except KeyboardInterrupt:
+        pass
     # adding evaluation
     evals_test = EvaluationTest()
     evals_test.set_error(list_errors)
@@ -53,7 +58,7 @@ def load_dataloader_test(classifier,
 
     dataloader_test = data.DataLoader(dataset_test,
                                       batch_size=batch_size,
-                                      shuffle=False,
+                                      shuffle=True,
                                       num_workers=number_workers)
     return dataloader_test
 
@@ -66,8 +71,7 @@ def test_from_dataloader_epoch(classifier,
     tol_label = np.array([], dtype=np.float)
     tol_pred = np.array([], dtype=np.float)
     tol_pred_prob = np.array([], dtype=np.float)
-    # evaluation mode
-    classifier.eval()
+    # next batch
     data_images, data_labels = next(iter(dataloader_test))
     data_labels[data_labels > 1] = 1
     labels_images = data_labels.numpy().astype(np.float)
@@ -89,11 +93,14 @@ def test_from_dataloader_epoch(classifier,
     tol_label = np.concatenate((tol_label, labels_images))
     tol_pred = np.concatenate((tol_pred, output_pred))
 
+
     pred_prob = torch.softmax(output_dis, dim=1)
     tol_pred_prob = np.concatenate((tol_pred_prob, pred_prob[:, 1].data.numpy()))
     acc_test = metrics.accuracy_score(tol_label, tol_pred)
     #todo: CHANGE ERROR RETURN? USE SAME AS MESONET
-    #todo: mean squared -> EER?
+    #todo: mean -> EER?
+    print(tol_pred)
+    print(tol_label)
     fpr, tpr, thresholds = roc_curve(tol_label, tol_pred_prob, pos_label=1)
     eer = brentq(lambda x : 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
     return eer
@@ -116,23 +123,29 @@ def load_dataloader_analysis(path_dir_input,
     dataset_analysis = ImageFolder(root=path_dir_input, transform=transform_fwd)
     # This time, we infer the required number of epochs
     # To go through in order to analysis every image
-    number_images = len(dataset_analysis)
+    nb_images = len(dataset_analysis)
     dataloader_analysis = data.DataLoader(dataset_analysis,
                                           batch_size=batch_size,
-                                          shuffle=False,
+                                          shuffle=True,
                                           num_workers=number_workers)
-    return dataloader_analysis
+    return dataloader_analysis, nb_images
 
 def analyse_from_dataloader(classifier,
-                         extractor_vgg,
-                         dataloader_analysis,
-                         is_random):
+                            extractor_vgg,
+                            dataloader_analysis,
+                            batch_size,
+                            nb_images,
+                            is_random):
+    nb_epochs = nb_images // batch_size + 1
     labels_predicted = np.empty_like([], dtype=np.float)
-    epoch_labels_predicted = analyse_from_dataloader_epoch(classifier=classifier,
+    # evaluation mode
+    # classifier.train() # TODO: WHY DOES IT FAIL IN EVAL MODE?
+    for epoch in tqdm(range(nb_epochs)):
+        epoch_labels_predicted = analyse_from_dataloader_epoch(classifier=classifier,
                                                                extractor_vgg=extractor_vgg,
                                                                dataloader_analysis=dataloader_analysis,
                                                                is_random=is_random)
-    labels_predicted = np.concatenate((labels_predicted, epoch_labels_predicted))
+        labels_predicted = np.concatenate((labels_predicted, epoch_labels_predicted))
     # adding evaluation
     prediction = Prediction(labels_predicted, classifier.get_classes())
     return prediction
@@ -144,8 +157,6 @@ def analyse_from_dataloader_epoch(classifier,
                                   ):
     tol_pred = np.array([], dtype=np.float)
     tol_pred_prob = np.array([], dtype=np.float)
-    # evaluation mode
-    classifier.eval()
     # The labels inferred by the Dataloader are irrelevant,
     # We can safely ignore them
     data_images, _ = next(iter(dataloader_analysis))
@@ -164,5 +175,7 @@ def analyse_from_dataloader_epoch(classifier,
         else:
             output_pred[i] = 0.0
     tol_pred = np.concatenate((tol_pred, output_pred))
+    pred_prob = torch.softmax(output_dis, dim=1)
+    tol_pred_prob = np.concatenate((tol_pred_prob, pred_prob[:, 1].data.numpy()))
     return tol_pred
 

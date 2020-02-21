@@ -83,11 +83,11 @@ class Face:
         # TODO : FIND A BETTER CRITERIA
         return True
 
-    def save(self, dir_out, are_landmarks_saved, is_rectangle_saved):
+    def save(self, dir_out, are_landmarks_saved=False, is_rectangle_saved=False):
         self.__write_to_image(self.image(), are_landmarks_saved, is_rectangle_saved)
         self.__save_frame(dir_out)
 
-    def write_to_frame(self, frame, are_landmarks_saved, is_rectangle_saved):
+    def write_to_frame(self, frame, are_landmarks_saved=False, is_rectangle_saved=False):
         self.__write_to_image(frame.image(), are_landmarks_saved, is_rectangle_saved)
 
 
@@ -99,7 +99,7 @@ class Face:
 
     def __save_frame(self, dir_out):
         coords = ut.Point2D(self.__box_original.x1(), self.__box_original.y1())
-        self.frame().save(dir_out, self.box(), coords)
+        self.frame().save(dir_out, coords)
 
     def __write_landmarks(self):
        self.__write_landmarks_to_image(self.image())
@@ -186,7 +186,7 @@ class Person:
         max_surface = -1
         for face in list_faces:
             surface = face.rectangle().surface_intersection(rect)
-            if (max_surface - 1) or (surface > max_surface):
+            if (max_surface == - 1) or (surface > max_surface):
                 max_surface = surface
                 face_closest = face
         if face_closest is None:
@@ -204,8 +204,8 @@ class Person:
             ok, box = self.update_tracker(frame)
             if not ok:
                 return False
-        ok = self.__update_faces(list_faces, box, frame)
-        return ok
+            return self.__update_faces(list_faces, box, frame)
+        return True
 
     def cull_faces(self):
         i = 0

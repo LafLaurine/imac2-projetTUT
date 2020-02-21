@@ -50,8 +50,8 @@ class Frame:
         image_cropped = self.image()[y1:y2, x1:x2]
         return image_cropped
 
-    def save(self, dir_out, box, coords, ext_codec=ext_codec_default, param_codec=param_codec_default):
-        filename = str(self.index())+"_x"+str(coords.x()) + 'y' + str(coords.y())
+    def save(self, dir_out, coords, ext_codec=ext_codec_default, param_codec=param_codec_default):
+        filename = "{}_x{}y{}".format(self.index(),coords.x(), coords.y())
         Frame.__save_image(self.image(), dir_out, filename, ext_codec, param_codec)
 
     def show(self, name_window):
