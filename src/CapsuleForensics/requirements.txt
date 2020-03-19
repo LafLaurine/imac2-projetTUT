@@ -1,6 +1,0 @@
-flask
-redis
-numpy
-torchvision
-tqdm
-scikit-learn

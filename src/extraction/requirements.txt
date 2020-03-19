@@ -1,5 +1,0 @@
-numpy
-dlib
-imutils
-opencv-contrib-python
-youtube_dl
