@@ -1,0 +1,8 @@
+flask
+redis
+numpy
+argparse
+dlib
+imutils
+opencv-contrib-python
+youtube_dl

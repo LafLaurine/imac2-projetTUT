@@ -1,0 +1,26 @@
+version: '3'
+services:
+  extraction_dir:
+    build: ./extraction
+    env_file: .env
+    command:
+      python extract_faces_dir.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./extraction:/code
+    environment:
+      FLASK_ENV: development
+      input_path_dir: ${input_path_dir}
+      output_path: ${output_path}
+      method_detection: ${method_detection}
+      start_frame: ${start_frame}
+      step_frame: ${step_frame}
+      end_frame: ${end_frame}
+      max_frame: ${max_frame}
+      are_warped: ${are_warped}
+      are_culled: ${are_culled}
+      are_saved_landmarks: ${are_saved_landmarks}
+      is_saved_rectangle: ${is_saved_rectangle}
+  redis:
+    image: "redis:alpine"
