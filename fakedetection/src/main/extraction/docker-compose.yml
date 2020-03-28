@@ -1,17 +1,18 @@
 version: '3'
 services:
-  extraction_dir:
-    build: ./extraction
+  web:
+    build: .
     env_file: .env
-    command:
-      python extract_faces_dir.py
     ports:
       - "5000:5000"
     volumes:
-      - ./extraction:/code
+      - .:/code
     environment:
       FLASK_ENV: development
-      input_path_dir: ${input_path_dir}
+      input_path: ${input_path}
+      video_download: ${video_download}
+      video_url: ${video_url}
+      name_video_downloaded: ${name_video_downloaded}
       output_path: ${output_path}
       method_detection: ${method_detection}
       start_frame: ${start_frame}
