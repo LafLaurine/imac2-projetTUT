@@ -1,4 +1,5 @@
 import os
+import json
 import distutils.util
 import redis
 from flask import Flask
@@ -20,7 +21,7 @@ max_frame = 50
 ext_codec = '.mp4'
 
 
-@app.route('/')
+@app.route('/extract_faces_dir')
 
 def extract_faces_dir():    
 
@@ -48,4 +49,5 @@ def extract_faces_dir():
         dir_out=dir_out,
         log_enabled=log_enabled
         )
-    return 'Faces extracted'
+    s = '{"message" : "Faces from directory extracted"}'
+    return json.loads(s)
