@@ -1,8 +1,0 @@
-flask
-redis
-numpy
-python-dotenv
-dlib
-imutils
-opencv-contrib-python
-youtube_dl

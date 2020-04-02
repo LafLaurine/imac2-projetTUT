@@ -1,4 +1,0 @@
-numpy
-torch-1.4.0-cp37-cp37m-manylinux1_x86_64.whl
-tqdm
-scikit-learn

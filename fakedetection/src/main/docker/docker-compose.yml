@@ -1,0 +1,90 @@
+version: '3'
+services:
+  extraction_dir:
+    build:
+      context: ./extraction
+      dockerfile: ./extract_dir/Dockerfile
+    env_file: .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./extraction:/code
+    environment:
+      FLASK_ENV: development
+      input_path_dir: ${input_path_dir}
+      output_path: ${oudownload_videotput_path}
+      method_detection: ${method_detection}
+      are_warped: ${are_warped}
+      are_culled: ${are_culled}
+      are_saved_landmarks: ${are_saved_landmarks}     
+  
+  extraction_video:
+    build:
+      context: ./extraction
+      dockerfile: ./extract_video/Dockerfile
+    env_file: .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./extraction:/code
+    environment:
+      FLASK_ENV: development
+      input_path: ${input_path}
+      video_download: ${video_download}
+      video_url: ${video_url}
+      name_video_downloaded: ${name_video_downloaded}
+      output_path: ${output_path}
+      method_detection: ${method_detection}
+      start_frame: ${start_frame}
+      step_frame: ${step_frame}
+      end_frame: ${end_frame}
+      max_frame: ${max_frame}
+      are_warped: ${are_warped}
+      are_culled: ${are_culled}
+      are_saved_landmarks: ${are_saved_landmarks}
+      is_saved_rectangle: ${is_saved_rectangle}
+  
+  capsule_forensics_test:
+    image: laflaurine/afp-df_api:capsule_forensics_test
+    env_file: .env
+    volumes:
+        - ./CapsuleForensics:/code
+        - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      FLASK_ENV: development
+      path_to_dataset: ${path_to_dataset}
+      version_weights: ${version_weights}
+    
+  capsule_forensics_analyse:
+    build:
+      context: ./CapsuleForensics
+      dockerfile: ./analyse/Dockerfile
+    env_file: .env
+    volumes:
+      - ./CapsuleForensics:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      FLASK_ENV: development
+      path_to_dataset: ${path_to_dataset}
+      version_weights: ${version_weights}
+      batch_size: ${batch_size}
+      number_epochs: ${number_epochs}
+    
+  capsule_forensics_training:
+    build:
+      context: ./CapsuleForensics
+      dockerfile: ./training/Dockerfile
+    env_file: .env
+    volumes:
+      - ./CapsuleForensics:/code
+      - ./${capsule_forensics_train_dataset}:/code/${capsule_forensics_train_dataset}
+    environment:
+      FLASK_ENV: development
+      capsule_forensics_classifier: ${capsule_forensics_classifier}
+      capsule_forensics_train_dataset: ${capsule_forensics_train_dataset}
+      batch_size: ${batch_size}
+      epoch_resume: ${epoch_resume}
+      number_epochs: ${number_epochs}
+      step_save_checkpoint: ${step_save_checkpoint}
+  redis:
+    image: "redis:alpine"

@@ -1,0 +1,7 @@
+flask
+redis
+torchvision
+Pillow
+numpy
+tqdm
+scikit-learn
