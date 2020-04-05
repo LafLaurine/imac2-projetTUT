@@ -36,10 +36,6 @@ def print_info():
     print('Isao Echizen      (NII)')
     print('------------------------------\n')
 
-print_info()
-
-
-
 def learn_from_dir(name_classifier,
                    dir_dataset,
                    batch_size=batch_size_learning_default,

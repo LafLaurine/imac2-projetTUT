@@ -47,7 +47,11 @@ class ClassifierLoader:
             name_weights = name_weights_default
         path_dir_weights = os.path.join(path_dir_classifier, dir_weights)
         path_dir_weights_temp = os.path.join(path_dir_classifier, dir_weights_temp)
-        classifier = functor_classifier(method_classifier, dict_labels, learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
+        classifier = functor_classifier(method_classifier,
+                                        dict_labels,
+                                        learning_rate, name_weights,
+                                        path_dir_weights,
+                                        path_dir_weights_temp)
         return classifier
 
 class ImageDataGeneratorMeso(ImageDataGenerator):

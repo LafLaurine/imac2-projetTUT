@@ -8,11 +8,8 @@ from tqdm import tqdm
 from sklearn import metrics
 
 
-from .common_classifier import ImageFolderCapsule
+from .common_classifier import ImageFolderCapsule, get_transform
 from ...common_prediction import EvaluationLearning
-
-def save_model_checkpoint(capnet, epoch):
-    capnet.save_states(epoch)
 
 
 def get_random_generator_torch(seed_manual):
@@ -32,11 +29,12 @@ def learn_from_dataloaders(classifier,
                            perc_dropout):
     evals_learning = EvaluationLearning()
     epoch_end = epoch_start + number_epochs
-    i = 1
-    # TRAINING MODE #
+    i   = 1
     classifier.train()
     try:
         for epoch in tqdm(range(epoch_start + 1, epoch_end + 1)):
+            # TRAINING MODE #
+            # classifier.train()
             loss_training, acc_training = train_from_dataloader_epoch(classifier=classifier,
                                                                       loss_classifier=loss_classifier,
                                                                       extractor_vgg=extractor_vgg,
@@ -45,8 +43,10 @@ def learn_from_dataloaders(classifier,
                                                                       perc_dropout=perc_dropout)
 
             if i % step_save_checkpoint == 0 or epoch == epoch_end:
-                    save_model_checkpoint(classifier, epoch)
+                    classifier.save_states(epoch)
             i += 1
+            # EVALUATION MODE #
+            # classifier.eval()
             loss_validation, acc_validation = validate_from_dataloader_epoch(classifier=classifier,
                                                                              loss_classifier=loss_classifier,
                                                                              extractor_vgg=extractor_vgg,
@@ -68,14 +68,7 @@ def load_dataloaders_learning(classifier,
                               batch_size,
                               number_workers
                               ):
-    #  =================================================
-
-    transform_fwd = transforms.Compose([
-        transforms.Resize((size_image, size_image)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
-    ])
-
+    transform_fwd = get_transform(size_image)
     # random number generator
     rng = np.random.default_rng()
 
@@ -95,7 +88,7 @@ def load_dataloaders_learning(classifier,
                                           num_workers=number_workers)
     dataloader_validation = data.DataLoader(subset_validation,
                                            batch_size=batch_size,
-                                           shuffle=True,
+                                           shuffle=False,
                                            num_workers=number_workers)
     return dataloader_training, dataloader_validation
 
@@ -107,16 +100,10 @@ def train_from_dataloader_epoch(classifier,
                                 is_random,
                                 perc_dropout
                                 ):
-    tol_label = np.array([], dtype=np.float)
-    tol_pred = np.array([], dtype=np.float)
-
     loss_training = 0
-    # Training mode
-    classifier.train()
     data_images, data_labels = next(iter(dataloader_training))
     ### Processing batch ###
-    data_labels[data_labels > 1] = 1
-    labels_images = data_labels.numpy().astype(np.float)
+    labels_images = data_labels.numpy()
 
     classifier.optimizer.zero_grad()
     input_v = Variable(data_images)
@@ -125,64 +112,43 @@ def train_from_dataloader_epoch(classifier,
 
     loss_dis = loss_classifier(classes, Variable(data_labels, requires_grad=False))
     loss_dis_data = loss_dis.item()
+
     loss_dis.backward()
     classifier.optimizer.step()
 
-    output_dis = class_.data.cpu().numpy()
-    output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
+    output_dis = class_.data.cpu()
+    output_pred = classifier.infer_pred(output_dis)
 
-    for i in range(output_dis.shape[0]):
-        if output_dis[i, 1] >= output_dis[i, 0]:
-            output_pred[i] = 1.0
-        else:
-            output_pred[i] = 0.0
-    tol_label = np.concatenate((tol_label, labels_images))
-    tol_pred = np.concatenate((tol_pred, output_pred))
+    print(output_pred)
+    print(labels_images)
+
     loss_training += loss_dis_data
-    acc_training = metrics.accuracy_score(tol_label, tol_pred)
-    print(tol_pred)
-    print(tol_label)
+    acc_training = metrics.accuracy_score(labels_images, output_pred)
     return loss_training, acc_training
 
 def validate_from_dataloader_epoch(classifier,
                                    loss_classifier,
                                    extractor_vgg,
                                    dataloader_validation):
-    tol_label = np.array([], dtype=np.float)
-    tol_pred = np.array([], dtype=np.float)
-
     loss_validation = 0
 
-    # Evaluation mode
     data_images, data_labels = next(iter(dataloader_validation))
     ## BATCH ##
-    data_labels[data_labels > 1] = 1
-    labels_images = data_labels.numpy().astype(np.float)
+    labels_images = data_labels.numpy()
 
-    classifier.optimizer.zero_grad()
     input_v = Variable(data_images)
     x = extractor_vgg(input_v)
     classes, class_ = classifier(x, random=False)
 
     loss_dis = loss_classifier(classes, Variable(data_labels, requires_grad=False))
     loss_dis_data = loss_dis.item()
-    loss_dis.backward()
-    classifier.optimizer.step()
 
-    output_dis = class_.data.cpu().numpy()
-    output_pred = np.zeros((output_dis.shape[0]), dtype=np.float)
-
-    for i in range(output_dis.shape[0]):
-        if output_dis[i, 1] >= output_dis[i, 0]:
-            output_pred[i] = 1.0
-        else:
-            output_pred[i] = 0.0
-
-    tol_label = np.concatenate((tol_label, labels_images))
-    tol_pred = np.concatenate((tol_pred, output_pred))
+    output_dis = class_.data.cpu()
+    output_pred = classifier.infer_pred(output_dis)
+    
+    print(output_pred)
+    print(labels_images)
 
     loss_validation += loss_dis_data
-    acc_validation = metrics.accuracy_score(tol_label, tol_pred)
-    print(tol_pred)
-    print(tol_label)
+    acc_validation = metrics.accuracy_score(labels_images, output_pred)
     return loss_validation, acc_validation

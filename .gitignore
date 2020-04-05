@@ -1,0 +1,15 @@
+
+# Database
+database/
+database_analysis/
+database_vid/
+
+# output
+out/
+in/
+
+# Python cache
+**/__pycache__/
+
+# IDE stuff
+.idea/
