@@ -28,6 +28,3 @@ def capsule_train():
     evals_learning.print()
     s = '{"message" : "Working" }'
     return json.loads(s)
-
-if __name__== '__main__':
-    app.run()

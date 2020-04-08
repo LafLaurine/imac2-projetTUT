@@ -1,10 +1,16 @@
 import os
+import redis
+from flask import Flask
 from classifiers.MesoNet import classify
+
+app = Flask(__name__)
+cache = redis.Redis(host='redis', port=6379)
 
 classifier_name_default = 'MESO4_DF'
 step_save_weights_temp_default = 5
 
-if __name__ == "__main__":
+@app.route('/mesonet_train')
+def mesonet_train():
     name_classifier = os.getenv("mesonet_classifier")
     dir_dataset = os.getenv("path_to_dataset")
     batch_size = int(os.getenv("batch_size"))
@@ -17,3 +23,5 @@ if __name__ == "__main__":
         number_epochs=number_epochs,
         step_save_weights_temp=step_save_weights_temp)
     evals_learning.print()
+    s = '{"message" : "Train mesonet ok"}'
+    return json.loads(s)

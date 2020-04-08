@@ -6,6 +6,6 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y software-properties-common libsm6 libxext6 libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 COPY . .
 CMD ["flask", "run"]

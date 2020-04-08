@@ -6,6 +6,7 @@ Author: Huy H. Nguyen
 Script for Capsule-Forensics-v2 model
 """
 
+import os
 import sys
 sys.setrecursionlimit(15000)
 import torch
@@ -15,8 +16,18 @@ import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 import torchvision.models as models
 from torch.optim import Adam
+import numpy as np
+
+from ...common_config import LABEL_DF, LABEL_REAL, LABEL_F2F, LABEL_FACESWAP
 
 NO_CAPS=10
+""" 
+Apparently eval mode gets funky
+fur a few epochs unless
+we change the 'momentum of the BatchNorm
+so here goes
+"""
+MOMENTUM_BATCHNORM = 0.4
 
 class StatsNet(nn.Module):
     def __init__(self):
@@ -60,17 +71,17 @@ class FeatureExtractor(nn.Module):
         self.capsules = nn.ModuleList([
             nn.Sequential(
                 nn.Conv2d(256, 64, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(64),
+                nn.BatchNorm2d(64, momentum=MOMENTUM_BATCHNORM),
                 nn.ReLU(),
                 nn.Conv2d(64, 16, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(16),
+                nn.BatchNorm2d(16, momentum=MOMENTUM_BATCHNORM),
                 nn.ReLU(),
                 StatsNet(),
 
                 nn.Conv1d(2, 8, kernel_size=5, stride=2, padding=2),
-                nn.BatchNorm1d(8),
+                nn.BatchNorm1d(8, momentum=MOMENTUM_BATCHNORM),
                 nn.Conv1d(8, 1, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm1d(1),
+                nn.BatchNorm1d(1, momentum=MOMENTUM_BATCHNORM),
                 View(-1, 8),
                 )
                 for _ in range(NO_CAPS)]
@@ -152,31 +163,42 @@ class RoutingLayer(nn.Module):
         return outputs
 
 
+
 class CapsuleNet(nn.Module):
     # added optimiser to class for convenience
     # optimizer : Adam etc.
     # added paths to saved states of model and optimiser
     # __path_model_state
     # __path_optimizer_state
-    # added dict for class labels
-    # __dict_labels
-    def __init__(self, num_class, path_model_state, path_optimizer_state, dict_labels, lr, betas, gpu_id):
+    # added dict and list for class labels
+    # __dict_labels
+    # __list_labels
+    def __init__(self, num_class, path_model_state, path_optimizer_state, dict_labels, list_labels, learning_rate, betas, gpu_id):
         super(CapsuleNet, self).__init__()
 
         self.num_class = num_class
         self.fea_ext = FeatureExtractor()
         self.fea_ext.apply(self.weights_init)
 
-        self.routing_stats = RoutingLayer(gpu_id=gpu_id, num_input_capsules=NO_CAPS, num_output_capsules=num_class, data_in=8, data_out=4, num_iterations=2)
+        self.routing_stats = RoutingLayer(gpu_id=gpu_id,
+                                          num_input_capsules=NO_CAPS,
+                                          num_output_capsules=num_class,
+                                          data_in=8,
+                                          data_out=4,
+                                          num_iterations=2)
 
-        self.optimizer = Adam(self.parameters(), lr=lr, betas=betas)
+        self.optimizer = Adam(self.parameters(), lr=learning_rate, betas=betas)
         self.__dict_labels = dict_labels
+        self.__list_labels = list_labels
         self.__path_model_state = path_model_state
         self.__path_optimizer_state = path_optimizer_state
 
 
-    def get_classes(self):
+    def get_dict_classes(self):
         return self.__dict_labels
+
+    def get_list_classes(self):
+        return self.__list_labels
 
     def weights_init(self, m):
         classname = m.__class__.__name__
@@ -200,6 +222,13 @@ class CapsuleNet(nn.Module):
 
     def save_states(self, epoch):
         filename_model_state, filename_optimizer_state = self.__get_filenames_states(epoch)
+        dir_model_state = os.path.dirname(filename_model_state)
+        dir_optimizer_state = os.path.dirname(filename_optimizer_state)
+        # the path to this state might not exist, we create it
+        if not os.path.isdir(dir_model_state) :
+            os.makedirs(dir_model_state)
+        if not os.path.isdir(dir_optimizer_state) :
+            os.makedirs(dir_optimizer_state);
         torch.save(self.state_dict(), filename_model_state)
         torch.save(self.optimizer.state_dict(), filename_optimizer_state)
 
@@ -216,6 +245,27 @@ class CapsuleNet(nn.Module):
         class_ = class_.mean(dim=1)
 
         return classes, class_
+
+    def process_batch(self, data_images, data_labels, extractor_vgg, loss_classifier, is_random, perc_dropout):
+        labels_images = data_labels.numpy().astype(np.float)
+
+        self.optimizer.zero_grad()
+        input_v = Variable(data_images)
+        x = extractor_vgg(input_v)
+        classes, class_ = self(x, random=is_random, dropout=perc_dropout)
+
+        loss_dis = loss_classifier(classes, Variable(data_labels, requires_grad=False))
+        loss_dis.backward()
+        self.optimizer.step()
+
+        output_dis = class_.data.cpu().numpy()
+        return self.infer_pred(output_dis)
+
+
+    def infer_pred(self, output_dis):
+        _, output_pred_temp = output_dis.max(1)
+        output_pred = output_pred_temp.numpy()
+        return output_pred
 
 
 class CapsuleLoss(nn.Module):

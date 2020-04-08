@@ -7,18 +7,21 @@ from .common_config import is_predicted_wrong
 
 class Prediction:
     # __dict_prop_analysis
-    def __init__(self, labels_predicted, dict_labels):
-        self.__dict_prop_analysis = Prediction.compute_prop_analysis(labels_predicted, dict_labels)
+    def __init__(self, labels_predicted, dict_labels, list_labels):
+        self.__dict_prop_analysis = Prediction.compute_prop_analysis(labels_predicted, dict_labels, list_labels)
 
     @staticmethod
-    def compute_prop_analysis(labels_predicted, dict_labels):
-        count_labels = np.zeros(len(dict_labels))
-        number_analysis = len(labels_predicted)
-        for label in np.nditer(labels_predicted):
-            count_labels[lab.get_closest_label(label)] += 1
-        prop_labels = count_labels / number_analysis
-        dict_prop_analysis = {index_label: (name_label, prop_labels[index_label])
-                              for (name_label, index_label)
+    def compute_prop_analysis(indices_predicted, dict_labels, list_labels):
+        count_indices = np.zeros(len(dict_labels))
+        number_analysis = len(indices_predicted)
+        for index in np.nditer(indices_predicted):
+            count_indices[int(index)] += 1
+        prop_indices = count_indices / number_analysis
+        prop_labels = dict()
+        for index in range(len(prop_indices)):
+            prop_labels[list_labels[index]] =  prop_indices[index]
+        dict_prop_analysis = {key_label: (name_label, prop_labels[key_label])
+                              for (name_label, key_label)
                               in dict_labels.items()}
         return dict_prop_analysis
 
@@ -65,14 +68,14 @@ class EvaluationLearning:
 
 
     def print(self):
-        # TODO: TO KNOW
+        # TODO: TO KNOW
         for i, epoch in enumerate(self.__epochs):
             print('Epoch {0}:'.format(epoch))
             print('    Training   -- loss: {0} | accuracy {1}'.format(self.__loss_training[i], self.__acc_training[i]))
             print('    Validation -- loss: {0} | accuracy {1}'.format(self.__loss_validation[i], self.__acc_validation[i]))
 
 class EvaluationTest:
-    # __array_errors
+    # __array_errors[]
     # __mean_squared_error
     # __mean_accuracy
     def __init__(self):
@@ -98,3 +101,4 @@ class EvaluationTest:
 
     def print(self):
         print('Mean error:   {}'.format(self.get_mean_error()))
+

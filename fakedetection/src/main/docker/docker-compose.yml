@@ -12,7 +12,7 @@ services:
     environment:
       FLASK_ENV: development
       input_path_dir: ${input_path_dir}
-      output_path: ${oudownload_videotput_path}
+      output_path: ${output_path}
       method_detection: ${method_detection}
       are_warped: ${are_warped}
       are_culled: ${are_culled}
@@ -43,7 +43,54 @@ services:
       are_culled: ${are_culled}
       are_saved_landmarks: ${are_saved_landmarks}
       is_saved_rectangle: ${is_saved_rectangle}
+
+  mesonet_test:
+    build:
+      context: ./MesoNet
+      dockerfile: ./mesonet_test/Dockerfile
+    env_file: .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./MesoNet:/code
+    environment:
+      FLASK_ENV: development
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+      number_epochs: ${number_epochs}
   
+  mesonet_analyse:
+    build:
+      context: ./MesoNet
+      dockerfile: ./mesonet_analyse/Dockerfile
+    env_file: .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      FLASK_ENV: development
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+      batch_size: ${batch_size}
+
+  mesonet_train:
+    build:
+      context: ./MesoNet
+      dockerfile: ./mesonet_train/Dockerfile
+    env_file: .env
+    volumes:
+      - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
+    environment:
+      FLASK_ENV: development
+      path_to_dataset: ${path_to_dataset}
+      mesonet_classifier: ${mesonet_classifier}
+      batch_size: ${batch_size}
+      number_epochs: ${number_epochs}
+      step_save_checkpoint: ${step_save_checkpoint}
+
   capsule_forensics_test:
     image: laflaurine/afp-df_api:capsule_forensics_test
     env_file: .env
@@ -86,5 +133,6 @@ services:
       epoch_resume: ${epoch_resume}
       number_epochs: ${number_epochs}
       step_save_checkpoint: ${step_save_checkpoint}
+  
   redis:
     image: "redis:alpine"

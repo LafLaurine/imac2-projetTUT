@@ -6,7 +6,6 @@ import redis
 from flask import Flask
 from extract.face_extraction import FaceExtractor
 
-
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
 

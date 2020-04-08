@@ -5,11 +5,11 @@ from flask import Flask
 app = Flask(__name__)
 cache = redis.Redis(host='redis', port=6379)
 
+@app.route('/capsule_forensics_test')
+
 batch_size_default = 8
 
 root_checkpoint = 'checkpoints'
-
-@app.route('/capsule_forensics_test')
 
 def capsule_test():
     name_classifier = os.getenv("capsule_forensics_classifier")

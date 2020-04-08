@@ -47,7 +47,11 @@ class ClassifierLoader:
             name_weights = name_weights_default
         path_dir_weights = os.path.join(path_dir_classifier, dir_weights)
         path_dir_weights_temp = os.path.join(path_dir_classifier, dir_weights_temp)
-        classifier = functor_classifier(method_classifier, dict_labels, learning_rate, name_weights, path_dir_weights, path_dir_weights_temp)
+        classifier = functor_classifier(method_classifier,
+                                        dict_labels,
+                                        learning_rate, name_weights,
+                                        path_dir_weights,
+                                        path_dir_weights_temp)
         return classifier
 
 class ImageDataGeneratorMeso(ImageDataGenerator):
@@ -70,7 +74,7 @@ class GeneratorIterationHandler(object):
             return self._iter.next()
         except StopIteration as e:
             raise e
-        except TypeError: # Supposedly a PNG corruption error
+        except TypeError: # Supposedly a PNG corruption error
             pass
 
 class Classifier:
@@ -238,7 +242,7 @@ class MesoInception4(Classifier):
         
         x4 = Conv2D(16, (5, 5), padding='same', activation = 'relu')(x3)
         x4 = BatchNormalization()(x4)
-        x4 = MaxPooling2D(pool_size=(8, 8), padding='same')(x4) # previously 4,4
+        x4 = MaxPooling2D(pool_size=(8, 8), padding='same')(x4) # previously 4,4
         
         y = Flatten()(x4)
         y = Dropout(0.5)(y)
