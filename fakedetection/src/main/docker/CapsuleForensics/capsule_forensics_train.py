@@ -1,5 +1,6 @@
 from classifiers.CapsuleForensics import classify as  clf
 import redis
+import os
 from flask import Flask
 
 app = Flask(__name__)

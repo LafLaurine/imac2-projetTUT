@@ -1,6 +1,6 @@
 FROM python:3.7-slim
 WORKDIR /code
-ENV FLASK_APP capsule_analyse.py
+ENV FLASK_APP capsule_forensics_analyse.py
 ENV FLASK_RUN_HOST 0.0.0.0
 RUN apt-get update \
     && apt-get install --no-install-recommends -y software-properties-common libsm6 libxext6 libxrender-dev \

@@ -10,7 +10,7 @@ public class CapsuleForensicsAnalyseController {
 	@GetMapping("/api/capsule/analyse")
 	public String extraction() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_analyse";
+		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_test";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
         return "Done : " + response;
     }

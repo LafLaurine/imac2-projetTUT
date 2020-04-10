@@ -1,0 +1,9 @@
+./dataset
+./CapsuleForensics/classifiers/__pycache__
+./CapsuleForensics/dataset
+./CapsuleForensics/__pycache__
+
+./MesoNet/classifiers/__pycache__
+./MesoNet/dataset
+./MesoNet/__pycache__
+
