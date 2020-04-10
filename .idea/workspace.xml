@@ -13,41 +13,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d5a62b4a-7022-43a3-93ee-764b1ce8010f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/LICENSE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/test/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/test/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/test/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/test/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/train/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/train/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/train/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/train/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/validation/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/validation/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/validation/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_full/validation/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/test/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/test/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/test/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/test/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/train/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/train/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/train/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/train/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/validation/CGG/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/validation/CGG/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/validation/Real/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/cgvsphoto_patches/validation/Real/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/0_original/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/0_original/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/1_deepfakes/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/1_deepfakes/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/2_face2face/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/2_face2face/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/3_faceswap/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/test/3_faceswap/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/train/0_original/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/train/1_deepfakes/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/train/2_face2face/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/train/3_faceswap/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/validation/0_original/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/validation/1_deepfakes/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/validation/2_face2face/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/faceforensicspp/validation/3_faceswap/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/test/Fake/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/test/Real/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/train/Fake/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/train/Real/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/validation/Fake/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/databases/replay_attack/validation/Real/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/test_binary_ffpp.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/test_binary_ffpp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/classifiers/Capsule-Forensics/train_binary_ffpp.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/Capsule-Forensics/train_binary_ffpp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/MesoNet/module/common_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/MesoNet/module/common_classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/MesoNet/module/df_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/MesoNet/module/df_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/classifiers/common_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/classifiers/common_prediction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,18 +51,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IgnoredFileRootStore">
-    <option name="generatedRoots">
-      <set>
-        <option value="$PROJECT_DIR$/.idea" />
-      </set>
-    </option>
-  </component>
   <component name="ProjectId" id="1WWtE1TxpwPAa7i8iHRn66jTHuK" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -101,7 +62,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="Python tests.pytest for df_test.test_from_generator">
     <configuration name="landmark_detection" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="boost_lib" TARGET_NAME="landmark_detection" CONFIG_NAME="Debug">
@@ -125,6 +86,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;df_test.test_from_generator&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
@@ -138,18 +100,6 @@
         <item itemvalue="Python tests.pytest for df_test.test_from_generator" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -182,11 +132,22 @@
       <workItem from="1579630870095" duration="603000" />
       <workItem from="1579643726427" duration="679000" />
       <workItem from="1579678091459" duration="16264000" />
+      <workItem from="1584698174368" duration="1833000" />
+      <workItem from="1585058015291" duration="24781000" />
+      <workItem from="1585137241343" duration="27861000" />
+      <workItem from="1585215991271" duration="2335000" />
+      <workItem from="1585230776348" duration="595000" />
+      <workItem from="1585251872453" duration="1766000" />
+      <workItem from="1586444001954" duration="5000" />
+      <workItem from="1586542795091" duration="1054000" />
+      <workItem from="1586543909236" duration="42000" />
+      <workItem from="1586543972515" duration="29000" />
+      <workItem from="1586544020176" duration="1300000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="2" />
   </component>
   <component name="WindowStateProjectService">
     <state x="836" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579551614868">
@@ -237,22 +198,22 @@
       <screen x="57" y="27" width="1863" height="1053" />
     </state>
     <state width="1817" height="275" key="GridCell.Tab.0.right/57.27.1863.1053@57.27.1863.1053" timestamp="1579619958256" />
-    <state x="714" y="161" width="1022" height="737" key="SettingsEditor" timestamp="1579617047612">
+    <state x="714" y="161" width="1022" height="737" key="SettingsEditor" timestamp="1586544001751">
       <screen x="57" y="27" width="1863" height="1053" />
     </state>
-    <state x="714" y="161" width="1022" height="737" key="SettingsEditor/57.27.1863.1053@57.27.1863.1053" timestamp="1579617047612" />
-    <state x="644" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1579696923168">
+    <state x="714" y="161" width="1022" height="737" key="SettingsEditor/57.27.1863.1053@57.27.1863.1053" timestamp="1586544001751" />
+    <state x="644" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1586444003223">
       <screen x="57" y="27" width="1863" height="1053" />
     </state>
-    <state x="644" y="381" key="com.intellij.ide.util.TipDialog/57.27.1863.1053@57.27.1863.1053" timestamp="1579696923168" />
-    <state x="1135" y="236" width="627" height="642" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1579378316375">
+    <state x="644" y="381" key="com.intellij.ide.util.TipDialog/57.27.1863.1053@57.27.1863.1053" timestamp="1586444003223" />
+    <state x="1135" y="236" width="627" height="642" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1585140267760">
       <screen x="57" y="27" width="1863" height="1053" />
     </state>
-    <state x="1135" y="236" width="627" height="642" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/57.27.1863.1053@57.27.1863.1053" timestamp="1579378316375" />
-    <state x="1705" y="334" width="761" height="1009" key="dock-window-1" timestamp="1579621506947">
+    <state x="1135" y="236" width="627" height="642" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/57.27.1863.1053@57.27.1863.1053" timestamp="1585140267760" />
+    <state x="1288" y="266" width="1484" height="785" key="dock-window-1" timestamp="1585062112681">
       <screen x="57" y="27" width="1863" height="1053" />
     </state>
-    <state x="1705" y="334" width="761" height="1009" key="dock-window-1/57.27.1863.1053@57.27.1863.1053" timestamp="1579621506947" />
+    <state x="1288" y="266" width="1484" height="785" key="dock-window-1/57.27.1863.1053@57.27.1863.1053" timestamp="1585062112681" />
     <state x="1118" y="252" key="run.anything.popup" timestamp="1579397915535">
       <screen x="57" y="27" width="1863" height="1053" />
     </state>

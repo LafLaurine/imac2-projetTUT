@@ -8,7 +8,7 @@ from keras.optimizers import Adam
 
 from keras.preprocessing.image import ImageDataGenerator
 
-from ...common_config import DICT_LABELS_DF, DICT_LABELS_F2F, DIM_INPUT
+from ...common_config import DICT_LABELS_DF, DICT_LABELS_F2F, DIM_INPUT, LIST_LABELS_DF, LIST_LABELS_F2F
 
 
 dir_weights_default = 'weights'
@@ -34,21 +34,22 @@ class ClassifierLoader:
                        name_weights         = None
                        ):
         switch = {
-            ClassifierLoader.meso4_df        : (Meso4,          DICT_LABELS_DF,  weights_meso4_df_default),
-            ClassifierLoader.meso4_f2f       : (Meso4,          DICT_LABELS_F2F, weights_meso4_f2f_default),
-            ClassifierLoader.mesoception_df  : (MesoInception4, DICT_LABELS_DF,  weights_mesoception_df_default),
-            ClassifierLoader.mesoception_f2f : (MesoInception4, DICT_LABELS_F2F, weights_mesoception_df_default)
+            ClassifierLoader.meso4_df        : (Meso4,          DICT_LABELS_DF,  LIST_LABELS_DF, weights_meso4_df_default),
+            ClassifierLoader.meso4_f2f       : (Meso4,          DICT_LABELS_F2F, LIST_LABELS_F2F, weights_meso4_f2f_default),
+            ClassifierLoader.mesoception_df  : (MesoInception4, DICT_LABELS_DF,  LIST_LABELS_DF, weights_mesoception_df_default),
+            ClassifierLoader.mesoception_f2f : (MesoInception4, DICT_LABELS_F2F, LIST_LABELS_F2F, weights_mesoception_df_default)
         }
         tuple_classifier = switch.get(method_classifier, None)
         if tuple_classifier is None:
             raise ValueError('No classifier called ' + method_classifier)
-        functor_classifier, dict_labels, name_weights_default = tuple_classifier
+        functor_classifier, dict_labels, list_labels, name_weights_default = tuple_classifier
         if name_weights is None:
             name_weights = name_weights_default
         path_dir_weights = os.path.join(path_dir_classifier, dir_weights)
         path_dir_weights_temp = os.path.join(path_dir_classifier, dir_weights_temp)
         classifier = functor_classifier(method_classifier,
                                         dict_labels,
+                                        list_labels,
                                         learning_rate, name_weights,
                                         path_dir_weights,
                                         path_dir_weights_temp)
@@ -88,6 +89,7 @@ class Classifier:
                  model,
                  method,
                  dict_labels,
+                 list_labels,
                  learning_rate,
                  name_weights,
                  path_dir_weights,
@@ -96,6 +98,7 @@ class Classifier:
         self._model = model
         self._method = method
         self._dict_labels = dict_labels
+        self._list_labels = list_labels
         self._learning_rate = float(learning_rate)
         self.compile()
         self._name_weights = name_weights
@@ -127,8 +130,11 @@ class Classifier:
     def get_weights(self):
         return self._model.get_weights()
 
-    def get_classes(self):
+    def get_dict_labels(self):
         return self._dict_labels
+
+    def get_list_labels(self):
+        return self._list_labels
 
 
     def save_weights(self):
@@ -146,6 +152,7 @@ class Meso4(Classifier):
     def __init__(self,
                  method,
                  dict_labels,
+                 list_labels,
                  learning_rate,
                  name_weights,
                  path_dir_weights,
@@ -155,6 +162,7 @@ class Meso4(Classifier):
         super().__init__(self._model,
                          method=method,
                          dict_labels=dict_labels,
+                         list_labels=list_labels,
                          learning_rate=learning_rate,
                          name_weights=name_weights,
                          path_dir_weights=path_dir_weights,
@@ -193,6 +201,7 @@ class MesoInception4(Classifier):
     def __init__(self,
                  method,
                  dict_labels,
+                 list_labels,
                  learning_rate,
                  name_weights,
                  path_dir_weights,

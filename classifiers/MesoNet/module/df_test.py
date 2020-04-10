@@ -85,5 +85,5 @@ def analyse_from_generator(classifier,
         #
         labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
         count += 1
-    prediction = Prediction(labels_predicted, classifier.get_classes())
+    prediction = Prediction(labels_predicted, classifier.get_dict_labels(), classifier.get_list_labels())
     return prediction

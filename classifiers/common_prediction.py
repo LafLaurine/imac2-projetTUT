@@ -14,12 +14,13 @@ class Prediction:
     def compute_prop_analysis(indices_predicted, dict_labels, list_labels):
         count_indices = np.zeros(len(dict_labels))
         number_analysis = len(indices_predicted)
+        print(list_labels)
         for index in np.nditer(indices_predicted):
             count_indices[int(index)] += 1
         prop_indices = count_indices / number_analysis
         prop_labels = dict()
         for index in range(len(prop_indices)):
-            prop_labels[list_labels[index]] =  prop_indices[index]
+            prop_labels[list_labels[index]] = prop_indices[index]
         dict_prop_analysis = {key_label: (name_label, prop_labels[key_label])
                               for (name_label, key_label)
                               in dict_labels.items()}
