@@ -24,5 +24,5 @@ def capsule_forensics_analyse():
         root_checkpoint=root_checkpoint,
         batch_size=batch_size)
     prediction.print()
-    s = '{"message" : "Working" }'
+    s = '{"message" : "CapsuleForensics analyse done" }'
     return json.loads(s)

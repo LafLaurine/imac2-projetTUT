@@ -25,5 +25,5 @@ def capsule_test():
         batch_size=batch_size,
         number_epochs=number_epochs)
     evals_test.print()
-    s = '{"message" : "Working" }'
+    s = '{"message" : "CapsuleForensics test done" }'
     return json.loads(s)

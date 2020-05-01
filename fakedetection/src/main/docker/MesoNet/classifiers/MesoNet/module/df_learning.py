@@ -53,7 +53,7 @@ def load_dataset_learning(
         directory=dir_dataset,
         target_size=target_size,
         shuffle=True,
-        batch_size=batch_size, # 200
+        batch_size=batch_size, # 200
         class_mode='binary',
         subset='validation')
 
@@ -128,4 +128,3 @@ def learn_from_generator(
     # saving weights one last time
     classifier.save_weights_temp(epoch)
     return evals_learning
-

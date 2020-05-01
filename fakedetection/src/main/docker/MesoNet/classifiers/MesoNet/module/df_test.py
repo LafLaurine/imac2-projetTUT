@@ -57,7 +57,7 @@ def test_from_generator(classifier,
     for epoch in tqdm(range(number_epochs)):
         batch_images, batch_labels_actual = generator_test.next()
         batch_labels_predicted = classifier.predict(batch_images)
-        #  fill the predicted and actual labels
+        #  fill the predicted and actual labels
         index_start_pred = epoch * batch_size_test
         index_end_pred = epoch * batch_size_test + len(batch_labels_predicted)
         labels_actual[index_start_pred:index_end_pred] = batch_labels_actual
@@ -85,5 +85,5 @@ def analyse_from_generator(classifier,
         #
         labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
         count += 1
-    prediction = Prediction(labels_predicted, classifier.get_classes())
+    prediction = Prediction(labels_predicted, classifier.get_dict_labels(), classifier.get_list_labels())
     return prediction
