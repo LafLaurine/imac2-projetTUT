@@ -29,16 +29,16 @@ batch_size_analysis_default = 10
 rescale_default = 1 / 255
 
 def print_info():
-    print('\n---------- MesoNet -----------')
-    print('Darius Afchar     (ENPC)')
-    print('Vincent Nozick    (UPEM-LIGM)')
-    print('Junichi Yamagishi (NII)')
-    print('Isao Echizen      (NII)')
-    print('------------------------------\n')
-
-print_info()
-
-
+    x = {
+        "Method": "MesoNet",
+        "Authors": {
+            "ENPC" : "Darius Afchar",
+            "UPEM-LIGM" : "Vincent Nozick",
+            "NII": "Junichi Yamagishi",
+            "name": "Isao Echizen"
+        }
+    }
+    return x
 
 def learn_from_dir(name_classifier,
                    dir_dataset,

@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-public class CapsuleForensicsAnalyseController {
-	@GetMapping("/api/capsule/analyse")
-	public String extraction() {
+public class CapsuleForensicsTrainingController {
+	@GetMapping("/api/CapsuleForensics/training")
+	public String training() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_train";
+		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_training";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
-        return "Done : " + response;
+        return "CapsuleForensics training done : " + response;
     }
 }

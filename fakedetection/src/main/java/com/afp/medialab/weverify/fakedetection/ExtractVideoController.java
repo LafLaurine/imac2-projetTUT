@@ -12,6 +12,6 @@ public class ExtractVideoController {
 		RestTemplate rTemplate =  new RestTemplate();
 		String fooResourceUrl = "http://0.0.0.0:5000/extract_faces_video";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
-        return "Done : " + response;
+        return "Extract faces from video done : " + response;
     }
 }

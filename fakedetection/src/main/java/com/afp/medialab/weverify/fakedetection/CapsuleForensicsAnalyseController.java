@@ -7,11 +7,11 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class CapsuleForensicsAnalyseController {
-	@GetMapping("/api/capsule/analyse")
-	public String extraction() {
+	@GetMapping("/api/CapsuleForensics/analyse")
+	public String capsuleAnalyse() {
 		RestTemplate rTemplate =  new RestTemplate();
 		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_analyse";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
-        return "Done : " + response;
+        return "CapsuleForensics analyse done : " + response;
     }
 }

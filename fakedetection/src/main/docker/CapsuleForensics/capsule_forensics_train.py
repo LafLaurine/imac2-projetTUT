@@ -9,7 +9,7 @@ cache = redis.Redis(host='redis', port=6379)
 root_checkpoint = 'checkpoints'
 step_save_checkpoint_default = 5
 
-@app.route('/capsule_forensics_train')
+@app.route('/capsule_forensics_training')
 
 def capsule_train():
     name_classifier = os.getenv("capsule_forensics_classifier")

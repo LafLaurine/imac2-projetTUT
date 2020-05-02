@@ -137,6 +137,7 @@ services:
       - "5000:5000"
     volumes:
       - ./CapsuleForensics:/code
+      - ./${capsule_forensics_train_dataset}:/code/${capsule_forensics_train_dataset}
     environment:
       FLASK_ENV: development
       capsule_forensics_classifier: ${capsule_forensics_classifier}

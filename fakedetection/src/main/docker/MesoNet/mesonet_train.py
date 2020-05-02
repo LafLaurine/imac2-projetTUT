@@ -10,7 +10,7 @@ cache = redis.Redis(host='redis', port=6379)
 classifier_name_default = 'MESO4_DF'
 step_save_weights_temp_default = 5
 
-@app.route('/mesonet_train')
+@app.route('/mesonet_training')
 def mesonet_train():
     name_classifier = os.getenv("mesonet_classifier")
     dir_dataset = os.getenv("path_to_dataset")

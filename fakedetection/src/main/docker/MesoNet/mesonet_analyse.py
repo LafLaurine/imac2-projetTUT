@@ -1,6 +1,7 @@
 import os
 import redis
 import json
+import marshal
 from flask import Flask
 from classifiers.MesoNet import classify
 
@@ -18,6 +19,7 @@ def mesonet_analyse():
         name_classifier=name_classifier,
         dir_input=dir_input,
         batch_size=batch_size)
-    prediction.print()
-    s = '{"message" : "Mesonet analyse done"}'
-    return json.loads(s)
+    result = []
+    result.append(prediction.__dict__)
+    result.append(classify.print_info())
+    return json.dumps(result)
