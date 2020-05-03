@@ -23,6 +23,4 @@ def capsule_forensics_analyse():
         version_weights=version_weights,
         root_checkpoint=root_checkpoint,
         batch_size=batch_size)
-    prediction.print()
-    s = '{"message" : "CapsuleForensics analyse done" }'
-    return json.loads(s)
+    return json.dumps(prediction.__dict__)

@@ -53,6 +53,7 @@ services:
       - "5000:5000"
     volumes:
       - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
     environment:
       FLASK_ENV: development
       path_to_dataset: ${path_to_dataset}

@@ -20,6 +20,4 @@ def mesonet_test():
         dir_dataset_test=dir_dataset_test,
         batch_size=batch_size,
         number_epochs=number_epochs)
-    evals_test.print()
-    s = '{"message" : "Test mesonet ok"}'
-    return json.loads(s)
+    return json.dumps(evals_test.__dict__)

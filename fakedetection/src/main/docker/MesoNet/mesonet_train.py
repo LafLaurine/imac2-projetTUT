@@ -23,6 +23,4 @@ def mesonet_train():
         batch_size=batch_size,
         number_epochs=number_epochs,
         step_save_weights_temp=step_save_weights_temp)
-    evals_learning.print()
-    s = '{"message" : "Train mesonet ok"}'
-    return json.loads(s)
+    return json.dumps(str(evals_learning.__dict__))

@@ -18,9 +18,10 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-* [Usage](#usage)
+* [Usage](#usage-of-the-services)
 * [Authors](#authors)
 * [Acknowledgements](#acknowledgements)
+* [License](#license)
 
 
 <!-- ABOUT THE PROJECT -->
@@ -33,9 +34,13 @@ This repository includes sources that can be run with the help of Docker tools, 
 
 ### Built With
 
+* [Python](https://www.python.org/) - Python is a programming language that lets you work quickly and integrate systems more effectively
 * [Docker](https://www.docker.com/) - Simplify and Accelerate App Development
 * [docker-compose](https://docs.docker.com/compose/) - A tool for defining and running multi-container Docker applications
-
+* [Flask](https://flask.palletsprojects.com/en/1.1.x/) - Open-source web development framework in Python
+* [Maven](http://maven.apache.org/) - Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information 
+* [SpringBoot](https://spring.io/projects/spring-boot) - Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications that you can "just run"
+* [React](https://en.reactjs.org/) - A JavaScript library for building user interfaces
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -44,7 +49,7 @@ To get a local copy up and running, follow these simple steps.
 
 ### Prerequisites
 
-**This project has been tested on Linux Ubuntu 18.04.**
+**This project has been tested on Linux Ubuntu 18.04 and 19.04.**
 
 - Docker
 
@@ -52,7 +57,7 @@ Make sure Docker is intalled on your environment.
 ```sh
 docker --version
 ```
-If not, install it by following these instructions : [phoenixnap.com - How to install Docker on Ubuntu 18.04](https://phoenixnap.com/kb/how-to-install-docker-on-ubuntu-18-04)
+If not, install it by following these instructions (for Ubuntun 18.04): [phoenixnap.com - How to install Docker on Ubuntu 18.04](https://phoenixnap.com/kb/how-to-install-docker-on-ubuntu-18-04)
 You will also need to install the docker-compose tool.
 ```sh
 sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
@@ -61,11 +66,10 @@ docker-compose --version
 ```
 You can get the latest version of docker-compose in the documentation : [docs.docker.com - Install Compose](https://docs.docker.com/v17.09/compose/install/#master-builds)
 
-- Torch and Tensorflow wheels
+#### Link to Docker images
+*Unfortunatly because of the current situation, docker images couldn't be updated*
 
-As these librairies are heavy, you can download their .whl file and include them in the following folders :
-- [Tensorflow - tensorflow-1.14.0-cp37-cp37m-manylinux1_x86_64.whl](https://pypi.tuna.tsinghua.edu.cn/simple/tensorflow/) : required in `src/MesoNet` and `src/CapsuleForensics` folders
-- [Torch - torch-1.4.0-cp37-cp37m-manylinux1_x86_64.whl](https://download.pytorch.org/whl/cu100/torch_stable.html) : required in `src/CapsuleForensics` folder
+[DockerHub](https://hub.docker.com/repository/registry-1.docker.io/laflaurine/afp-df_api/tags?page=1)
 
 
 ### Installation (Linux)
@@ -237,3 +241,13 @@ sudo capsule_forensics_train_dataset=extraction/outputs/train  capsule_forensics
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
+
+* **AFP medialab** - [Website](https://www.afp.com/fr/lagence/medialab)
+* **Vincent Nozick** - [Website](http://www-igm.univ-mlv.fr/~vnozick/)
+* **Denis Teyssou** - [Github](https://github.com/AFPMedialab)
+* **Bertrand Goupil** - [Github](https://github.com/AFPMedialab)
+* **IMAC engineering school** - [Website](https://www.ingenieur-imac.fr/)
+
+<!-- LICENSE -->
+## License
+The project is released under MIT, see LICENSE.md.

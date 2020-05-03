@@ -1,6 +1,7 @@
 from classifiers.CapsuleForensics import classify as  clf
 import redis
 import os
+import json
 from flask import Flask
 
 app = Flask(__name__)
@@ -26,6 +27,4 @@ def capsule_train():
         batch_size=batch_size,
         number_epochs=number_epochs,
         step_save_checkpoint=step_save_checkpoint)
-    evals_learning.print()
-    s = '{"message" : "Working" }'
-    return json.loads(s)
+    return json.dumps(evals_learning.__dict__)

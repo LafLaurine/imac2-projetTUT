@@ -24,6 +24,4 @@ def capsule_test():
         root_checkpoint=root_checkpoint,
         batch_size=batch_size,
         number_epochs=number_epochs)
-    evals_test.print()
-    s = '{"message" : "CapsuleForensics test done" }'
-    return json.loads(s)
+    return json.dumps(evals_test.__dict__)

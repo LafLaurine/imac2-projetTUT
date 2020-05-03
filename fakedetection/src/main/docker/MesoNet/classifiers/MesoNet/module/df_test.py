@@ -15,14 +15,14 @@ def load_data_generator_analysis(rescale):
     generator_analysis = ImageDataGenerator(rescale=rescale)
     return generator_analysis
 
-def load_dataset_test(classifier,
+def load_dataset_test(name_classifier,
                       dir_dataset_test,
                       data_generator_test,
                       batch_size,
                       target_size: tuple
                       ):
     generator_test = data_generator_test.flow_from_directory(
-        classifier=classifier,
+        classifier=name_classifier,
         directory=dir_dataset_test,
         shuffle=True,
         target_size=target_size,

@@ -60,7 +60,7 @@ class ImageDataGeneratorMeso(ImageDataGenerator):
     def flow_from_directory(self, *args, classifier, **kwargs):
         return super(ImageDataGenerator, self).flow_from_directory(*args,
                                                                    **kwargs,
-                                                                   classes=classifier.get_classes())
+                                                                   classes=classifier.get_dict_labels())
 
 class GeneratorIterationHandler(object):
     # https://stackoverflow.com/a/13654160
