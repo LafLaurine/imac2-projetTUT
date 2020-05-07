@@ -1,6 +1,7 @@
 import os
 import redis
 import json
+import numpy as np
 from flask import Flask
 from classifiers.MesoNet import classify
 

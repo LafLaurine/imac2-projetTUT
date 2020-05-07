@@ -23,7 +23,7 @@ def test_from_dataloader(classifier,
     list_errors = []
     # evaluation mode
     # classifier.eval()
-    classifier.train() # TODO: ????
+    classifier.train() 
     try:
         for epoch in tqdm(range(number_epochs)):
             error = test_from_dataloader_epoch(classifier=classifier,
@@ -55,10 +55,11 @@ def test_from_dataloader_epoch(classifier,
 
     output_dis = class_.data.cpu()
     output_pred = classifier.infer_pred(output_dis)
-
+    result = []
+    result.append(output_pred)
     print(output_pred)
+    result.append(labels_images)
     print(labels_images)
-
     acc_test = metrics.accuracy_score(labels_images, output_pred)
     #todo: CHANGE ERROR RETURN? USE SAME AS MESONET
     #todo: mean -> EER?
@@ -67,7 +68,8 @@ def test_from_dataloader_epoch(classifier,
     # fpr, tpr, thresholds = roc_curve(labels_images, tol_pred_prob, pos_label=1)
     # eer = brentq(lambda x : 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
     error = 1 - acc_test
-    return error
+    result.append(error)
+    return result
 
 def load_dataloader_test(classifier,
                          path_dataset_test,
@@ -136,6 +138,7 @@ def analyse_from_dataloader_epoch(classifier,
 
     output_dis = class_.data.cpu()
     output_pred = classifier.infer_pred(output_dis)
+    result = []
+    result.append(output_pred)
     print(output_pred)
-
-    return output_pred
+    return result

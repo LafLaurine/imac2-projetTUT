@@ -82,7 +82,7 @@ def analyse_from_generator(classifier,
         ##
         index_start_pred = count * batch_size_analysis
         index_end_pred = min(count * batch_size_analysis + len(batch_labels_predicted), number_images)
-        #
+        
         labels_predicted[index_start_pred:index_end_pred] = batch_labels_predicted[0:index_end_pred - index_start_pred]
         count += 1
     prediction = Prediction(labels_predicted, classifier.get_dict_labels(), classifier.get_list_labels())
