@@ -205,7 +205,7 @@ def analyse_from_dir(method_classifier,
                    version_weights, # cannot be 0 this time
                    batch_size=batch_size_default,
                    size_image=size_image_default,
-                   is_random=is_random_default,  # what exactly IS random?
+                   is_random=is_random_default, 
                    betas=betas_default,
                    gpu_id=gpu_id_default,
                    number_workers=number_workers_default,

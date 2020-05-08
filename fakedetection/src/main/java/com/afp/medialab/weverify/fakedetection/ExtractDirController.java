@@ -12,6 +12,10 @@ public class ExtractDirController {
 		RestTemplate rTemplate =  new RestTemplate();
 		String fooResourceUrl = "http://0.0.0.0:5000/extract_faces_dir";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
-        return "Extraction faces from directory done : " + response;
+        String responseStr = response.getBody();
+		int begin = responseStr.indexOf("{");
+		int end = responseStr.lastIndexOf("}") + 1;
+		responseStr = responseStr.substring(begin, end);
+        return responseStr;
     }
 }

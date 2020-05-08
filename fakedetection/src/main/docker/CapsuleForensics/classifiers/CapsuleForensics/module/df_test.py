@@ -138,7 +138,6 @@ def analyse_from_dataloader_epoch(classifier,
 
     output_dis = class_.data.cpu()
     output_pred = classifier.infer_pred(output_dis)
-    result = []
-    result.append(output_pred)
     print(output_pred)
-    return result
+
+    return output_pred

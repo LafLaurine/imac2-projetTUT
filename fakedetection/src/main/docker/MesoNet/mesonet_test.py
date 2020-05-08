@@ -29,6 +29,6 @@ def mesonet_test():
         dir_dataset_test=dir_dataset_test,
         batch_size=batch_size,
         number_epochs=number_epochs)
-    numpyData = {"array": evals_test.__dict__}
+    numpyData = evals_test.__dict__
     encodedNumpyData = json.dumps(numpyData, cls=NumpyArrayEncoder)
     return encodedNumpyData
