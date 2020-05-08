@@ -19,7 +19,4 @@ def mesonet_analyse():
         name_classifier=name_classifier,
         dir_input=dir_input,
         batch_size=batch_size)
-    result = []
-    result.append(prediction.__dict__)
-    result.append(classify.print_info())
-    return json.dumps(result)
+    return json.dumps({"analyse" : prediction.__dict__})
