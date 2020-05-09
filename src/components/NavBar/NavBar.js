@@ -69,6 +69,15 @@ import forensicIconOff from "./images/tools/forensic_logoOff.png"
 import twitterSnaIconOn from "./images/tools/twitter-sna-on.png"
 import twitterSnaIconOff from "./images/tools/twitter-sna-off.png"
 
+import fakeDetectionOn from "./images/tools/fakeDetectionOn.png"
+import fakeDetectionOff from "./images/tools/fakeDetectionOff.png"
+
+import fakeDetectionTrainingOn from "./images/tools/fakeDetectionTrainingOn.png"
+import fakeDetectionTrainingOff from "./images/tools/fakeDetectionTrainingOff.png"
+
+import extractionOn from "./images/tools/extractionOn.png"
+import extractionOff from "./images/tools/extractionOff.png"
+
 import useLoadLanguage from "../../Hooks/useLoadLanguage";
 import tsv from "../../LocalDictionary/components/NavBar.tsv";
 import FactCheck from "../NavItems/FactCheck/FactCheck";
@@ -178,10 +187,22 @@ const NavBar = (props) => {
             path: "twitterSna"
         },
         {
-            title: "navbar_twitter_sna",
-            icon: (drawerValue === 9) ? twitterSnaIconOn : twitterSnaIconOff,
-            tsvPrefix: "twitter_sna",
+            title: "navbar_fakeDetection",
+            icon: (drawerValue === 10) ? fakeDetectionOn : fakeDetectionOff,
+            tsvPrefix: "fakedetection",
             path: "fakeDetection"
+        },
+        {
+            title: "navbar_fakeDetectionTraining",
+            icon: (drawerValue === 11) ? fakeDetectionTrainingOn : fakeDetectionTrainingOff,
+            tsvPrefix: "fakedetectiontraining",
+            path: "fakeDetectionTraining"
+        },
+        {
+            title: "navbar_extraction",
+            icon: (drawerValue === 12) ? extractionOn : extractionOff,
+            tsvPrefix: "extraction",
+            path: "extraction"
         }
     ];
 

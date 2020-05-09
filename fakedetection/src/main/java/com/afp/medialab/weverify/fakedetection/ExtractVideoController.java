@@ -10,7 +10,7 @@ public class ExtractVideoController {
 	@GetMapping("/api/extraction/video")
 	public String extraction() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/extract_faces_video";
+		String fooResourceUrl = "http://0.0.0.0:5001/extract_faces_video";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
         String responseStr = response.getBody();
 		int begin = responseStr.indexOf("{");

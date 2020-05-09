@@ -10,7 +10,7 @@ public class MesoNetTrainingController {
 	@GetMapping("/api/MesoNet/training")
 	public String extraction() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/mesonet_training";
+		String fooResourceUrl = "http://0.0.0.0:5004/mesonet_training";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
         String responseStr = response.getBody();
 		int begin = responseStr.indexOf("{");

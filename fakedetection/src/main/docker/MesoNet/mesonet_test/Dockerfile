@@ -9,4 +9,4 @@ COPY tensorflow-1.14.0-cp37-cp37m-manylinux1_x86_64.whl tensorflow-1.14.0-cp37-c
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . .
-CMD ["flask", "run"]
+CMD ["flask", "run","--host=0.0.0.0", "--port=5002"]

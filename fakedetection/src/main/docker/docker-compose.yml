@@ -24,7 +24,7 @@ services:
       dockerfile: ./extract_video/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5001:5001"
     volumes:
       - ./extraction:/code
     environment:
@@ -50,7 +50,7 @@ services:
       dockerfile: ./mesonet_test/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5002:5002"
     volumes:
       - ./MesoNet:/code
     environment:
@@ -65,7 +65,7 @@ services:
       dockerfile: ./mesonet_analyse/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5003:5003"
     volumes:
       - ./MesoNet:/code
     environment:
@@ -80,7 +80,7 @@ services:
       dockerfile: ./mesonet_train/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5004:5004"
     volumes:
       - ./MesoNet:/code
     environment:
@@ -97,7 +97,7 @@ services:
       dockerfile: ./test/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5005:5005"
     volumes:
         - ./CapsuleForensics:/code
     environment:
@@ -114,7 +114,7 @@ services:
       dockerfile: ./analyse/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5006:5006"
     volumes:
       - ./CapsuleForensics:/code
     environment:
@@ -130,7 +130,7 @@ services:
       dockerfile: ./training/Dockerfile
     env_file: .env
     ports:
-      - "5000:5000"
+      - "5007:5007"
     volumes:
       - ./CapsuleForensics:/code
     environment:

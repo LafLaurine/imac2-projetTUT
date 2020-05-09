@@ -10,7 +10,7 @@ public class CapsuleForensicsTestController {
 	@GetMapping("/api/CapsuleForensics/test")
 	public String test() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/capsule_forensics_test";
+		String fooResourceUrl = "http://0.0.0.0:5005/capsule_forensics_test";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
 		String responseStr = response.getBody();
 		int begin = responseStr.indexOf("{");

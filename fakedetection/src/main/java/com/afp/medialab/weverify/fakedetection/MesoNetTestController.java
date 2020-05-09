@@ -10,7 +10,7 @@ public class MesoNetTestController {
 	@GetMapping("/api/MesoNet/test")
 	public String test() {
 		RestTemplate rTemplate =  new RestTemplate();
-		String fooResourceUrl = "http://0.0.0.0:5000/mesonet_test";
+		String fooResourceUrl = "http://0.0.0.0:5002/mesonet_test";
 		ResponseEntity<String> response = rTemplate.getForEntity(fooResourceUrl, String.class);
         String responseStr = response.getBody();
 		int begin = responseStr.indexOf("{");

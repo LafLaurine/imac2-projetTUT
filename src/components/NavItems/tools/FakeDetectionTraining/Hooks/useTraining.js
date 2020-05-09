@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from "axios"
 
-const useGetAnalyse = (initialUrl, initialData) => {
+const useTraining = (initialUrl, initialData) => {
     const [data, setData] = useState(initialData);
     const [url, setUrl] = useState(initialUrl);
     const [isError, setIsError] = useState(false);
@@ -27,4 +27,4 @@ const useGetAnalyse = (initialUrl, initialData) => {
 
   }
    
-  export default useGetAnalyse;
+  export default useTraining;

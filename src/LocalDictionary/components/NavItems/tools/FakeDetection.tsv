@@ -1,0 +1,199 @@
+	en	fr	es
+fakedetection_title	Fake detection	D�tection de faux	Detecci�n falsa
+fakedetection_analysem	MesoNet analysis	Analyse de MesoNet	An�lisis Mesonet
+fakedetection_analyseC	CapsuleForensics analysis	Anlyse de CapsuleForensics	An�lisis CapsuleForensics
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+metadata_desc_1			
+metadata_desc_2	Number providing the duration of the movie (unfragmented part) in timescale units	Nombre donnant la durée du film (partie défragmentée) en unité de temps	Número que indica la duración del video (parte no fragmentada) en unidades de tiempo.
+metadata_desc_3	Number corresponding to the timescale as given in the movie header	Nombre correspondant è l'unité de temps donnée dans l'entête du film	Número correspondiente a la escala de tiempo tal y como aparece en el encabezamiento del video
+metadata_desc_4	Boolean indicating if the file is already fragmented	Booléen indiquant si le film est déjà fragmenté	Booleano que indica si el archivo ya está fragmentado
+metadata_desc_5	Number giving the duration of the fragmented part of the file in timescale units	Number donnant la durée de la partie fragmentée du film en unité de temps	Número que indica la duración de la parte fragmentada del video en unidades de tiempo
+metadata_desc_6	Boolean indicating if the file can be played progressively	Booléen indiquant si le fichier peut être lu progressivement	Booleano que indica si el archivo puede ser leido progresivamente
+metadata_desc_7	Boolean indicating if the the file contains an MPEG-4 Initial Object Descriptor	Booléen indiquant si le fichier contient un MPEG-4 Initial Object Descriptor	Booleano que indica si el archivo contiene un descriptor de objeto MPEG-4
+metadata_desc_8	Array of 4CC codes corresponding to the file brands as given in the ftyp box	Tableau de code 4CC correspondant au type de fichier comme donné dans la boite ftyp	Matriz de códigos 4CC correspondientes a las marcas de archivo tal y como aparecen en la casilla ftyp
+metadata_desc_9	Date object indicating the creation date of the file as given in the movie header	Date indiquant la date de création du fichier comme donné dans l'entête du film	Fecha que indica la fecha de creación del archivo tal y como aparece en la cabecera de la película.
+metadata_desc_10	Date object indicating the last modification date of the file as given in the movie header	Date indiquant la date de dernière modification du fichier comme donnée dans l'entête du film	Fecha que indica la fecha de última modificación del archivo como dato en la cabecera del video
+track_name_1	Identifier	Identifiant	Identificador
+track_name_2	References	Réferences	Referencias
+track_name_3	Created time	Date de création	Fecha de creación
+track_name_4	Modified time	Date de modification	Fecha de modificación
+track_name_5	Movie duration	Durée du film	Duración del video
+track_name_6	Layer	Couches	Capas
+track_name_7	Alternate group	Groupes alternatifs	Grupo alternativo
+track_name_8	Volume	Volume	Volumen
+track_name_9	Width	Largeur	Largo
+track_name_10	Height	Hauteur	Altura
+track_name_11	Timescale	Unité de temps	Escala de tiempo
+track_name_12	Duration	Durée	Duración
+track_name_13	Codec	Codec	códec
+track_name_14	Language	Langage	Idioma
+track_name_15	Samples	Echantillon	Muestras
+track_name_16	Size	Taille	Tamaño
+track_name_17	Bitrate	Taux de bit	Tasa de bits
+track_desc_1	"Number; giving track identifier"	"Nombre; Identifiant de la piste"	"Número; identificador de la pista"
+track_desc_2			
+track_desc_3	"Date object; indicating the creation date of the file as given in the track header"	"Date; indiquant la date de création du fichier comme donnée dans l'entête de la piste"	"Fecha; indicando la fecha de creación del fichero tal y como aparece en la cabecera de la pista"
+track_desc_4	"Date object; indicating the last modification date of the file as given in the track header"	"Date; indiquant la date de dernière modification du fichier comme donnée dans l'entête de la piste"	"Fecha; indicando la fecha de última modificación del fichero tal y como aparece en la cabecera de la pista"
+track_desc_5			
+track_desc_6	"Number; layer information as indicated in the track header"	"Nombre; information de couche indiqué dans l'entête de piste"	"Número; información de capa como se indica en el encabezado de la pista"
+track_desc_7	"Number; identifier of the alternate group the track belongs to"	"Nombre; identifiant du groupe alternatif auquel la piste appartient"	"Número; identificador del grupo alternativo del cual pertenece la pista"
+track_desc_8			
+track_desc_9	"Number; width of the track as indicated in the track header"	"Nombre; largeur de la piste comme indiqué dans l'entête de piste"	"Número; anchura de la pista como indicado en el encabezamiento de la pista"
+track_desc_10	"Number; height of the track as indicated in the track header"	"Nombre; hauteur de la piste comme indiqué dans l'entête de piste"	"Número; altura de la pista como indicado en el encabezamiento de la pista"
+track_desc_11	"Number; indicating the track timescale as given in the track header"	"Nombre; indiquant l'unité de temps de la piste comme donné dans l'entête de la piste"	"Número; indicando la unidad de tiempo de la pista como indicado en el encabezamiento de la pista"
+track_desc_12	"Number; providing the duration of the (unfragmented part of) track in timescale units"	"Nombre; donnant la duréee de la (partie défragmentée de la) piste en unité de temps"	"Número; indicando la duración de la (parte desfragmentada de la) pista en unidad de tiempo"
+track_desc_13	"String; giving the MIME codecs parameter for this track (e.g. ''avc1.42c00d'' or ''mp4a.40.2'') to be used to create SourceBuffer objects with Media Source Extensions"	"Chaîne de charactère; donnant les paramètres codecs MIME pour cette piste (ex. ''avc1.42c00d'' ou ''mp4a.40.2'') pour être utilisé pour créer un objet SourceBuffer avec Media Source Extensions"	"Cadena de carácter; indicando los parametros codecs MIME para esta pista (ej. ''avc1.42c00d'' o ''mp4a.40.2'') para utilizarla para crear un objeto SourceBuffer con Media Source Extensions"
+track_desc_14	"String; giving the 3-letter language code"	"Chaîne de charactère; donnant le code de langage à 3 lettres"	"Cadena de carácter; indicando el código de idioma con 3 letras"
+track_desc_15	"Number; giving the number of track samples (ie. frames)"	"Nombre; donnant le nombre d'échantillons de piste (c-à-d images)"	"Número; indicando el número de muestras de pista (es decir imágenes)"
+track_desc_16			
+track_desc_17	"Number; providing the bitrate of the track in bits per second"	"Nombre; taux de bits par second de la piste"	"Número; tasa de bits por segundo de la pista"
+audio_name_1	Identifier	Identifiant	Identificador
+audio_name_2	References	Réferences	Referencias
+audio_name_3	Created time	Date de création	Fecha de creación
+audio_name_4	Modified time	Date de modification	Fecha de modificación
+audio_name_5	Movie duration	Durée du film	Duración del video
+audio_name_6	Layer	Couches	Capa
+audio_name_7	Alternate group	Groupes alternatifs	Grupo alternativo
+audio_name_8	Volume	Volume	Volumen
+audio_name_9	Width	Largeur	Anchura
+audio_name_10	Height	Hauteur	Altura
+audio_name_11	Timescale	Unité de temps	Unidad de tiempo
+audio_name_12	Duration	Durée	Duración
+audio_name_13	Codec	Codec	Códec
+audio_name_14	Language	Langage	Idioma
+audio_name_15	Samples	Echantillon	Muestras
+audio_name_16	Size	Taille	Tamaño
+audio_name_17	Bitrate	Taux de bit	Tasa de bits
+audio_desc_1	"Number; giving track identifier"	"Nombre; Identifiant de la piste"	"Número; identificador de pista"
+audio_desc_2			
+audio_desc_3	"Date object; indicating the creation date of the file as given in the track header"	"Date; indiquant la date de création du fichier comme donnée dans l'entête de la piste"	"Fecha; indicando la fecha de creación del fichero como indicado en el encabezamiento de la pista"
+audio_desc_4	"Date object; indicating the last modification date of the file as given in the track header"	"Date; indiquant la date de dernière modification du fichier comme donnée dans l'entête de la piste"	"Fecha; indicando la fecha de la ultima modificación del fichero como indicado en el encabezamiento de la pista"
+audio_desc_5			
+audio_desc_6	"Number; layer information as indicated in the track header"	"Nombre; information de couche indiqué dans l'entête de piste"	"Número; información de la capa indicada en el encabezamiento de la pista"
+audio_desc_7	"Number; identifier of the alternate group the track belongs to"	"Nombre; identifiant du groupe alternatif auquel la piste appartient"	"Número; identificación del grupo alternativo del cual pertenece la pista"
+audio_desc_8			
+audio_desc_9	"Number; width of the track as indicated in the track header"	"Nombre; largeur de la piste comme indiqué dans l'entête de piste"	"Número; anchura de la pista como indicado en el encabezamiento de la pista"
+audio_desc_10	"Number; height of the track as indicated in the track header"	"Nombre; hauteur de la piste comme indiqué dans l'entête de piste"	"Número; altura de la pista como indicado en el encabezamiento de la pista"
+audio_desc_11	"Number; indicating the track timescale as given in the track header"	"Nombre; indiquant l'unité de temps de la piste comme donné dans l'entête de la piste"	"Número; indicando la unidad de tiempo de la pista como indicado en el encabezamiento de la pista"
+audio_desc_12	"Number; providing the duration of the (unfragmented part of) track in timescale units"	"Nombre; donnant la duréee de la (partie défragmentée de la) piste en unité de temps"	"Número; indicando la duración de la (parte desfragmentada de la) pista en unidad de tiempo"
+audio_desc_13	"String; giving the MIME codecs parameter for this track (e.g. ''avc1.42c00d'' or ''mp4a.40.2'') to be used to create SourceBuffer objects with Media Source Extensions"	"Chaîne de charactère; donnant les paramètres codecs MIME pour cette piste (ex. ''avc1.42c00d'' ou ''mp4a.40.2'') pour être utilisé pour créer un objet SourceBuffer avec Media Source Extensions"	"Cadena de carácter; indicando los parametros codecs MIME para esta pista (ej. ''avc1.42c00d'' o ''mp4a.40.2''') para utilizarla para crear un objeto SourceBuffer con Media Source Extensions"
+audio_desc_14	"String; giving the 3-letter language code"	"Chaîne de charactère; donnant le code de langage à 3 lettres"	"Cadena de carácter; indicando el código de idioma con 3 letras"
+audio_desc_15	"Number; giving the number of track samples (ie. frames)"	"Nombre; donnant le nombre d'échantillons de piste (c-à-d images)"	"Número; indicando el número de muestras de pista (es decir imágenes)"
+audio_desc_16			
+audio_desc_17	"Number; providing the bitrate of the track in bits per second"	"Nombre; taux de bits par second de la piste"	"Número; tasa de bits por segundo de la pista"
+metadata_content_title	Metadata	Métadonnées	Metadatos
+metadata_content_input	Image URL in jpg/jpeg or video URL in mp4/m4v format	Adresse de l'image au format jpg/jpeg ou video au format mp4/m4v	Enlace del imagen en formato jpg/jpeg o video en formato mp4/m4v
+metadata_title	Video Metadata	Métadonnées de la video	Metadatos del video
+track_title	Video Track	Piste vidéo	Pista de video
+audio_title	Audio track	Piste audio	Pista audio

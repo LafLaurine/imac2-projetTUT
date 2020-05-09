@@ -16,6 +16,9 @@ import {Route, Switch} from 'react-router-dom'
 import Footer from "../../Shared/Footer/Footer";
 import TwitterSna from "../../NavItems/tools/TwitterSna/TwitterSna";
 import FakeDetection from "../../NavItems/tools/FakeDetection/FakeDetection";
+import FakeDetectionTraining from "../../NavItems/tools/FakeDetectionTraining/FakeDetectionTraining";
+import Extraction from "../../NavItems/tools/Extraction/Extraction";
+
 
 const DrawerItem = (props) => {
 
@@ -62,6 +65,14 @@ const DrawerItem = (props) => {
         },
         {
             content: <FakeDetection/>,
+            footer: <Footer type={"afp"}/>
+        },
+        {
+            content: <FakeDetectionTraining/>,
+            footer: <Footer type={"afp"}/>
+        },
+        {
+            content: <Extraction/>,
             footer: <Footer type={"afp"}/>
         },
     ];
