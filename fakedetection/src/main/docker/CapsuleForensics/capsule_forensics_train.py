@@ -14,7 +14,7 @@ step_save_checkpoint_default = 5
 
 def capsule_train():
     name_classifier = os.getenv("capsule_forensics_classifier")
-    dir_database = os.getenv("capsule_forensics_train_dataset")
+    dir_database = os.getenv("train_dataset")
     batch_size = int(os.getenv("batch_size"))
     number_epochs = int(os.getenv("number_epochs"))
     iteration_resume = int(os.getenv("epoch_resume"))

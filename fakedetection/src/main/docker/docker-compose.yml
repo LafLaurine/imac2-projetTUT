@@ -9,6 +9,7 @@ services:
       - "5000:5000"
     volumes:
       - ./extraction:/code
+      - ./${input_path_dir}:/code/${input_path_dir}
     environment:
       FLASK_ENV: development
       input_path_dir: ${input_path_dir}
@@ -27,6 +28,7 @@ services:
       - "5001:5001"
     volumes:
       - ./extraction:/code
+      - ./${input_path}:/code/${input_path}
     environment:
       FLASK_ENV: development
       input_path: ${input_path}
@@ -53,9 +55,10 @@ services:
       - "5002:5002"
     volumes:
       - ./MesoNet:/code
+      - ./${train_dataset}:/code/${train_dataset}
     environment:
       FLASK_ENV: development
-      path_to_dataset: ${path_to_dataset}
+      train_dataset: ${train_dataset}
       mesonet_classifier: ${mesonet_classifier}
       number_epochs: ${number_epochs}
   
@@ -68,6 +71,7 @@ services:
       - "5003:5003"
     volumes:
       - ./MesoNet:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
     environment:
       FLASK_ENV: development
       path_to_dataset: ${path_to_dataset}
@@ -83,9 +87,10 @@ services:
       - "5004:5004"
     volumes:
       - ./MesoNet:/code
+      - ./${train_dataset}:/code/${train_dataset}
     environment:
       FLASK_ENV: development
-      path_to_dataset: ${path_to_dataset}
+      train_dataset: ${train_dataset}
       mesonet_classifier: ${mesonet_classifier}
       batch_size: ${batch_size}
       number_epochs: ${number_epochs}
@@ -100,10 +105,11 @@ services:
       - "5005:5005"
     volumes:
         - ./CapsuleForensics:/code
+        - ./${train_dataset}:/code/${train_dataset}
     environment:
       FLASK_ENV: development
       capsule_forensics_classifier: ${capsule_forensics_classifier}
-      path_to_dataset: ${path_to_dataset}
+      train_dataset: ${train_dataset}
       batch_size: ${batch_size}
       number_epochs: ${number_epochs}
       version_weights: ${version_weights}
@@ -117,6 +123,7 @@ services:
       - "5006:5006"
     volumes:
       - ./CapsuleForensics:/code
+      - ./${path_to_dataset}:/code/${path_to_dataset}
     environment:
       FLASK_ENV: development
       capsule_forensics_classifier: ${capsule_forensics_classifier}
@@ -133,10 +140,11 @@ services:
       - "5007:5007"
     volumes:
       - ./CapsuleForensics:/code
+      - ./${train_dataset}:/code/${train_dataset}
     environment:
       FLASK_ENV: development
       capsule_forensics_classifier: ${capsule_forensics_classifier}
-      capsule_forensics_train_dataset: ${capsule_forensics_train_dataset}
+      train_dataset: ${train_dataset}
       batch_size: ${batch_size}
       epoch_resume: ${epoch_resume}
       number_epochs: ${number_epochs}

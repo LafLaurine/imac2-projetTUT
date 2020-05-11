@@ -15,14 +15,14 @@ const FakeDetectionCapsuleResult = () => {
     }
 
     return (<div> 
-        {isError && <div>Something went wrong with {keyword("fakedetection_analyseC")} ...</div>}
+        {isError && <h3>Something went wrong with {keyword("fakedetection_analyseC")} ...</h3>}
         {isLoading ? (
         <div>Loading {keyword("fakedetection_analyseC")} ...</div>
         ) : (
             <div>
                 <h1> {keyword("fakedetection_analyseC")} : </h1>
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}>{keyword("fakedetection_analyseC")}</Button>
-                <p>{clicked && data._Prediction__dict_prop_analysis && Object.values(data._Prediction__dict_prop_analysis).join(' ')}</p>
+                <h3>{clicked && data._Prediction__dict_prop_analysis && Object.values(data._Prediction__dict_prop_analysis).join(' ')}</h3>
             </div>
             )}
         </div>

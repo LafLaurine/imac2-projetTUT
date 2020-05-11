@@ -15,14 +15,14 @@ const FakeDetectionMesoNetResult = () => {
  
     return (
     <div>
-        {isError && <div>Something went wrong with {keyword("fakedetection_analysem")}...</div>}
+        {isError && <h3>Something went wrong with {keyword("fakedetection_analysem")}...</h3>}
         {isLoading ? (
         <div>Loading {keyword("fakedetection_analysem")} ...</div>
         ) : (
             <div>
                 <h1> {keyword("fakedetection_analysem")} : </h1>
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}> {keyword("fakedetection_analysem")}</Button> 
-                <p>{clicked && data.analyse._Prediction__dict_prop_analysis && Object.values(data.analyse._Prediction__dict_prop_analysis).join(' ')}</p>
+                <h3>{clicked && data.analyse._Prediction__dict_prop_analysis && Object.values(data.analyse._Prediction__dict_prop_analysis).join(' ')}</h3>
             </div>
             )}
     </div>

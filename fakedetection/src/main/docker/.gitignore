@@ -1,9 +1,22 @@
-./dataset
+./CapsuleForensics/dataset
+./CapsuleForensics/data
+./CapsuleForensics/extraction
+
 ./CapsuleForensics/classifiers/__pycache__
+./CapsuleForensics/classifiers/CapsuleForensics/checkpoints/
 ./CapsuleForensics/dataset
 ./CapsuleForensics/__pycache__
 
 ./MesoNet/classifiers/__pycache__
 ./MesoNet/dataset
+./MesoNet/data
+./MesoNet/extract
 ./MesoNet/__pycache__
+./MesoNet/tensorflow-1.14.0-cp37-cp37m-manylinux1_x86_64.whl
+
+./extraction/__pycache__
+./extraction/output
+./extraction/input
+
+./extract
 

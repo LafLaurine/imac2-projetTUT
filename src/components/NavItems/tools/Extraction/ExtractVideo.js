@@ -20,7 +20,7 @@ const ExtractVideo = () => {
         ) : (
             <div>
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}>{keyword("extraction_video")}</Button>
-                {clicked && <p>{data.message}</p>}
+                {clicked && <h3>{data.message}</h3>}
             </div>
             )}
         </div>

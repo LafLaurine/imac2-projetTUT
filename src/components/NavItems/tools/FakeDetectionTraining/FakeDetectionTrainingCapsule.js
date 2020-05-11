@@ -23,11 +23,11 @@ const FakeDetectionTrainingCapsule = () => {
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}>{keyword("fakedetectiontraining_trainc")}</Button>
                 {clicked &&
                 <div>
-                <p>Evaluation training accuracy : [{data._EvaluationLearning__acc_training && data._EvaluationLearning__acc_training.join(', ')}]</p>
-                <p>Evaluation validation accuracy : [{data._EvaluationLearning__acc_validation && data._EvaluationLearning__acc_validation.join(', ')}]</p>
-                <p>Evaluation epochs : [{data._EvaluationLearning__epochs && data._EvaluationLearning__epochs.join(', ')}]</p>
-                <p>Evaluation training loss : [{data._EvaluationLearning__loss_training && data._EvaluationLearning__loss_training.join(', ')}]</p>
-                <p>Evaluation validation loss : [{data._EvaluationLearning__loss_validation && data._EvaluationLearning__loss_validation.join(', ')}]</p>
+                <h3>Evaluation training accuracy : [{data._EvaluationLearning__acc_training && data._EvaluationLearning__acc_training.join(', ')}]</h3>
+                <h3>Evaluation validation accuracy : [{data._EvaluationLearning__acc_validation && data._EvaluationLearning__acc_validation.join(', ')}]</h3>
+                <h3>Evaluation epochs : [{data._EvaluationLearning__epochs && data._EvaluationLearning__epochs.join(', ')}]</h3>
+                <h3>Evaluation training loss : [{data._EvaluationLearning__loss_training && data._EvaluationLearning__loss_training.join(', ')}]</h3>
+                <h3>Evaluation validation loss : [{data._EvaluationLearning__loss_validation && data._EvaluationLearning__loss_validation.join(', ')}]</h3>
                 </div>
                 }
             </div>

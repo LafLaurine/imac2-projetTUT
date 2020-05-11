@@ -22,7 +22,7 @@ const FakeDetectionTrainingMesoNet = () => {
             <div>
                 <h1> {keyword("fakedetectiontraining_trainm")} : </h1>
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}>{keyword("fakedetectiontraining_trainm")}</Button>
-                <p>{clicked && data && Object.values(data).slice(1,-1)}</p>
+                <h3>{clicked && data && Object.values(data).slice(1,-1)}</h3>
             </div>
             )}
     </div>

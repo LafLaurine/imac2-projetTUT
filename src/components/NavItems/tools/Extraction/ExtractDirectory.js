@@ -20,7 +20,7 @@ const ExtractDirectory = () => {
         ) : (
             <div>
                 <Button variant="contained" color="primary" onClick={clicked ? undefined : doClick}>{keyword("extraction_directory")}</Button>
-                {clicked && <p>{data.message}</p>}
+                {clicked && <h3>{data.message}</h3>}
             </div>
             )}
         </div>
