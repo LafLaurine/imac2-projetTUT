@@ -2,10 +2,7 @@
   <!-- PROJECT LOGO -->
 
   # Deepfake detection tools integrated to [WeVerify InVID plugin](https://www.invid-project.eu/tools-and-services/invid-verification-plugin/)
-  <div style="text-align:center">
-    ![InVIDPlugin](https://is2-ssl.mzstatic.com/image/thumb/Purple118/v4/62/f0/c7/62f0c79d-401a-4919-ef8c-3c934c44b51d/source/256x256bb.jpg)
-
-  </div>
+![InVIDPlugin](https://is2-ssl.mzstatic.com/image/thumb/Purple118/v4/62/f0/c7/62f0c79d-401a-4919-ef8c-3c934c44b51d/source/256x256bb.jpg)
 
   <!-- TABLE OF CONTENTS -->
   ## Table of Contents
@@ -33,7 +30,7 @@
 
   This repository includes sources that can be run with the help of Docker tools, to train neural networks and/or use them to detect deepfakes.
 
-  I can be used as a standalone or with the WeVerify InVID plugin.
+  It can be used as a standalone or with the WeVerify InVID plugin.
 
 
   ### Built With
@@ -49,7 +46,7 @@
   <!-- GETTING STARTED -->
   ## Getting Started
 
-  To get a local copy up and running, follow these steps.
+  To get a local copy running, follow these steps.
 
   ### Prerequisites
 
@@ -73,11 +70,11 @@
   sudo chmod +x /usr/local/bin/docker-compose
   docker-compose --version
   ```
-  You can get the latest version of docker-compose in the documentation : [docs.docker.com - Install Compose](https://docs.docker.com/v17.09/compose/install/#master-builds)
+  You can get the latest version of docker-compose in the documentation : [Install docker-compose](https://docs.docker.com/v17.09/compose/install/#master-builds)
 
   * For Windows : [Install Docker compose](https://docs.docker.com/compose/install/)
 
-  #### Link to Docker images
+  ##### Link to Docker images
   *Unfortunatly because of the current situation, docker images couldn't be updated*
 
   [DockerHub](https://hub.docker.com/repository/registry-1.docker.io/laflaurine/afp-df_api/tags?page=1)
@@ -99,14 +96,14 @@
 
   Quick overview of all implemented services. Each services works on his own. 
 
-  - **extraction_dir** : extract faces from multiple videos that are in a directory / *Works on : localhost:8080/extraction/dir*
-  - **extraction_video** : extract faces from a video / *Works on localhost:8080/extraction/video*
-  - **mesonet_test** : check if MesoNet neural network is well trained / *Works on localhost:8080/mesonet_test*
-  - **mesonet_analyse** : after faces extracted, check if a video is a deepfake or not  / *Works on localhost:8080/mesonet_analyse*
-  - **mesonet_training** : train MesoNet neural network /  *Works on localhost:8080/mesonet_training*
-  - **capsule_forensics_test** : check if CapsuleForensics neural network is well trained  / *Works on localhost:8080/capsule_forensics_test*
-  - **capsule_forensics_analyse** : after faces extracted, check if a video is a deepfake or not /  *Works on localhost:8080/capsule_forensics_analyse*
-  - **capsule_forensics_training** : train CapsuleForensics neural network  /  *Works on localhost:8080/capsule_forensics_training*
+  - **extraction_dir** : extract faces from multiple videos that are in a directory / *Works on : [localhost:8080/extraction/dir](http://localhost:8080/extraction/dir)*
+  - **extraction_video** : extract faces from a video / *Works on [localhost:8080/extraction/video](http://localhost:8080/extraction/video)*
+  - **mesonet_test** : check if MesoNet neural network is well trained / *Works on [localhost:8080/mesonet_test](http://localhost:8080/mesonet_test)*
+  - **mesonet_analyse** : after faces extracted, check if a video is a deepfake or not  / *Works on [localhost:8080/mesonet_analyse](http://localhost:8080/mesonet_analyse)*
+  - **mesonet_training** : train MesoNet neural network /  *Works on [localhost:8080/mesonet_training](http://localhost:8080/mesonet_training)*
+  - **capsule_forensics_test** : check if CapsuleForensics neural network is well trained  / *Works on [localhost:8080/capsule_forensics_test](http://localhost:8080/capsule_forensics_test)*
+  - **capsule_forensics_analyse** : after faces extracted, check if a video is a deepfake or not /  *Works on [localhost:8080/capsule_forensics_analyse](http://localhost:8080/capsule_forensics_analyse)*
+  - **capsule_forensics_training** : train CapsuleForensics neural network  /  *Works on [localhost:8080/capsule_forensics_training](capsule_forensics_training)*
 
   If you go to **fakedetection/src/main/docker/extraction** you'll see a file that is named *display_faces_capture.py*, it doesn't have a service because his only role is showcase. You will need a webcam in order to use this application.
   You can run it with : 
