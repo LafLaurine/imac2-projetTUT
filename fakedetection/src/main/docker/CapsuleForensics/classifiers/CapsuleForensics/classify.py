@@ -44,7 +44,7 @@ step_save_checkpoint_default = 5
 learning_rate_default = 0.0001
 number_epochs_default = 10
 batch_size_default = 20
-size_image_default = 256
+size_image_default = 512
 is_random_default = True  # what exactly IS random?
 perc_dropout_default = 0.05
 prop_training_default = 0.90  # in ]0, 1[ : proportion of images to be used in training, the rest in validation
@@ -123,13 +123,13 @@ def load_model_checkpoint(classifier, version_weights):
 def learn_from_dir(method_classifier,
                    dir_dataset,
                    root_checkpoint,
-                   iteration_resume, # 0 to start from scratch
+                   iteration_resume,
                    number_epochs=number_epochs_default,
                    learning_rate=learning_rate_default,
                    batch_size=batch_size_default,
                    step_save_checkpoint=step_save_checkpoint_default,
                    size_image=size_image_default,
-                   is_random=is_random_default,  # what exactly IS random?
+                   is_random=is_random_default, 
                    perc_dropout=perc_dropout_default,
                    betas=betas_default,
                    gpu_id=gpu_id_default,

@@ -1,4 +1,4 @@
-from classifiers.CapsuleForensics import classify as  clf
+from classifiers.CapsuleForensics import classify as clf
 import redis
 import os
 import json

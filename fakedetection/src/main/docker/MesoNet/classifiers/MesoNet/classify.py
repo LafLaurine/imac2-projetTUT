@@ -23,10 +23,15 @@ dl_rate_default = 1
 number_epochs_default = 10
 batch_size_test_default = 10
 batch_size_learning_default = 10
-#
 batch_size_analysis_default = 10
 
 rescale_default = 1 / 255
+
+size_image_default = 512
+is_random_default = True 
+perc_dropout_default = 0.05
+prop_training_default = 0.90  
+
 
 def print_info():
     x = {
@@ -54,18 +59,18 @@ def learn_from_dir(name_classifier,
                                                      path_dir_classifier=PATH_DIR_CLASSIFIER,
                                                      learning_rate=learning_rate,
                                                      name_weights=None)
-    generator_training,  generator_validation = lrn.load_dataset_learning(classifier,
-                                                                          dir_dataset,
-                                                                          data_generator_training,
-                                                                          data_generator_validation,
-                                                                          batch_size,
-                                                                          target_size)
-    evals_learning = lrn.learn_from_generator(classifier,
-                                              generator_training,
-                                              generator_validation,
-                                              batch_size,
-                                              number_epochs,
-                                              step_save_weights_temp)
+    generator_training,  generator_validation = lrn.load_dataset_learning(classifier=classifier,
+                                                                          dir_dataset=dir_dataset,
+                                                                          data_generator_training=data_generator_training,
+                                                                          data_generator_validation=data_generator_validation,
+                                                                          batch_size=batch_size,
+                                                                          target_size=target_size)
+    evals_learning = lrn.learn_from_generator(classifier=classifier,
+                                              generator_training=generator_training,
+                                              generator_validation=generator_validation,
+                                              batch_size=batch_size,
+                                              number_epochs=number_epochs,
+                                              step_save_weights_temp=step_save_weights_temp)
     return evals_learning
 
 

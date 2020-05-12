@@ -6,16 +6,16 @@ import FakeDetectionTrainingMesoNet from "./FakeDetectionTrainingMesoNet"
 import FakeDetectionTrainingCapsule from './FakeDetectionTrainingCapsule'
 import useMyStyles from "../../../Shared/MaterialUiStyles/useMyStyles";
 import useLoadLanguage from "../../../../Hooks/useLoadLanguage";
-import tsv from "../../../../LocalDictionary/components/NavItems/tools/Forensic.tsv";
+import tsv from "../../../../LocalDictionary/components/NavItems/tools/FakeDetectionTraining.tsv";
 
 const FakeDetection = () => {
     const classes = useMyStyles();
-    const keyword = useLoadLanguage("components/NavItems/tools/Forensic.tsv", tsv);
+    const keyword = useLoadLanguage("components/NavItems/tools/FakeDetectionTraining.tsv", tsv);
 
     return (
         <div>
             <Paper className={classes.root}>
-            <CustomTile text={keyword("forensic_title")}/>
+            <CustomTile text={keyword("fakedetectiontraining_title")}/>
             <Box m={1}/>
             <FakeDetectionTrainingMesoNet></FakeDetectionTrainingMesoNet>
             <FakeDetectionTrainingCapsule></FakeDetectionTrainingCapsule>
